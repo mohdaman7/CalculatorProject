@@ -1,6 +1,109 @@
-[00:00:00.612] Server  WARN     ⚠ Duplicate page detected. app/page.jsx and app/page.tsx resolve to /
-[00:00:00.613] Server  WARN     ⚠ Duplicate page detected. app/page.jsx and app/page.tsx resolve to /
-[00:00:00.614] Server  LOG      ✓ Ready in 385ms
-[00:00:53.645] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:00:53.645] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
-[00:00:53.645] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1764583106126}
+[00:00:00.733] Server  WARN     ⚠ Duplicate page detected. app/page.jsx and app/page.tsx resolve to /
+[00:00:00.733] Server  WARN     ⚠ Duplicate page detected. app/page.jsx and app/page.tsx resolve to /
+[00:00:00.734] Server  LOG      ✓ Ready in 492ms
+[00:00:15.671] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:00:15.671] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:00:15.671] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1764584548711}
+[00:00:45.883] Server  ERROR    ⨯ ./calculator-pwa/app/page.tsx:3:14
+Parsing ecmascript source code failed
+  1 | "use client"
+  2 |
+> 3 | import  from ".."
+    |              ^^^^
+  4 |
+  5 | export default function SyntheticV0PageForDeployment() {
+  6 |   return < />
+
+Expected ',', got 'string literal (.., "..")'
+
+
+[00:00:45.901] Server  LOG      ✓ Compiled in 110ms
+[00:00:46.110] Browser ERROR   ./calculator-pwa/app/page.tsx:3:14
+Parsing ecmascript source code failed
+  1 | "use client"
+  2 |
+> 3 | import  from ".."
+    |              ^^^^
+  4 |
+  5 | export default function SyntheticV0PageForDeployment() {
+  6 |   return < />
+
+Expected ',', got 'string literal (.., "..")'
+[00:00:46.871] Browser ERROR   ./calculator-pwa/app/page.tsx:3:14
+Parsing ecmascript source code failed
+  1 | "use client"
+  2 |
+> 3 | import  from ".."
+    |              ^^^^
+  4 |
+  5 | export default function SyntheticV0PageForDeployment() {
+  6 |   return < />
+
+Expected ',', got 'string literal (.., "..")'
+[00:00:46.986] Browser ERROR   ./calculator-pwa/app/page.tsx:3:14
+Parsing ecmascript source code failed
+  1 | "use client"
+  2 |
+> 3 | import  from ".."
+    |              ^^^^
+  4 |
+  5 | export default function SyntheticV0PageForDeployment() {
+  6 |   return < />
+
+Expected ',', got 'string literal (.., "..")'
+[00:00:47.612] Browser ERROR   ./calculator-pwa/app/page.tsx:3:14
+Parsing ecmascript source code failed
+  1 | "use client"
+  2 |
+> 3 | import  from ".."
+    |              ^^^^
+  4 |
+  5 | export default function SyntheticV0PageForDeployment() {
+  6 |   return < />
+
+Expected ',', got 'string literal (.., "..")'
+[00:00:47.875] Browser ERROR   uncaughtError: Error: ./calculator-pwa/app/page.tsx:3:14
+Parsing ecmascript source code failed
+  1 | "use client"
+  2 |
+> 3 | import  from ".."
+    |              ^^^^
+  4 |
+  5 | export default function SyntheticV0PageForDeployment() {
+  6 |   return < />
+
+Expected ',', got 'string literal (.., "..")'
+
+
+[00:00:48.048] Browser ERROR   ./calculator-pwa/app/page.tsx:3:14
+Parsing ecmascript source code failed
+  1 | "use client"
+  2 |
+> 3 | import  from ".."
+    |              ^^^^
+  4 |
+  5 | export default function SyntheticV0PageForDeployment() {
+  6 |   return < />
+
+Expected ',', got 'string literal (.., "..")'
+[00:00:48.048] Browser ERROR   ./calculator-pwa/app/page.tsx:3:14
+Parsing ecmascript source code failed
+  1 | "use client"
+  2 |
+> 3 | import  from ".."
+    |              ^^^^
+  4 |
+  5 | export default function SyntheticV0PageForDeployment() {
+  6 |   return < />
+
+Expected ',', got 'string literal (.., "..")'
+[00:00:52.456] Server  LOG      ✓ Compiled in 82ms
+[00:00:53.068] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:00:53.069] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:00:53.069] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1764584586111}
+[00:01:59.593] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:01:59.593] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:01:59.593] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1764584652635}
+[00:02:39.869] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:02:39.869] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:02:39.869] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1764584692912}

@@ -169,7 +169,7 @@ export default function Calculator({
 
   return (
     <div className="w-96 px-6 py-8 bg-black rounded-3xl">
-      <Display value={display} forcedNumber={forcedNumber} />
+      <Display value={display} />
 
       <div className="grid grid-cols-4 gap-3 mt-6">
         {/* Row 1 */}
