@@ -40,6 +40,8 @@ router.post('/register', async (req, res) => {
         username: user.username,
         email: user.email,
         forcedNumber: user.forcedNumber,
+        secondForceNumber: user.secondForceNumber,
+        secondForceTriggerNumber: user.secondForceTriggerNumber,
         preferences: user.preferences
       }
     });
@@ -81,6 +83,8 @@ router.post('/login', async (req, res) => {
         username: user.username,
         email: user.email,
         forcedNumber: user.forcedNumber,
+        secondForceNumber: user.secondForceNumber,
+        secondForceTriggerNumber: user.secondForceTriggerNumber,
         preferences: user.preferences
       }
     });
@@ -99,6 +103,8 @@ router.get('/me', auth, async (req, res) => {
         username: req.user.username,
         email: req.user.email,
         forcedNumber: req.user.forcedNumber,
+        secondForceNumber: req.user.secondForceNumber,
+        secondForceTriggerNumber: req.user.secondForceTriggerNumber,
         preferences: req.user.preferences
       }
     });
@@ -111,14 +117,19 @@ router.get('/me', auth, async (req, res) => {
 // Update forced number
 router.put('/forced-number', auth, async (req, res) => {
   try {
-    const { forcedNumber } = req.body;
+    const { forcedNumber, secondForceNumber, secondForceTriggerNumber } = req.body;
     
-    req.user.forcedNumber = forcedNumber;
+    if (forcedNumber !== undefined) req.user.forcedNumber = forcedNumber;
+    if (secondForceNumber !== undefined) req.user.secondForceNumber = secondForceNumber;
+    if (secondForceTriggerNumber !== undefined) req.user.secondForceTriggerNumber = secondForceTriggerNumber;
+    
     await req.user.save();
 
     res.json({
-      message: 'Forced number updated successfully',
-      forcedNumber: req.user.forcedNumber
+      message: 'Forced numbers updated successfully',
+      forcedNumber: req.user.forcedNumber,
+      secondForceNumber: req.user.secondForceNumber,
+      secondForceTriggerNumber: req.user.secondForceTriggerNumber
     });
   } catch (error) {
     console.error('Update forced number error:', error);

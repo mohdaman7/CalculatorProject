@@ -26,6 +26,14 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: null
   },
+  secondForceNumber: {
+    type: Number,
+    default: null
+  },
+  secondForceTriggerNumber: {
+    type: Number,
+    default: null
+  },
   preferences: {
     theme: {
       type: String,

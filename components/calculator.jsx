@@ -51,27 +51,42 @@ export default function Calculator({
   }
 
   const handleEquals = () => {
-    if (forcedNumber !== null) {
-      const timestamp = new Date().toLocaleString()
-      onAddToHistory({
-        expression: `${previousValue} ${operation} ${display}`,
-        result: forcedNumber,
-        timestamp,
-        forced: true,
-      })
-      setDisplay(String(forcedNumber))
-      onClearForcedNumber()
-    } else if (previousValue !== null && operation) {
+    if (previousValue !== null && operation) {
       const currentValue = Number.parseFloat(display)
-      const result = performCalculation(previousValue, currentValue, operation)
+      const actualResult = performCalculation(previousValue, currentValue, operation)
+      let forcedResult = null
+      let isForced = false
+      
+      // Check if operation is addition or subtraction
+      if (operation === '+' || operation === '-') {
+        // Check for second force trigger first (higher priority)
+        if (forcedNumber?.secondForceTriggerNumber !== null && 
+            (currentValue === forcedNumber.secondForceTriggerNumber || 
+             previousValue === forcedNumber.secondForceTriggerNumber)) {
+          forcedResult = forcedNumber.secondForceNumber
+          isForced = true
+        }
+        // Then check for main forced number
+        else if (forcedNumber?.forcedNumber !== null) {
+          forcedResult = forcedNumber.forcedNumber
+          isForced = true
+        }
+      }
+      
+      const finalResult = isForced ? forcedResult : actualResult
       const timestamp = new Date().toLocaleString()
+      
       onAddToHistory({
         expression: `${previousValue} ${operation} ${display}`,
-        result,
+        result: finalResult,
+        actualResult: actualResult,
+        forcedResult: forcedResult,
         timestamp,
-        forced: false,
+        forced: isForced,
+        operationType: operation
       })
-      setDisplay(String(result))
+      
+      setDisplay(String(finalResult))
     }
 
     setPreviousValue(null)
@@ -120,6 +135,18 @@ export default function Calculator({
     }
   }
 
+  const handleDivisionStart = () => {
+    longPressTimerRef.current = setTimeout(() => {
+      onOpenForcedModal()
+    }, 600)
+  }
+
+  const handleDivisionEnd = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current)
+    }
+  }
+
   const handleMultiplyStart = () => {
     longPressTimerRef.current = setTimeout(() => {
       onOpenHistory()
@@ -152,6 +179,10 @@ export default function Calculator({
         <Button
           variant="orange"
           onClick={() => handleOperation("÷")}
+          onMouseDown={handleDivisionStart}
+          onMouseUp={handleDivisionEnd}
+          onTouchStart={handleDivisionStart}
+          onTouchEnd={handleDivisionEnd}
           label="÷"
         />
 

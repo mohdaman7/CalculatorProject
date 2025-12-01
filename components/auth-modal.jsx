@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useAuth } from "@/contexts/AuthContext"
-import { Button } from "./button"
+import Button from "./button"
 
 export default function AuthModal({ onClose }) {
   const [isLogin, setIsLogin] = useState(true)
@@ -63,13 +63,13 @@ export default function AuthModal({ onClose }) {
               variant="orange"
               onClick={handleLogout}
               label="Logout"
-              className="flex-1"
+              className="flex-1 auth"
             />
             <Button
               variant="gray"
               onClick={onClose}
               label="Close"
-              className="flex-1"
+              className="flex-1 auth"
             />
           </div>
         </div>
@@ -144,14 +144,14 @@ export default function AuthModal({ onClose }) {
               variant="orange"
               disabled={loading}
               label={loading ? "Please wait..." : (isLogin ? "Login" : "Register")}
-              className="flex-1"
+              className="flex-1 auth"
             />
             <Button
               type="button"
               variant="gray"
               onClick={onClose}
               label="Cancel"
-              className="flex-1"
+              className="flex-1 auth"
             />
           </div>
         </form>
