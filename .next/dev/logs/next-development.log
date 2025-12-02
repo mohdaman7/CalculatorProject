@@ -1,6 +1,803 @@
-[00:00:00.805] Server  LOG      ✓ Ready in 566ms
-[00:00:29.164] Browser ERROR   API Error: {}
-[00:00:29.164] Browser ERROR   Failed to get current user: {}
-[00:00:29.164] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:00:29.164] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
-[00:00:29.164] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1764648996088}
+[00:00:00.690] Server  LOG      ✓ Ready in 445ms
+[00:00:02.760] Server  ERROR    ⨯ ./calculator-pwa/contexts/AuthContext.jsx:4:1
+Export authService doesn't exist in target module
+  2 |
+  3 | import { createContext, useContext, useEffect, useState } from 'react';
+> 4 | import { authService } from '../src/lib/api/services/AuthService';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 |
+  6 | const AuthContext = createContext();
+  7 |
+
+The export authService was not found in module [project]/calculator-pwa/src/lib/api/services/AuthService.js [app-client] (ecmascript).
+Did you mean to import default?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Server Component:
+    ./calculator-pwa/contexts/AuthContext.jsx
+    ./calculator-pwa/app/layout.jsx
+
+  Client Component Browser:
+    ./calculator-pwa/contexts/AuthContext.jsx [Client Component Browser]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Server Component]
+
+  Client Component SSR:
+    ./calculator-pwa/contexts/AuthContext.jsx [Client Component SSR]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Server Component]
+
+
+
+./calculator-pwa/contexts/AuthContext.jsx:4:1
+Export authService doesn't exist in target module
+  2 |
+  3 | import { createContext, useContext, useEffect, useState } from 'react';
+> 4 | import { authService } from '../src/lib/api/services/AuthService';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 |
+  6 | const AuthContext = createContext();
+  7 |
+
+The export authService was not found in module [project]/calculator-pwa/src/lib/api/services/AuthService.js [app-ssr] (ecmascript).
+Did you mean to import default?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Server Component:
+    ./calculator-pwa/contexts/AuthContext.jsx
+    ./calculator-pwa/app/layout.jsx
+
+  Client Component Browser:
+    ./calculator-pwa/contexts/AuthContext.jsx [Client Component Browser]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Server Component]
+
+  Client Component SSR:
+    ./calculator-pwa/contexts/AuthContext.jsx [Client Component SSR]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Server Component]
+
+
+[00:00:03.613] Browser ERROR   uncaughtError: Error: ./calculator-pwa/contexts/AuthContext.jsx:4:1
+Export authService doesn't exist in target module
+  2 |
+  3 | import { createContext, useContext, useEffect, useState } from 'react';
+> 4 | import { authService } from '../src/lib/api/services/AuthService';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 |
+  6 | const AuthContext = createContext();
+  7 |
+
+The export authService was not found in module [project]/calculator-pwa/src/lib/api/services/AuthService.js [app-client] (ecmascript).
+Did you mean to import default?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Server Component:
+    ./calculator-pwa/contexts/AuthContext.jsx
+    ./calculator-pwa/app/layout.jsx
+
+  Client Component Browser:
+    ./calculator-pwa/contexts/AuthContext.jsx [Client Component Browser]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Server Component]
+
+  Client Component SSR:
+    ./calculator-pwa/contexts/AuthContext.jsx [Client Component SSR]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Server Component]
+
+
+[00:00:03.778] Browser ERROR   ./calculator-pwa/contexts/AuthContext.jsx:4:1
+Export authService doesn't exist in target module
+  2 |
+  3 | import { createContext, useContext, useEffect, useState } from 'react';
+> 4 | import { authService } from '../src/lib/api/services/AuthService';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 |
+  6 | const AuthContext = createContext();
+  7 |
+
+The export authService was not found in module [project]/calculator-pwa/src/lib/api/services/AuthService.js [app-client] (ecmascript).
+Did you mean to import default?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Server Component:
+    ./calculator-pwa/contexts/AuthContext.jsx
+    ./calculator-pwa/app/layout.jsx
+
+  Client Component Browser:
+    ./calculator-pwa/contexts/AuthContext.jsx [Client Component Browser]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Server Component]
+
+  Client Component SSR:
+    ./calculator-pwa/contexts/AuthContext.jsx [Client Component SSR]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Server Component]
+[00:00:03.778] Browser ERROR   ./calculator-pwa/contexts/AuthContext.jsx:4:1
+Export authService doesn't exist in target module
+  2 |
+  3 | import { createContext, useContext, useEffect, useState } from 'react';
+> 4 | import { authService } from '../src/lib/api/services/AuthService';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 |
+  6 | const AuthContext = createContext();
+  7 |
+
+The export authService was not found in module [project]/calculator-pwa/src/lib/api/services/AuthService.js [app-ssr] (ecmascript).
+Did you mean to import default?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Server Component:
+    ./calculator-pwa/contexts/AuthContext.jsx
+    ./calculator-pwa/app/layout.jsx
+
+  Client Component Browser:
+    ./calculator-pwa/contexts/AuthContext.jsx [Client Component Browser]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Server Component]
+
+  Client Component SSR:
+    ./calculator-pwa/contexts/AuthContext.jsx [Client Component SSR]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Server Component]
+[00:00:03.778] Browser ERROR   ./calculator-pwa/contexts/AuthContext.jsx:4:1
+Export authService doesn't exist in target module
+  2 |
+  3 | import { createContext, useContext, useEffect, useState } from 'react';
+> 4 | import { authService } from '../src/lib/api/services/AuthService';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 |
+  6 | const AuthContext = createContext();
+  7 |
+
+The export authService was not found in module [project]/calculator-pwa/src/lib/api/services/AuthService.js [app-client] (ecmascript).
+Did you mean to import default?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Server Component:
+    ./calculator-pwa/contexts/AuthContext.jsx
+    ./calculator-pwa/app/layout.jsx
+
+  Client Component Browser:
+    ./calculator-pwa/contexts/AuthContext.jsx [Client Component Browser]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Server Component]
+
+  Client Component SSR:
+    ./calculator-pwa/contexts/AuthContext.jsx [Client Component SSR]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Server Component]
+[00:00:03.778] Browser ERROR   ./calculator-pwa/contexts/AuthContext.jsx:4:1
+Export authService doesn't exist in target module
+  2 |
+  3 | import { createContext, useContext, useEffect, useState } from 'react';
+> 4 | import { authService } from '../src/lib/api/services/AuthService';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 |
+  6 | const AuthContext = createContext();
+  7 |
+
+The export authService was not found in module [project]/calculator-pwa/src/lib/api/services/AuthService.js [app-ssr] (ecmascript).
+Did you mean to import default?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Server Component:
+    ./calculator-pwa/contexts/AuthContext.jsx
+    ./calculator-pwa/app/layout.jsx
+
+  Client Component Browser:
+    ./calculator-pwa/contexts/AuthContext.jsx [Client Component Browser]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Server Component]
+
+  Client Component SSR:
+    ./calculator-pwa/contexts/AuthContext.jsx [Client Component SSR]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Server Component]
+[00:05:59.571] Server  LOG      ✓ Compiled in 96ms
+[00:06:00.463] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:06:00.463] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:06:00.463] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:06:00.463] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1764651153036}
+[00:06:00.463] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1764651153036}
+[00:36:40.325] Server  LOG      ✓ Compiled in 202ms
+[00:36:41.183] Browser ERROR   ./calculator-pwa/components/auth-modal.jsx:5:1
+Export default doesn't exist in target module
+  3 | import { useState } from "react"
+  4 | import { useAuth } from "@/contexts/AuthContext"
+> 5 | import Button from "./button"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  6 |
+  7 | export default function AuthModal({ onClose }) {
+  8 |   const [isLogin, setIsLogin] = useState(true)
+
+The export default was not found in module [project]/calculator-pwa/components/button.jsx [app-client] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./calculator-pwa/components/auth-modal.jsx [Client Component Browser]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Server Component]
+
+  Client Component SSR:
+    ./calculator-pwa/components/auth-modal.jsx [Client Component SSR]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Server Component]
+[00:36:41.183] Browser ERROR   ./calculator-pwa/components/auth-modal.jsx:5:1
+Export default doesn't exist in target module
+  3 | import { useState } from "react"
+  4 | import { useAuth } from "@/contexts/AuthContext"
+> 5 | import Button from "./button"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  6 |
+  7 | export default function AuthModal({ onClose }) {
+  8 |   const [isLogin, setIsLogin] = useState(true)
+
+The export default was not found in module [project]/calculator-pwa/components/button.jsx [app-ssr] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./calculator-pwa/components/auth-modal.jsx [Client Component Browser]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Server Component]
+
+  Client Component SSR:
+    ./calculator-pwa/components/auth-modal.jsx [Client Component SSR]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Server Component]
+[00:36:41.183] Browser ERROR   ./calculator-pwa/components/calculator.jsx:4:1
+Export default doesn't exist in target module
+  2 |
+  3 | import { useState, useRef } from "react"
+> 4 | import Button from "./button"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 | import Display from "./display"
+  6 |
+  7 | export default function Calculator({
+
+The export default was not found in module [project]/calculator-pwa/components/button.jsx [app-client] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./calculator-pwa/components/calculator.jsx [Client Component Browser]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Server Component]
+
+  Client Component SSR:
+    ./calculator-pwa/components/calculator.jsx [Client Component SSR]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Server Component]
+[00:36:41.183] Browser ERROR   ./calculator-pwa/components/calculator.jsx:4:1
+Export default doesn't exist in target module
+  2 |
+  3 | import { useState, useRef } from "react"
+> 4 | import Button from "./button"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 | import Display from "./display"
+  6 |
+  7 | export default function Calculator({
+
+The export default was not found in module [project]/calculator-pwa/components/button.jsx [app-ssr] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./calculator-pwa/components/calculator.jsx [Client Component Browser]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Server Component]
+
+  Client Component SSR:
+    ./calculator-pwa/components/calculator.jsx [Client Component SSR]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Server Component]
+[00:37:02.542] Server  LOG      ✓ Compiled in 40ms
+[00:37:02.645] Browser ERROR   ./calculator-pwa/components/auth-modal.jsx:5:1
+Export default doesn't exist in target module
+  3 | import { useState } from "react"
+  4 | import { useAuth } from "@/contexts/AuthContext"
+> 5 | import Button from "./button"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  6 |
+  7 | export default function AuthModal({ onClose }) {
+  8 |   const [isLogin, setIsLogin] = useState(true)
+
+The export default was not found in module [project]/calculator-pwa/components/button.jsx [app-client] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./calculator-pwa/components/auth-modal.jsx [Client Component Browser]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Server Component]
+
+  Client Component SSR:
+    ./calculator-pwa/components/auth-modal.jsx [Client Component SSR]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Server Component]
+[00:37:02.645] Browser ERROR   ./calculator-pwa/components/auth-modal.jsx:5:1
+Export default doesn't exist in target module
+  3 | import { useState } from "react"
+  4 | import { useAuth } from "@/contexts/AuthContext"
+> 5 | import Button from "./button"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  6 |
+  7 | export default function AuthModal({ onClose }) {
+  8 |   const [isLogin, setIsLogin] = useState(true)
+
+The export default was not found in module [project]/calculator-pwa/components/button.jsx [app-ssr] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./calculator-pwa/components/auth-modal.jsx [Client Component Browser]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Server Component]
+
+  Client Component SSR:
+    ./calculator-pwa/components/auth-modal.jsx [Client Component SSR]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Server Component]
+[00:37:02.645] Browser ERROR   ./calculator-pwa/components/calculator.jsx:4:1
+Export default doesn't exist in target module
+  2 |
+  3 | import { useState, useRef } from "react"
+> 4 | import Button from "./button"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 | import Display from "./display"
+  6 |
+  7 | export default function Calculator({
+
+The export default was not found in module [project]/calculator-pwa/components/button.jsx [app-client] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./calculator-pwa/components/calculator.jsx [Client Component Browser]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Server Component]
+
+  Client Component SSR:
+    ./calculator-pwa/components/calculator.jsx [Client Component SSR]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Server Component]
+[00:37:02.645] Browser ERROR   ./calculator-pwa/components/calculator.jsx:4:1
+Export default doesn't exist in target module
+  2 |
+  3 | import { useState, useRef } from "react"
+> 4 | import Button from "./button"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 | import Display from "./display"
+  6 |
+  7 | export default function Calculator({
+
+The export default was not found in module [project]/calculator-pwa/components/button.jsx [app-ssr] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./calculator-pwa/components/calculator.jsx [Client Component Browser]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Server Component]
+
+  Client Component SSR:
+    ./calculator-pwa/components/calculator.jsx [Client Component SSR]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Server Component]
+[00:37:05.577] Server  ERROR    ⨯ ./calculator-pwa/components/auth-modal.jsx:5:1
+Export default doesn't exist in target module
+  3 | import { useState } from "react"
+  4 | import { useAuth } from "@/contexts/AuthContext"
+> 5 | import Button from "./button"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  6 |
+  7 | export default function AuthModal({ onClose }) {
+  8 |   const [isLogin, setIsLogin] = useState(true)
+
+The export default was not found in module [project]/calculator-pwa/components/button.jsx [app-client] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./calculator-pwa/components/auth-modal.jsx [Client Component Browser]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Server Component]
+
+  Client Component SSR:
+    ./calculator-pwa/components/auth-modal.jsx [Client Component SSR]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Server Component]
+
+
+
+./calculator-pwa/components/auth-modal.jsx:5:1
+Export default doesn't exist in target module
+  3 | import { useState } from "react"
+  4 | import { useAuth } from "@/contexts/AuthContext"
+> 5 | import Button from "./button"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  6 |
+  7 | export default function AuthModal({ onClose }) {
+  8 |   const [isLogin, setIsLogin] = useState(true)
+
+The export default was not found in module [project]/calculator-pwa/components/button.jsx [app-ssr] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./calculator-pwa/components/auth-modal.jsx [Client Component Browser]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Server Component]
+
+  Client Component SSR:
+    ./calculator-pwa/components/auth-modal.jsx [Client Component SSR]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Server Component]
+
+
+
+./calculator-pwa/components/calculator.jsx:4:1
+Export default doesn't exist in target module
+  2 |
+  3 | import { useState, useRef } from "react"
+> 4 | import Button from "./button"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 | import Display from "./display"
+  6 |
+  7 | export default function Calculator({
+
+The export default was not found in module [project]/calculator-pwa/components/button.jsx [app-client] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./calculator-pwa/components/calculator.jsx [Client Component Browser]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Server Component]
+
+  Client Component SSR:
+    ./calculator-pwa/components/calculator.jsx [Client Component SSR]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Server Component]
+
+
+
+./calculator-pwa/components/calculator.jsx:4:1
+Export default doesn't exist in target module
+  2 |
+  3 | import { useState, useRef } from "react"
+> 4 | import Button from "./button"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 | import Display from "./display"
+  6 |
+  7 | export default function Calculator({
+
+The export default was not found in module [project]/calculator-pwa/components/button.jsx [app-ssr] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./calculator-pwa/components/calculator.jsx [Client Component Browser]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Server Component]
+
+  Client Component SSR:
+    ./calculator-pwa/components/calculator.jsx [Client Component SSR]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Server Component]
+
+
+[00:37:05.787] Browser ERROR   uncaughtError: Error: ./calculator-pwa/components/auth-modal.jsx:5:1
+Export default doesn't exist in target module
+  3 | import { useState } from "react"
+  4 | import { useAuth } from "@/contexts/AuthContext"
+> 5 | import Button from "./button"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  6 |
+  7 | export default function AuthModal({ onClose }) {
+  8 |   const [isLogin, setIsLogin] = useState(true)
+
+The export default was not found in module [project]/calculator-pwa/components/button.jsx [app-client] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./calculator-pwa/components/auth-modal.jsx [Client Component Browser]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Server Component]
+
+  Client Component SSR:
+    ./calculator-pwa/components/auth-modal.jsx [Client Component SSR]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Server Component]
+
+
+[00:37:05.974] Browser ERROR   ./calculator-pwa/components/auth-modal.jsx:5:1
+Export default doesn't exist in target module
+  3 | import { useState } from "react"
+  4 | import { useAuth } from "@/contexts/AuthContext"
+> 5 | import Button from "./button"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  6 |
+  7 | export default function AuthModal({ onClose }) {
+  8 |   const [isLogin, setIsLogin] = useState(true)
+
+The export default was not found in module [project]/calculator-pwa/components/button.jsx [app-client] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./calculator-pwa/components/auth-modal.jsx [Client Component Browser]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Server Component]
+
+  Client Component SSR:
+    ./calculator-pwa/components/auth-modal.jsx [Client Component SSR]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Server Component]
+[00:37:05.974] Browser ERROR   ./calculator-pwa/components/auth-modal.jsx:5:1
+Export default doesn't exist in target module
+  3 | import { useState } from "react"
+  4 | import { useAuth } from "@/contexts/AuthContext"
+> 5 | import Button from "./button"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  6 |
+  7 | export default function AuthModal({ onClose }) {
+  8 |   const [isLogin, setIsLogin] = useState(true)
+
+The export default was not found in module [project]/calculator-pwa/components/button.jsx [app-ssr] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./calculator-pwa/components/auth-modal.jsx [Client Component Browser]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Server Component]
+
+  Client Component SSR:
+    ./calculator-pwa/components/auth-modal.jsx [Client Component SSR]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Server Component]
+[00:37:05.974] Browser ERROR   ./calculator-pwa/components/calculator.jsx:4:1
+Export default doesn't exist in target module
+  2 |
+  3 | import { useState, useRef } from "react"
+> 4 | import Button from "./button"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 | import Display from "./display"
+  6 |
+  7 | export default function Calculator({
+
+The export default was not found in module [project]/calculator-pwa/components/button.jsx [app-client] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./calculator-pwa/components/calculator.jsx [Client Component Browser]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Server Component]
+
+  Client Component SSR:
+    ./calculator-pwa/components/calculator.jsx [Client Component SSR]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Server Component]
+[00:37:05.974] Browser ERROR   ./calculator-pwa/components/calculator.jsx:4:1
+Export default doesn't exist in target module
+  2 |
+  3 | import { useState, useRef } from "react"
+> 4 | import Button from "./button"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 | import Display from "./display"
+  6 |
+  7 | export default function Calculator({
+
+The export default was not found in module [project]/calculator-pwa/components/button.jsx [app-ssr] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./calculator-pwa/components/calculator.jsx [Client Component Browser]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Server Component]
+
+  Client Component SSR:
+    ./calculator-pwa/components/calculator.jsx [Client Component SSR]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Server Component]
+[00:37:05.974] Browser ERROR   ./calculator-pwa/components/auth-modal.jsx:5:1
+Export default doesn't exist in target module
+  3 | import { useState } from "react"
+  4 | import { useAuth } from "@/contexts/AuthContext"
+> 5 | import Button from "./button"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  6 |
+  7 | export default function AuthModal({ onClose }) {
+  8 |   const [isLogin, setIsLogin] = useState(true)
+
+The export default was not found in module [project]/calculator-pwa/components/button.jsx [app-client] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./calculator-pwa/components/auth-modal.jsx [Client Component Browser]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Server Component]
+
+  Client Component SSR:
+    ./calculator-pwa/components/auth-modal.jsx [Client Component SSR]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Server Component]
+[00:37:05.975] Browser ERROR   ./calculator-pwa/components/auth-modal.jsx:5:1
+Export default doesn't exist in target module
+  3 | import { useState } from "react"
+  4 | import { useAuth } from "@/contexts/AuthContext"
+> 5 | import Button from "./button"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  6 |
+  7 | export default function AuthModal({ onClose }) {
+  8 |   const [isLogin, setIsLogin] = useState(true)
+
+The export default was not found in module [project]/calculator-pwa/components/button.jsx [app-ssr] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./calculator-pwa/components/auth-modal.jsx [Client Component Browser]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Server Component]
+
+  Client Component SSR:
+    ./calculator-pwa/components/auth-modal.jsx [Client Component SSR]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Server Component]
+[00:37:05.975] Browser ERROR   ./calculator-pwa/components/calculator.jsx:4:1
+Export default doesn't exist in target module
+  2 |
+  3 | import { useState, useRef } from "react"
+> 4 | import Button from "./button"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 | import Display from "./display"
+  6 |
+  7 | export default function Calculator({
+
+The export default was not found in module [project]/calculator-pwa/components/button.jsx [app-client] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./calculator-pwa/components/calculator.jsx [Client Component Browser]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Server Component]
+
+  Client Component SSR:
+    ./calculator-pwa/components/calculator.jsx [Client Component SSR]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Server Component]
+[00:37:05.975] Browser ERROR   ./calculator-pwa/components/calculator.jsx:4:1
+Export default doesn't exist in target module
+  2 |
+  3 | import { useState, useRef } from "react"
+> 4 | import Button from "./button"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 | import Display from "./display"
+  6 |
+  7 | export default function Calculator({
+
+The export default was not found in module [project]/calculator-pwa/components/button.jsx [app-ssr] (ecmascript).
+The module has no exports at all.
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./calculator-pwa/components/calculator.jsx [Client Component Browser]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Client Component Browser]
+    ./calculator-pwa/app/page.jsx [Server Component]
+
+  Client Component SSR:
+    ./calculator-pwa/components/calculator.jsx [Client Component SSR]
+    ./calculator-pwa/components/home-wrapper.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Client Component SSR]
+    ./calculator-pwa/app/page.jsx [Server Component]
+[00:37:26.049] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:37:26.049] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:37:26.049] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:37:26.049] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1764653038620}
+[00:37:26.049] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1764653038622}
+[00:38:58.299] Server  LOG      ✓ Compiled in 48ms
+[00:38:58.389] Browser ERROR   uncaughtError: Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: object. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.
+
+Check the render method of `Calculator`.
+[00:39:57.758] Server  WARN     ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+[00:39:57.982] Server  LOG      ✓ Compiled in 69ms
+[00:39:58.051] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1764653190480}
+[00:39:58.051] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1764653190482}
+[00:39:58.328] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:39:58.328] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:39:58.328] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:39:58.328] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1764653190901}
+[00:39:58.328] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1764653190901}

@@ -1708,6 +1708,18 @@
     background-color: var(--color-bg);
   }
 
+  .bg-\[\#505050\] {
+    background-color: #505050;
+  }
+
+  .bg-\[\#D4D4D2\] {
+    background-color: #d4d4d2;
+  }
+
+  .bg-\[\#FF9F0A\] {
+    background-color: #ff9f0a;
+  }
+
   .bg-accent {
     background-color: var(--accent);
   }
@@ -2069,6 +2081,10 @@
 
   .text-\[0\.8rem\] {
     font-size: .8rem;
+  }
+
+  .text-\[32px\] {
+    font-size: 32px;
   }
 
   .leading-none {
@@ -3224,6 +3240,25 @@
     --tw-scale-y: 90%;
     --tw-scale-z: 90%;
     scale: var(--tw-scale-x) var(--tw-scale-y);
+  }
+
+  .active\:scale-95:active {
+    --tw-scale-x: 95%;
+    --tw-scale-y: 95%;
+    --tw-scale-z: 95%;
+    scale: var(--tw-scale-x) var(--tw-scale-y);
+  }
+
+  .active\:bg-\[\#606060\]:active {
+    background-color: #606060;
+  }
+
+  .active\:bg-\[\#E5E5E3\]:active {
+    background-color: #e5e5e3;
+  }
+
+  .active\:bg-\[\#FFB340\]:active {
+    background-color: #ffb340;
   }
 
   .active\:bg-sidebar-accent:active {

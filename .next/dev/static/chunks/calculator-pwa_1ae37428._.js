@@ -1,134 +1,4 @@
 (globalThis.TURBOPACK || (globalThis.TURBOPACK = [])).push([typeof document === "object" ? document.currentScript : undefined,
-"[project]/calculator-pwa/lib/api.js [app-client] (ecmascript)", ((__turbopack_context__) => {
-"use strict";
-
-__turbopack_context__.s([
-    "apiService",
-    ()=>apiService
-]);
-var __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$build$2f$polyfills$2f$process$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = /*#__PURE__*/ __turbopack_context__.i("[project]/calculator-pwa/node_modules/next/dist/build/polyfills/process.js [app-client] (ecmascript)");
-const API_BASE_URL = ("TURBOPACK compile-time value", "http://localhost:5000/api") || 'http://localhost:5000/api';
-class ApiService {
-    constructor(){
-        this.token = null;
-        this.loadToken();
-    }
-    loadToken() {
-        if ("TURBOPACK compile-time truthy", 1) {
-            this.token = localStorage.getItem('calculator_token');
-        }
-    }
-    saveToken(token) {
-        this.token = token;
-        if ("TURBOPACK compile-time truthy", 1) {
-            localStorage.setItem('calculator_token', token);
-        }
-    }
-    removeToken() {
-        this.token = null;
-        if ("TURBOPACK compile-time truthy", 1) {
-            localStorage.removeItem('calculator_token');
-        }
-    }
-    async request(endpoint, options = {}) {
-        const url = `${API_BASE_URL}${endpoint}`;
-        const config = {
-            headers: {
-                'Content-Type': 'application/json',
-                ...options.headers
-            },
-            ...options
-        };
-        if (this.token) {
-            config.headers.Authorization = `Bearer ${this.token}`;
-        }
-        try {
-            const response = await fetch(url, config);
-            const data = await response.json();
-            if (!response.ok) {
-                throw new Error(data.error || 'API request failed');
-            }
-            return data;
-        } catch (error) {
-            console.error('API Error:', error);
-            throw error;
-        }
-    }
-    // Authentication endpoints
-    async register(userData) {
-        const data = await this.request('/auth/register', {
-            method: 'POST',
-            body: JSON.stringify(userData)
-        });
-        this.saveToken(data.token);
-        return data;
-    }
-    async login(credentials) {
-        const data = await this.request('/auth/login', {
-            method: 'POST',
-            body: JSON.stringify(credentials)
-        });
-        this.saveToken(data.token);
-        return data;
-    }
-    async getCurrentUser() {
-        return this.request('/auth/me');
-    }
-    async updateForcedNumber(forcedNumbers) {
-        return this.request('/auth/forced-number', {
-            method: 'PUT',
-            body: JSON.stringify(forcedNumbers)
-        });
-    }
-    // Calculator endpoints
-    async saveCalculation(calculationData) {
-        return this.request('/calculator/history', {
-            method: 'POST',
-            body: JSON.stringify(calculationData)
-        });
-    }
-    async getHistory(params = {}) {
-        const queryString = new URLSearchParams(params).toString();
-        return this.request(`/calculator/history?${queryString}`);
-    }
-    async clearHistory(deviceId) {
-        const params = deviceId ? {
-            deviceId
-        } : {};
-        const queryString = new URLSearchParams(params).toString();
-        return this.request(`/calculator/history?${queryString}`, {
-            method: 'DELETE'
-        });
-    }
-    async syncCalculations(calculations) {
-        return this.request('/calculator/sync', {
-            method: 'POST',
-            body: JSON.stringify({
-                calculations
-            })
-        });
-    }
-    async getStats() {
-        return this.request('/calculator/stats');
-    }
-    // Health check
-    async healthCheck() {
-        return this.request('/health');
-    }
-    // Check if user is authenticated
-    isAuthenticated() {
-        return !!this.token;
-    }
-    // Logout
-    logout() {
-        this.removeToken();
-    }
-}
-const apiService = new ApiService();
-if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
-    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
-}
-}),
 "[project]/calculator-pwa/contexts/AuthContext.jsx [app-client] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
 
@@ -140,7 +10,11 @@ __turbopack_context__.s([
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/calculator-pwa/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/calculator-pwa/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$lib$2f$api$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/calculator-pwa/lib/api.js [app-client] (ecmascript)");
+(()=>{
+    const e = new Error("Cannot find module '@/lib/api/services/AuthService'");
+    e.code = 'MODULE_NOT_FOUND';
+    throw e;
+})();
 ;
 var _s = __turbopack_context__.k.signature(), _s1 = __turbopack_context__.k.signature();
 "use client";
@@ -174,13 +48,13 @@ function AuthProvider({ children }) {
             if (!mounted) return;
             const initAuth = {
                 "AuthProvider.useEffect.initAuth": async ()=>{
-                    if (__TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$lib$2f$api$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["authService"].isAuthenticated()) {
+                    if (authService.isAuthenticated()) {
                         try {
-                            const data = await __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$lib$2f$api$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["authService"].getCurrentUser();
+                            const data = await authService.getCurrentUser();
                             setUser(data.user);
                         } catch (error) {
                             console.error('Failed to get current user:', error);
-                            __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$lib$2f$api$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["authService"].logout();
+                            authService.logout();
                         }
                     }
                     setLoading(false);
@@ -195,7 +69,7 @@ function AuthProvider({ children }) {
         try {
             setError(null);
             setLoading(true);
-            const data = await __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$lib$2f$api$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["authService"].login({
+            const data = await authService.login({
                 email,
                 password
             });
@@ -212,7 +86,7 @@ function AuthProvider({ children }) {
         try {
             setError(null);
             setLoading(true);
-            const data = await __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$lib$2f$api$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["authService"].register({
+            const data = await authService.register({
                 username,
                 email,
                 password
@@ -227,14 +101,14 @@ function AuthProvider({ children }) {
         }
     };
     const logout = ()=>{
-        __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$lib$2f$api$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["authService"].logout();
+        authService.logout();
         setUser(null);
         setError(null);
     };
     const updateForcedNumber = async (forcedNumbers)=>{
         try {
             setError(null);
-            const data = await __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$lib$2f$api$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["authService"].updateForcedNumber(forcedNumbers);
+            const data = await authService.updateForcedNumber(forcedNumbers);
             setUser((prev)=>({
                     ...prev,
                     forcedNumber: data.forcedNumber,
@@ -720,4 +594,4 @@ else {
 }),
 ]);
 
-//# sourceMappingURL=calculator-pwa_f7cb3e75._.js.map
+//# sourceMappingURL=calculator-pwa_1ae37428._.js.map
