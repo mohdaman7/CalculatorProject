@@ -202,6 +202,7 @@
     --text-3xl--line-height: calc(2.25 / 1.875);
     --text-5xl: 3rem;
     --text-5xl--line-height: 1;
+    --font-weight-extralight: 200;
     --font-weight-light: 300;
     --font-weight-normal: 400;
     --font-weight-medium: 500;
@@ -2087,6 +2088,10 @@
     font-size: 32px;
   }
 
+  .text-\[80px\] {
+    font-size: 80px;
+  }
+
   .leading-none {
     --tw-leading: 1;
     line-height: 1;
@@ -2105,6 +2110,11 @@
   .font-bold {
     --tw-font-weight: var(--font-weight-bold);
     font-weight: var(--font-weight-bold);
+  }
+
+  .font-extralight {
+    --tw-font-weight: var(--font-weight-extralight);
+    font-weight: var(--font-weight-extralight);
   }
 
   .font-light {

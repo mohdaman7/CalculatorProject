@@ -1,11 +1,11 @@
-"use client"
-
-export default function Display({ value }) {
+const Display = ({ value }) => {
   return (
-    <div className="bg-gray-800 rounded-lg p-6 mb-8">
-      <div className="text-right">
-        <div className="text-white text-5xl font-light break-words">{value}</div>
+    <div className="w-full px-6 pb-4">
+      <div className="text-right text-white text-[80px] font-extralight leading-none tracking-tight">
+        {value}
       </div>
     </div>
-  )
-}
+  );
+};
+
+export default Display;
