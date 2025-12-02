@@ -1425,21 +1425,6 @@ function HomeWrapper() {
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
             className: "relative",
             children: [
-                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "absolute -top-6 left-0 right-0 text-center",
-                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                        className: `text-xs px-2 py-1 rounded ${syncStatus === 'online' ? 'bg-green-500 text-white' : syncStatus === 'syncing' ? 'bg-yellow-500 text-white' : 'bg-gray-500 text-white'}`,
-                        children: syncStatus === 'online' ? '🟢 Online' : syncStatus === 'syncing' ? '🟡 Syncing...' : '🔴 Offline'
-                    }, void 0, false, {
-                        fileName: "[project]/calculator-pwa/components/home-wrapper.jsx",
-                        lineNumber: 218,
-                        columnNumber: 11
-                    }, this)
-                }, void 0, false, {
-                    fileName: "[project]/calculator-pwa/components/home-wrapper.jsx",
-                    lineNumber: 217,
-                    columnNumber: 9
-                }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$components$2f$calculator$2e$jsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
                     onAddToHistory: handleAddToHistory,
                     onOpenHistory: ()=>setShowHistory(true),
@@ -1448,31 +1433,7 @@ function HomeWrapper() {
                     onClearForcedNumber: handleClearForcedNumber
                 }, void 0, false, {
                     fileName: "[project]/calculator-pwa/components/home-wrapper.jsx",
-                    lineNumber: 229,
-                    columnNumber: 9
-                }, this),
-                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "absolute -top-6 right-0",
-                    children: isAuthenticated ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                        onClick: ()=>setShowAuthModal(true),
-                        className: "text-xs text-gray-400 hover:text-white",
-                        children: user?.username
-                    }, void 0, false, {
-                        fileName: "[project]/calculator-pwa/components/home-wrapper.jsx",
-                        lineNumber: 240,
-                        columnNumber: 13
-                    }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                        onClick: ()=>setShowAuthModal(true),
-                        className: "text-xs text-blue-400 hover:text-blue-300",
-                        children: "Login"
-                    }, void 0, false, {
-                        fileName: "[project]/calculator-pwa/components/home-wrapper.jsx",
-                        lineNumber: 247,
-                        columnNumber: 13
-                    }, this)
-                }, void 0, false, {
-                    fileName: "[project]/calculator-pwa/components/home-wrapper.jsx",
-                    lineNumber: 238,
+                    lineNumber: 216,
                     columnNumber: 9
                 }, this),
                 showHistory && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$components$2f$history$2d$panel$2e$jsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -1481,7 +1442,7 @@ function HomeWrapper() {
                     onClear: handleClearHistory
                 }, void 0, false, {
                     fileName: "[project]/calculator-pwa/components/home-wrapper.jsx",
-                    lineNumber: 257,
+                    lineNumber: 225,
                     columnNumber: 11
                 }, this),
                 showForcedModal && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$components$2f$forced$2d$number$2d$modal$2e$jsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -1490,14 +1451,14 @@ function HomeWrapper() {
                     onClose: ()=>setShowForcedModal(false)
                 }, void 0, false, {
                     fileName: "[project]/calculator-pwa/components/home-wrapper.jsx",
-                    lineNumber: 265,
+                    lineNumber: 233,
                     columnNumber: 11
                 }, this),
                 showAuthModal && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$components$2f$auth$2d$modal$2e$jsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
                     onClose: ()=>setShowAuthModal(false)
                 }, void 0, false, {
                     fileName: "[project]/calculator-pwa/components/home-wrapper.jsx",
-                    lineNumber: 273,
+                    lineNumber: 241,
                     columnNumber: 11
                 }, this)
             ]

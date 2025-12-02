@@ -213,19 +213,6 @@ export default function HomeWrapper() {
   return (
     <main className="flex items-center justify-center min-h-screen bg-black p-4">
       <div className="relative">
-        {/* Sync status indicator */}
-        <div className="absolute -top-6 left-0 right-0 text-center">
-          <span className={`text-xs px-2 py-1 rounded ${
-            syncStatus === 'online' ? 'bg-green-500 text-white' :
-            syncStatus === 'syncing' ? 'bg-yellow-500 text-white' :
-            'bg-gray-500 text-white'
-          }`}>
-            {syncStatus === 'online' ? '🟢 Online' :
-             syncStatus === 'syncing' ? '🟡 Syncing...' :
-             '🔴 Offline'}
-          </span>
-        </div>
-
         <Calculator
           onAddToHistory={handleAddToHistory}
           onOpenHistory={() => setShowHistory(true)}
@@ -233,25 +220,6 @@ export default function HomeWrapper() {
           forcedNumber={forcedNumber}
           onClearForcedNumber={handleClearForcedNumber}
         />
-
-        {/* User info and login */}
-        <div className="absolute -top-6 right-0">
-          {isAuthenticated ? (
-            <button
-              onClick={() => setShowAuthModal(true)}
-              className="text-xs text-gray-400 hover:text-white"
-            >
-              {user?.username}
-            </button>
-          ) : (
-            <button
-              onClick={() => setShowAuthModal(true)}
-              className="text-xs text-blue-400 hover:text-blue-300"
-            >
-              Login
-            </button>
-          )}
-        </div>
 
         {showHistory && (
           <HistoryPanel 
