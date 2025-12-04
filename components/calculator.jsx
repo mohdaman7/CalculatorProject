@@ -1,20 +1,69 @@
-"use client"
 import { useState, useRef } from "react";
-import Button from "./button";
-import Display from "./display";
-import HistoryPanel from "./history-panel";
-import ForceNumberModal from "./forced-number-modal";
 
+const Display = ({ value }) => {
+  const fontSize = value.length > 9 ? 'text-5xl' : value.length > 7 ? 'text-6xl' : 'text-8xl';
+  
+  return (
+    <div className="text-white text-right px-8 pb-8 min-h-[180px] flex items-end justify-end">
+      <div className={`${fontSize} font-extralight tracking-tighter leading-none break-all`}>
+        {value}
+      </div>
+    </div>
+  );
+};
 
-const Calculator = () => {
+const Button = ({ variant, onClick, onMouseDown, onMouseUp, onTouchStart, onTouchEnd, label, wide }) => {
+  const [isPressed, setIsPressed] = useState(false);
+  
+  const baseClasses = "rounded-full flex items-center justify-center text-white font-light transition-all duration-75 cursor-pointer select-none";
+  
+  const variantClasses = {
+    lightGray: `bg-[#a5a5a5] text-black ${isPressed ? 'bg-[#d4d4d4]' : ''}`,
+    gray: `bg-[#333333] ${isPressed ? 'bg-[#737373]' : ''}`,
+    orange: `bg-[#ff9f0a] ${isPressed ? 'bg-[#ffb143]' : ''}`
+  };
+
+  const handleMouseDown = (e) => {
+    setIsPressed(true);
+    onMouseDown?.(e);
+  };
+
+  const handleMouseUp = (e) => {
+    setIsPressed(false);
+    onMouseUp?.(e);
+  };
+
+  const handleTouchStart = (e) => {
+    setIsPressed(true);
+    onTouchStart?.(e);
+  };
+
+  const handleTouchEnd = (e) => {
+    setIsPressed(false);
+    onTouchEnd?.(e);
+  };
+
+  return (
+    <div
+      className={`${baseClasses} ${variantClasses[variant]} ${wide ? 'col-span-2' : ''} h-[85px] text-[38px]`}
+      style={{ aspectRatio: wide ? '2.2/1' : '1/1' }}
+      onClick={onClick}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={() => setIsPressed(false)}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
+      <span className={wide ? 'ml-[-60px]' : ''}>{label}</span>
+    </div>
+  );
+};
+
+const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNumber, onClearForcedNumber }) => {
   const [display, setDisplay] = useState("0");
   const [previousValue, setPreviousValue] = useState(null);
   const [operation, setOperation] = useState(null);
   const [waitingForNewValue, setWaitingForNewValue] = useState(false);
-  const [showHistory, setShowHistory] = useState(false);
-  const [showForcedModal, setShowForcedModal] = useState(false);
-  const [history, setHistory] = useState([]);
-  const [forcedNumber, setForcedNumber] = useState(null);
   const longPressTimerRef = useRef(null);
 
   const handleNumberClick = (num) => {
@@ -73,7 +122,8 @@ const Calculator = () => {
       const finalResult = isForced ? forcedResult : actualResult;
       const timestamp = new Date().toLocaleString();
       
-      setHistory([{
+      // Add to history via parent component
+      onAddToHistory({
         expression: `${previousValue} ${operation} ${display}`,
         result: finalResult,
         actualResult: actualResult,
@@ -81,7 +131,7 @@ const Calculator = () => {
         timestamp,
         forced: isForced,
         operationType: operation
-      }, ...history]);
+      });
       
       setDisplay(String(finalResult));
     }
@@ -129,7 +179,7 @@ const Calculator = () => {
 
   const handleAdditionStart = () => {
     longPressTimerRef.current = setTimeout(() => {
-      setShowForcedModal(true);
+      onOpenForcedModal();
     }, 600);
   };
 
@@ -141,7 +191,7 @@ const Calculator = () => {
 
   const handleDivisionStart = () => {
     longPressTimerRef.current = setTimeout(() => {
-      setShowForcedModal(true);
+      onOpenForcedModal();
     }, 600);
   };
 
@@ -153,7 +203,7 @@ const Calculator = () => {
 
   const handleMultiplyStart = () => {
     longPressTimerRef.current = setTimeout(() => {
-      setShowHistory(true);
+      onOpenHistory();
     }, 600);
   };
 
@@ -163,27 +213,18 @@ const Calculator = () => {
     }
   };
 
-  const handleSetForcedNumber = (forcedNumbers) => {
-    setForcedNumber(forcedNumbers);
-    setShowForcedModal(false);
-  };
-
-  const handleClearHistory = () => {
-    setHistory([]);
-  };
-
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center p-4">
-      <div className="w-full max-w-[390px]">
+    <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="w-full max-w-[500px] h-screen flex items-end">
         {/* Calculator */}
-        <div className="bg-black pt-8">
+        <div className="bg-black w-full pb-10">
           <Display value={display} />
 
-          <div className="grid grid-cols-4 gap-3 px-6 pb-8">
+          <div className="grid grid-cols-4 gap-4 px-5">
             {/* Row 1 */}
-            <Button variant="lightGray" onClick={handleClear} label="AC" />
-            <Button variant="lightGray" onClick={handleToggleSign} label="⁺⁄₋" />
-            <Button variant="lightGray" onClick={handlePercent} label="%" />
+            <Button variant="gray" onClick={handleClear} label="AC" />
+            <Button variant="gray" onClick={handleToggleSign} label="+/-" />
+            <Button variant="gray" onClick={handlePercent} label="%" />
             <Button
               variant="orange"
               onClick={() => handleOperation("÷")}
@@ -229,33 +270,14 @@ const Calculator = () => {
             />
 
             {/* Row 5 */}
-            <Button variant="gray" onClick={handleBackspace} label="⌫" />
-            <Button variant="gray" onClick={() => handleNumberClick(0)} label="0" />
+            <Button variant="gray" wide onClick={() => handleNumberClick(0)} label="0" />
             <Button variant="gray" onClick={handleDecimal} label="." />
             <Button variant="orange" onClick={handleEquals} label="=" />
           </div>
         </div>
-
-        {/* Modals */}
-        {showHistory && (
-          <HistoryPanel 
-            history={history} 
-            onClose={() => setShowHistory(false)} 
-            onClear={handleClearHistory} 
-          />
-        )}
-
-        {showForcedModal && (
-          <ForceNumberModal
-            currentValue={forcedNumber}
-            onSave={handleSetForcedNumber}
-            onClose={() => setShowForcedModal(false)}
-          />
-        )}
       </div>
     </div>
   );
 };
 
-export default Calculator
-
+export default Calculator;

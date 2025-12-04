@@ -8,18 +8,80 @@ __turbopack_context__.s([
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/calculator-pwa/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react-jsx-dev-runtime.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/calculator-pwa/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react.js [app-ssr] (ecmascript)");
-"use client";
 ;
 ;
-const Calculator = ()=>{
+const Display = ({ value })=>{
+    const fontSize = value.length > 9 ? 'text-5xl' : value.length > 7 ? 'text-6xl' : 'text-8xl';
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+        className: "text-white text-right px-8 pb-8 min-h-[180px] flex items-end justify-end",
+        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: `${fontSize} font-extralight tracking-tighter leading-none break-all`,
+            children: value
+        }, void 0, false, {
+            fileName: "[project]/calculator-pwa/components/calculator.jsx",
+            lineNumber: 8,
+            columnNumber: 7
+        }, ("TURBOPACK compile-time value", void 0))
+    }, void 0, false, {
+        fileName: "[project]/calculator-pwa/components/calculator.jsx",
+        lineNumber: 7,
+        columnNumber: 5
+    }, ("TURBOPACK compile-time value", void 0));
+};
+const Button = ({ variant, onClick, onMouseDown, onMouseUp, onTouchStart, onTouchEnd, label, wide })=>{
+    const [isPressed, setIsPressed] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
+    const baseClasses = "rounded-full flex items-center justify-center text-white font-light transition-all duration-75 cursor-pointer select-none";
+    const variantClasses = {
+        lightGray: `bg-[#a5a5a5] text-black ${isPressed ? 'bg-[#d4d4d4]' : ''}`,
+        gray: `bg-[#333333] ${isPressed ? 'bg-[#737373]' : ''}`,
+        orange: `bg-[#ff9f0a] ${isPressed ? 'bg-[#ffb143]' : ''}`
+    };
+    const handleMouseDown = (e)=>{
+        setIsPressed(true);
+        onMouseDown?.(e);
+    };
+    const handleMouseUp = (e)=>{
+        setIsPressed(false);
+        onMouseUp?.(e);
+    };
+    const handleTouchStart = (e)=>{
+        setIsPressed(true);
+        onTouchStart?.(e);
+    };
+    const handleTouchEnd = (e)=>{
+        setIsPressed(false);
+        onTouchEnd?.(e);
+    };
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+        className: `${baseClasses} ${variantClasses[variant]} ${wide ? 'col-span-2' : ''} h-[85px] text-[38px]`,
+        style: {
+            aspectRatio: wide ? '2.2/1' : '1/1'
+        },
+        onClick: onClick,
+        onMouseDown: handleMouseDown,
+        onMouseUp: handleMouseUp,
+        onMouseLeave: ()=>setIsPressed(false),
+        onTouchStart: handleTouchStart,
+        onTouchEnd: handleTouchEnd,
+        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+            className: wide ? 'ml-[-60px]' : '',
+            children: label
+        }, void 0, false, {
+            fileName: "[project]/calculator-pwa/components/calculator.jsx",
+            lineNumber: 57,
+            columnNumber: 7
+        }, ("TURBOPACK compile-time value", void 0))
+    }, void 0, false, {
+        fileName: "[project]/calculator-pwa/components/calculator.jsx",
+        lineNumber: 47,
+        columnNumber: 5
+    }, ("TURBOPACK compile-time value", void 0));
+};
+const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNumber, onClearForcedNumber })=>{
     const [display, setDisplay] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])("0");
     const [previousValue, setPreviousValue] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
     const [operation, setOperation] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
     const [waitingForNewValue, setWaitingForNewValue] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
-    const [showHistory, setShowHistory] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
-    const [showForcedModal, setShowForcedModal] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
-    const [history, setHistory] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])([]);
-    const [forcedNumber, setForcedNumber] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
     const longPressTimerRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useRef"])(null);
     const handleNumberClick = (num)=>{
         if (waitingForNewValue) {
@@ -66,18 +128,16 @@ const Calculator = ()=>{
             }
             const finalResult = isForced ? forcedResult : actualResult;
             const timestamp = new Date().toLocaleString();
-            setHistory([
-                {
-                    expression: `${previousValue} ${operation} ${display}`,
-                    result: finalResult,
-                    actualResult: actualResult,
-                    forcedResult: forcedResult,
-                    timestamp,
-                    forced: isForced,
-                    operationType: operation
-                },
-                ...history
-            ]);
+            // Add to history via parent component
+            onAddToHistory({
+                expression: `${previousValue} ${operation} ${display}`,
+                result: finalResult,
+                actualResult: actualResult,
+                forcedResult: forcedResult,
+                timestamp,
+                forced: isForced,
+                operationType: operation
+            });
             setDisplay(String(finalResult));
         }
         setPreviousValue(null);
@@ -123,7 +183,7 @@ const Calculator = ()=>{
     };
     const handleAdditionStart = ()=>{
         longPressTimerRef.current = setTimeout(()=>{
-            setShowForcedModal(true);
+            onOpenForcedModal();
         }, 600);
     };
     const handleAdditionEnd = ()=>{
@@ -133,7 +193,7 @@ const Calculator = ()=>{
     };
     const handleDivisionStart = ()=>{
         longPressTimerRef.current = setTimeout(()=>{
-            setShowForcedModal(true);
+            onOpenForcedModal();
         }, 600);
     };
     const handleDivisionEnd = ()=>{
@@ -143,7 +203,7 @@ const Calculator = ()=>{
     };
     const handleMultiplyStart = ()=>{
         longPressTimerRef.current = setTimeout(()=>{
-            setShowHistory(true);
+            onOpenHistory();
         }, 600);
     };
     const handleMultiplyEnd = ()=>{
@@ -151,262 +211,227 @@ const Calculator = ()=>{
             clearTimeout(longPressTimerRef.current);
         }
     };
-    const handleSetForcedNumber = (forcedNumbers)=>{
-        setForcedNumber(forcedNumbers);
-        setShowForcedModal(false);
-    };
-    const handleClearHistory = ()=>{
-        setHistory([]);
-    };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "min-h-screen bg-black flex items-center justify-center p-4",
+        className: "min-h-screen bg-black flex items-center justify-center",
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-            className: "w-full max-w-[390px]",
-            children: [
-                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "bg-black pt-8",
-                    children: [
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Display, {
-                            value: display
-                        }, void 0, false, {
-                            fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                            lineNumber: 175,
-                            columnNumber: 11
-                        }, ("TURBOPACK compile-time value", void 0)),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "grid grid-cols-4 gap-3 px-6 pb-8",
-                            children: [
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(CalcButton, {
-                                    variant: "lightGray",
-                                    onClick: handleClear,
-                                    label: "AC"
-                                }, void 0, false, {
-                                    fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                    lineNumber: 179,
-                                    columnNumber: 13
-                                }, ("TURBOPACK compile-time value", void 0)),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(CalcButton, {
-                                    variant: "lightGray",
-                                    onClick: handleToggleSign,
-                                    label: "⁺⁄₋"
-                                }, void 0, false, {
-                                    fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                    lineNumber: 180,
-                                    columnNumber: 13
-                                }, ("TURBOPACK compile-time value", void 0)),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(CalcButton, {
-                                    variant: "lightGray",
-                                    onClick: handlePercent,
-                                    label: "%"
-                                }, void 0, false, {
-                                    fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                    lineNumber: 181,
-                                    columnNumber: 13
-                                }, ("TURBOPACK compile-time value", void 0)),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(CalcButton, {
-                                    variant: "orange",
-                                    onClick: ()=>handleOperation("÷"),
-                                    onMouseDown: handleDivisionStart,
-                                    onMouseUp: handleDivisionEnd,
-                                    onTouchStart: handleDivisionStart,
-                                    onTouchEnd: handleDivisionEnd,
-                                    label: "÷"
-                                }, void 0, false, {
-                                    fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                    lineNumber: 182,
-                                    columnNumber: 13
-                                }, ("TURBOPACK compile-time value", void 0)),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(CalcButton, {
-                                    variant: "gray",
-                                    onClick: ()=>handleNumberClick(7),
-                                    label: "7"
-                                }, void 0, false, {
-                                    fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                    lineNumber: 193,
-                                    columnNumber: 13
-                                }, ("TURBOPACK compile-time value", void 0)),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(CalcButton, {
-                                    variant: "gray",
-                                    onClick: ()=>handleNumberClick(8),
-                                    label: "8"
-                                }, void 0, false, {
-                                    fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                    lineNumber: 194,
-                                    columnNumber: 13
-                                }, ("TURBOPACK compile-time value", void 0)),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(CalcButton, {
-                                    variant: "gray",
-                                    onClick: ()=>handleNumberClick(9),
-                                    label: "9"
-                                }, void 0, false, {
-                                    fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                    lineNumber: 195,
-                                    columnNumber: 13
-                                }, ("TURBOPACK compile-time value", void 0)),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(CalcButton, {
-                                    variant: "orange",
-                                    onClick: ()=>handleOperation("×"),
-                                    onMouseDown: handleMultiplyStart,
-                                    onMouseUp: handleMultiplyEnd,
-                                    onTouchStart: handleMultiplyStart,
-                                    onTouchEnd: handleMultiplyEnd,
-                                    label: "×"
-                                }, void 0, false, {
-                                    fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                    lineNumber: 196,
-                                    columnNumber: 13
-                                }, ("TURBOPACK compile-time value", void 0)),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(CalcButton, {
-                                    variant: "gray",
-                                    onClick: ()=>handleNumberClick(4),
-                                    label: "4"
-                                }, void 0, false, {
-                                    fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                    lineNumber: 207,
-                                    columnNumber: 13
-                                }, ("TURBOPACK compile-time value", void 0)),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(CalcButton, {
-                                    variant: "gray",
-                                    onClick: ()=>handleNumberClick(5),
-                                    label: "5"
-                                }, void 0, false, {
-                                    fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                    lineNumber: 208,
-                                    columnNumber: 13
-                                }, ("TURBOPACK compile-time value", void 0)),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(CalcButton, {
-                                    variant: "gray",
-                                    onClick: ()=>handleNumberClick(6),
-                                    label: "6"
-                                }, void 0, false, {
-                                    fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                    lineNumber: 209,
-                                    columnNumber: 13
-                                }, ("TURBOPACK compile-time value", void 0)),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(CalcButton, {
-                                    variant: "orange",
-                                    onClick: ()=>handleOperation("-"),
-                                    label: "−"
-                                }, void 0, false, {
-                                    fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                    lineNumber: 210,
-                                    columnNumber: 13
-                                }, ("TURBOPACK compile-time value", void 0)),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(CalcButton, {
-                                    variant: "gray",
-                                    onClick: ()=>handleNumberClick(1),
-                                    label: "1"
-                                }, void 0, false, {
-                                    fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                    lineNumber: 213,
-                                    columnNumber: 13
-                                }, ("TURBOPACK compile-time value", void 0)),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(CalcButton, {
-                                    variant: "gray",
-                                    onClick: ()=>handleNumberClick(2),
-                                    label: "2"
-                                }, void 0, false, {
-                                    fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                    lineNumber: 214,
-                                    columnNumber: 13
-                                }, ("TURBOPACK compile-time value", void 0)),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(CalcButton, {
-                                    variant: "gray",
-                                    onClick: ()=>handleNumberClick(3),
-                                    label: "3"
-                                }, void 0, false, {
-                                    fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                    lineNumber: 215,
-                                    columnNumber: 13
-                                }, ("TURBOPACK compile-time value", void 0)),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(CalcButton, {
-                                    variant: "orange",
-                                    onClick: ()=>handleOperation("+"),
-                                    onMouseDown: handleAdditionStart,
-                                    onMouseUp: handleAdditionEnd,
-                                    onTouchStart: handleAdditionStart,
-                                    onTouchEnd: handleAdditionEnd,
-                                    label: "+"
-                                }, void 0, false, {
-                                    fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                    lineNumber: 216,
-                                    columnNumber: 13
-                                }, ("TURBOPACK compile-time value", void 0)),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(CalcButton, {
-                                    variant: "gray",
-                                    onClick: handleBackspace,
-                                    label: "⌫"
-                                }, void 0, false, {
-                                    fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                    lineNumber: 227,
-                                    columnNumber: 13
-                                }, ("TURBOPACK compile-time value", void 0)),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(CalcButton, {
-                                    variant: "gray",
-                                    onClick: ()=>handleNumberClick(0),
-                                    label: "0"
-                                }, void 0, false, {
-                                    fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                    lineNumber: 228,
-                                    columnNumber: 13
-                                }, ("TURBOPACK compile-time value", void 0)),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(CalcButton, {
-                                    variant: "gray",
-                                    onClick: handleDecimal,
-                                    label: "."
-                                }, void 0, false, {
-                                    fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                    lineNumber: 229,
-                                    columnNumber: 13
-                                }, ("TURBOPACK compile-time value", void 0)),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(CalcButton, {
-                                    variant: "orange",
-                                    onClick: handleEquals,
-                                    label: "="
-                                }, void 0, false, {
-                                    fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                    lineNumber: 230,
-                                    columnNumber: 13
-                                }, ("TURBOPACK compile-time value", void 0))
-                            ]
-                        }, void 0, true, {
-                            fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                            lineNumber: 177,
-                            columnNumber: 11
-                        }, ("TURBOPACK compile-time value", void 0))
-                    ]
-                }, void 0, true, {
-                    fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                    lineNumber: 174,
-                    columnNumber: 9
-                }, ("TURBOPACK compile-time value", void 0)),
-                showHistory && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(HistoryPanel, {
-                    history: history,
-                    onClose: ()=>setShowHistory(false),
-                    onClear: handleClearHistory
-                }, void 0, false, {
-                    fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                    lineNumber: 236,
-                    columnNumber: 11
-                }, ("TURBOPACK compile-time value", void 0)),
-                showForcedModal && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(ForceNumberModal, {
-                    currentValue: forcedNumber,
-                    onSave: handleSetForcedNumber,
-                    onClose: ()=>setShowForcedModal(false)
-                }, void 0, false, {
-                    fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                    lineNumber: 244,
-                    columnNumber: 11
-                }, ("TURBOPACK compile-time value", void 0))
-            ]
-        }, void 0, true, {
+            className: "w-full max-w-[500px] h-screen flex items-end",
+            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "bg-black w-full pb-10",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Display, {
+                        value: display
+                    }, void 0, false, {
+                        fileName: "[project]/calculator-pwa/components/calculator.jsx",
+                        lineNumber: 221,
+                        columnNumber: 11
+                    }, ("TURBOPACK compile-time value", void 0)),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "grid grid-cols-4 gap-4 px-5",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Button, {
+                                variant: "gray",
+                                onClick: handleClear,
+                                label: "AC"
+                            }, void 0, false, {
+                                fileName: "[project]/calculator-pwa/components/calculator.jsx",
+                                lineNumber: 225,
+                                columnNumber: 13
+                            }, ("TURBOPACK compile-time value", void 0)),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Button, {
+                                variant: "gray",
+                                onClick: handleToggleSign,
+                                label: "+/-"
+                            }, void 0, false, {
+                                fileName: "[project]/calculator-pwa/components/calculator.jsx",
+                                lineNumber: 226,
+                                columnNumber: 13
+                            }, ("TURBOPACK compile-time value", void 0)),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Button, {
+                                variant: "gray",
+                                onClick: handlePercent,
+                                label: "%"
+                            }, void 0, false, {
+                                fileName: "[project]/calculator-pwa/components/calculator.jsx",
+                                lineNumber: 227,
+                                columnNumber: 13
+                            }, ("TURBOPACK compile-time value", void 0)),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Button, {
+                                variant: "orange",
+                                onClick: ()=>handleOperation("÷"),
+                                onMouseDown: handleDivisionStart,
+                                onMouseUp: handleDivisionEnd,
+                                onTouchStart: handleDivisionStart,
+                                onTouchEnd: handleDivisionEnd,
+                                label: "÷"
+                            }, void 0, false, {
+                                fileName: "[project]/calculator-pwa/components/calculator.jsx",
+                                lineNumber: 228,
+                                columnNumber: 13
+                            }, ("TURBOPACK compile-time value", void 0)),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Button, {
+                                variant: "gray",
+                                onClick: ()=>handleNumberClick(7),
+                                label: "7"
+                            }, void 0, false, {
+                                fileName: "[project]/calculator-pwa/components/calculator.jsx",
+                                lineNumber: 239,
+                                columnNumber: 13
+                            }, ("TURBOPACK compile-time value", void 0)),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Button, {
+                                variant: "gray",
+                                onClick: ()=>handleNumberClick(8),
+                                label: "8"
+                            }, void 0, false, {
+                                fileName: "[project]/calculator-pwa/components/calculator.jsx",
+                                lineNumber: 240,
+                                columnNumber: 13
+                            }, ("TURBOPACK compile-time value", void 0)),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Button, {
+                                variant: "gray",
+                                onClick: ()=>handleNumberClick(9),
+                                label: "9"
+                            }, void 0, false, {
+                                fileName: "[project]/calculator-pwa/components/calculator.jsx",
+                                lineNumber: 241,
+                                columnNumber: 13
+                            }, ("TURBOPACK compile-time value", void 0)),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Button, {
+                                variant: "orange",
+                                onClick: ()=>handleOperation("×"),
+                                onMouseDown: handleMultiplyStart,
+                                onMouseUp: handleMultiplyEnd,
+                                onTouchStart: handleMultiplyStart,
+                                onTouchEnd: handleMultiplyEnd,
+                                label: "×"
+                            }, void 0, false, {
+                                fileName: "[project]/calculator-pwa/components/calculator.jsx",
+                                lineNumber: 242,
+                                columnNumber: 13
+                            }, ("TURBOPACK compile-time value", void 0)),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Button, {
+                                variant: "gray",
+                                onClick: ()=>handleNumberClick(4),
+                                label: "4"
+                            }, void 0, false, {
+                                fileName: "[project]/calculator-pwa/components/calculator.jsx",
+                                lineNumber: 253,
+                                columnNumber: 13
+                            }, ("TURBOPACK compile-time value", void 0)),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Button, {
+                                variant: "gray",
+                                onClick: ()=>handleNumberClick(5),
+                                label: "5"
+                            }, void 0, false, {
+                                fileName: "[project]/calculator-pwa/components/calculator.jsx",
+                                lineNumber: 254,
+                                columnNumber: 13
+                            }, ("TURBOPACK compile-time value", void 0)),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Button, {
+                                variant: "gray",
+                                onClick: ()=>handleNumberClick(6),
+                                label: "6"
+                            }, void 0, false, {
+                                fileName: "[project]/calculator-pwa/components/calculator.jsx",
+                                lineNumber: 255,
+                                columnNumber: 13
+                            }, ("TURBOPACK compile-time value", void 0)),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Button, {
+                                variant: "orange",
+                                onClick: ()=>handleOperation("-"),
+                                label: "−"
+                            }, void 0, false, {
+                                fileName: "[project]/calculator-pwa/components/calculator.jsx",
+                                lineNumber: 256,
+                                columnNumber: 13
+                            }, ("TURBOPACK compile-time value", void 0)),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Button, {
+                                variant: "gray",
+                                onClick: ()=>handleNumberClick(1),
+                                label: "1"
+                            }, void 0, false, {
+                                fileName: "[project]/calculator-pwa/components/calculator.jsx",
+                                lineNumber: 259,
+                                columnNumber: 13
+                            }, ("TURBOPACK compile-time value", void 0)),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Button, {
+                                variant: "gray",
+                                onClick: ()=>handleNumberClick(2),
+                                label: "2"
+                            }, void 0, false, {
+                                fileName: "[project]/calculator-pwa/components/calculator.jsx",
+                                lineNumber: 260,
+                                columnNumber: 13
+                            }, ("TURBOPACK compile-time value", void 0)),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Button, {
+                                variant: "gray",
+                                onClick: ()=>handleNumberClick(3),
+                                label: "3"
+                            }, void 0, false, {
+                                fileName: "[project]/calculator-pwa/components/calculator.jsx",
+                                lineNumber: 261,
+                                columnNumber: 13
+                            }, ("TURBOPACK compile-time value", void 0)),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Button, {
+                                variant: "orange",
+                                onClick: ()=>handleOperation("+"),
+                                onMouseDown: handleAdditionStart,
+                                onMouseUp: handleAdditionEnd,
+                                onTouchStart: handleAdditionStart,
+                                onTouchEnd: handleAdditionEnd,
+                                label: "+"
+                            }, void 0, false, {
+                                fileName: "[project]/calculator-pwa/components/calculator.jsx",
+                                lineNumber: 262,
+                                columnNumber: 13
+                            }, ("TURBOPACK compile-time value", void 0)),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Button, {
+                                variant: "gray",
+                                wide: true,
+                                onClick: ()=>handleNumberClick(0),
+                                label: "0"
+                            }, void 0, false, {
+                                fileName: "[project]/calculator-pwa/components/calculator.jsx",
+                                lineNumber: 273,
+                                columnNumber: 13
+                            }, ("TURBOPACK compile-time value", void 0)),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Button, {
+                                variant: "gray",
+                                onClick: handleDecimal,
+                                label: "."
+                            }, void 0, false, {
+                                fileName: "[project]/calculator-pwa/components/calculator.jsx",
+                                lineNumber: 274,
+                                columnNumber: 13
+                            }, ("TURBOPACK compile-time value", void 0)),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Button, {
+                                variant: "orange",
+                                onClick: handleEquals,
+                                label: "="
+                            }, void 0, false, {
+                                fileName: "[project]/calculator-pwa/components/calculator.jsx",
+                                lineNumber: 275,
+                                columnNumber: 13
+                            }, ("TURBOPACK compile-time value", void 0))
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/calculator-pwa/components/calculator.jsx",
+                        lineNumber: 223,
+                        columnNumber: 11
+                    }, ("TURBOPACK compile-time value", void 0))
+                ]
+            }, void 0, true, {
+                fileName: "[project]/calculator-pwa/components/calculator.jsx",
+                lineNumber: 220,
+                columnNumber: 9
+            }, ("TURBOPACK compile-time value", void 0))
+        }, void 0, false, {
             fileName: "[project]/calculator-pwa/components/calculator.jsx",
-            lineNumber: 172,
+            lineNumber: 218,
             columnNumber: 7
         }, ("TURBOPACK compile-time value", void 0))
     }, void 0, false, {
         fileName: "[project]/calculator-pwa/components/calculator.jsx",
-        lineNumber: 171,
+        lineNumber: 217,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };
