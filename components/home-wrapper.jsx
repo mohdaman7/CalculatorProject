@@ -17,26 +17,52 @@ export default function HomeWrapper() {
   const [syncStatus, setSyncStatus] = useState('offline')
   const { user, isAuthenticated, updateForcedNumber, loading } = useAuth()
 
-  // Load from localStorage on mount
+  // Load from localStorage and backend on mount
   useEffect(() => {
-    const savedHistory = localStorage.getItem("calculatorHistory")
-    const savedForcedNumber = localStorage.getItem("forcedNumber")
+    const loadData = async () => {
+      // Always load from localStorage first
+      const savedHistory = localStorage.getItem("calculatorHistory")
+      const savedForcedNumber = localStorage.getItem("forcedNumber")
 
-    if (savedHistory) {
-      setHistory(JSON.parse(savedHistory))
-    }
-    if (savedForcedNumber) {
-      setForcedNumber(JSON.parse(savedForcedNumber))
+      if (savedHistory) {
+        setHistory(JSON.parse(savedHistory))
+      }
+      if (savedForcedNumber) {
+        setForcedNumber(JSON.parse(savedForcedNumber))
+      }
+
+      // If authenticated, load from backend
+      if (isAuthenticated && user && !loading) {
+        try {
+          const backendHistory = await apiService.getHistory({ forcedOnly: false })
+          if (backendHistory.history && backendHistory.history.length > 0) {
+            const formattedHistory = backendHistory.history.map(item => ({
+              id: item._id,
+              expression: item.expression,
+              result: item.forcedResult || item.actualResult,
+              actualResult: item.actualResult,
+              forcedResult: item.forcedResult,
+              timestamp: new Date(item.createdAt).toLocaleString(),
+              forced: item.wasForced,
+              synced: true
+            }))
+            setHistory(formattedHistory)
+            localStorage.setItem("calculatorHistory", JSON.stringify(formattedHistory))
+          }
+        } catch (error) {
+          console.error('Failed to load history from backend:', error)
+        }
+
+        // Load forced numbers from user profile
+        setForcedNumber({
+          forcedNumber: user.forcedNumber,
+          secondForceNumber: user.secondForceNumber,
+          secondForceTriggerNumber: user.secondForceTriggerNumber
+        })
+      }
     }
 
-    // Set forced number from user profile if authenticated
-    if (isAuthenticated && user) {
-      setForcedNumber({
-        forcedNumber: user.forcedNumber,
-        secondForceNumber: user.secondForceNumber,
-        secondForceTriggerNumber: user.secondForceTriggerNumber
-      })
-    }
+    loadData()
   }, [isAuthenticated, user, loading])
 
   // Save to localStorage whenever history changes
@@ -128,13 +154,13 @@ export default function HomeWrapper() {
     const newEntry = { ...entry, id: Date.now(), synced: false }
     setHistory([newEntry, ...history])
 
-    // Save to backend if authenticated and it was a forced calculation
-    if (isAuthenticated && entry.forced) {
+    // Save to backend if authenticated (save ALL calculations)
+    if (isAuthenticated) {
       try {
         await apiService.saveCalculation({
           expression: entry.expression,
-          actualResult: entry.result, // Will be calculated correctly in backend
-          forcedResult: entry.result,
+          actualResult: entry.actualResult || entry.result,
+          forcedResult: entry.forced ? entry.result : null,
           wasForced: entry.forced,
           operationType: getOperationType(entry.expression),
           deviceId: getDeviceId()

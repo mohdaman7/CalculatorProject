@@ -15,15 +15,10 @@ const parseExpression = (expression) => {
   };
 };
 
-// Save calculation history
+// Save calculation history (saves ALL calculations)
 router.post('/history', auth, async (req, res) => {
   try {
     const { expression, actualResult, forcedResult, wasForced, operationType, deviceId } = req.body;
-
-    // Only save if it was a forced calculation or user wants to save all
-    if (!wasForced) {
-      return res.json({ message: 'Non-forced calculation not saved' });
-    }
 
     const history = new CalculationHistory({
       userId: req.user._id,

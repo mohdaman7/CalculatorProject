@@ -1889,25 +1889,55 @@ function HomeWrapper() {
     const [forcedNumber, setForcedNumber] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
     const [syncStatus, setSyncStatus] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('offline');
     const { user, isAuthenticated, updateForcedNumber, loading } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$contexts$2f$AuthContext$2e$jsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAuth"])();
-    // Load from localStorage on mount
+    // Load from localStorage and backend on mount
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "HomeWrapper.useEffect": ()=>{
-            const savedHistory = localStorage.getItem("calculatorHistory");
-            const savedForcedNumber = localStorage.getItem("forcedNumber");
-            if (savedHistory) {
-                setHistory(JSON.parse(savedHistory));
-            }
-            if (savedForcedNumber) {
-                setForcedNumber(JSON.parse(savedForcedNumber));
-            }
-            // Set forced number from user profile if authenticated
-            if (isAuthenticated && user) {
-                setForcedNumber({
-                    forcedNumber: user.forcedNumber,
-                    secondForceNumber: user.secondForceNumber,
-                    secondForceTriggerNumber: user.secondForceTriggerNumber
-                });
-            }
+            const loadData = {
+                "HomeWrapper.useEffect.loadData": async ()=>{
+                    // Always load from localStorage first
+                    const savedHistory = localStorage.getItem("calculatorHistory");
+                    const savedForcedNumber = localStorage.getItem("forcedNumber");
+                    if (savedHistory) {
+                        setHistory(JSON.parse(savedHistory));
+                    }
+                    if (savedForcedNumber) {
+                        setForcedNumber(JSON.parse(savedForcedNumber));
+                    }
+                    // If authenticated, load from backend
+                    if (isAuthenticated && user && !loading) {
+                        try {
+                            const backendHistory = await __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$lib$2f$api$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["apiService"].getHistory({
+                                forcedOnly: false
+                            });
+                            if (backendHistory.history && backendHistory.history.length > 0) {
+                                const formattedHistory = backendHistory.history.map({
+                                    "HomeWrapper.useEffect.loadData.formattedHistory": (item)=>({
+                                            id: item._id,
+                                            expression: item.expression,
+                                            result: item.forcedResult || item.actualResult,
+                                            actualResult: item.actualResult,
+                                            forcedResult: item.forcedResult,
+                                            timestamp: new Date(item.createdAt).toLocaleString(),
+                                            forced: item.wasForced,
+                                            synced: true
+                                        })
+                                }["HomeWrapper.useEffect.loadData.formattedHistory"]);
+                                setHistory(formattedHistory);
+                                localStorage.setItem("calculatorHistory", JSON.stringify(formattedHistory));
+                            }
+                        } catch (error) {
+                            console.error('Failed to load history from backend:', error);
+                        }
+                        // Load forced numbers from user profile
+                        setForcedNumber({
+                            forcedNumber: user.forcedNumber,
+                            secondForceNumber: user.secondForceNumber,
+                            secondForceTriggerNumber: user.secondForceTriggerNumber
+                        });
+                    }
+                }
+            }["HomeWrapper.useEffect.loadData"];
+            loadData();
         }
     }["HomeWrapper.useEffect"], [
         isAuthenticated,
@@ -2012,13 +2042,13 @@ function HomeWrapper() {
             newEntry,
             ...history
         ]);
-        // Save to backend if authenticated and it was a forced calculation
-        if (isAuthenticated && entry.forced) {
+        // Save to backend if authenticated (save ALL calculations)
+        if (isAuthenticated) {
             try {
                 await __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$lib$2f$api$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["apiService"].saveCalculation({
                     expression: entry.expression,
-                    actualResult: entry.result,
-                    forcedResult: entry.result,
+                    actualResult: entry.actualResult || entry.result,
+                    forcedResult: entry.forced ? entry.result : null,
                     wasForced: entry.forced,
                     operationType: getOperationType(entry.expression),
                     deviceId: getDeviceId()
@@ -2086,25 +2116,25 @@ function HomeWrapper() {
                         className: "animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"
                     }, void 0, false, {
                         fileName: "[project]/calculator-pwa/components/home-wrapper.jsx",
-                        lineNumber: 206,
+                        lineNumber: 232,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                         children: "Loading..."
                     }, void 0, false, {
                         fileName: "[project]/calculator-pwa/components/home-wrapper.jsx",
-                        lineNumber: 207,
+                        lineNumber: 233,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/calculator-pwa/components/home-wrapper.jsx",
-                lineNumber: 205,
+                lineNumber: 231,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/calculator-pwa/components/home-wrapper.jsx",
-            lineNumber: 204,
+            lineNumber: 230,
             columnNumber: 7
         }, this);
     }
@@ -2121,7 +2151,7 @@ function HomeWrapper() {
                     onClearForcedNumber: handleClearForcedNumber
                 }, void 0, false, {
                     fileName: "[project]/calculator-pwa/components/home-wrapper.jsx",
-                    lineNumber: 216,
+                    lineNumber: 242,
                     columnNumber: 9
                 }, this),
                 showHistory && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$components$2f$history$2d$panel$2e$jsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -2130,7 +2160,7 @@ function HomeWrapper() {
                     onClear: handleClearHistory
                 }, void 0, false, {
                     fileName: "[project]/calculator-pwa/components/home-wrapper.jsx",
-                    lineNumber: 225,
+                    lineNumber: 251,
                     columnNumber: 11
                 }, this),
                 showForcedModal && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$components$2f$forced$2d$number$2d$modal$2e$jsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -2139,25 +2169,25 @@ function HomeWrapper() {
                     onClose: ()=>setShowForcedModal(false)
                 }, void 0, false, {
                     fileName: "[project]/calculator-pwa/components/home-wrapper.jsx",
-                    lineNumber: 233,
+                    lineNumber: 259,
                     columnNumber: 11
                 }, this),
                 showAuthModal && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$components$2f$auth$2d$modal$2e$jsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
                     onClose: ()=>setShowAuthModal(false)
                 }, void 0, false, {
                     fileName: "[project]/calculator-pwa/components/home-wrapper.jsx",
-                    lineNumber: 241,
+                    lineNumber: 267,
                     columnNumber: 11
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/calculator-pwa/components/home-wrapper.jsx",
-            lineNumber: 215,
+            lineNumber: 241,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/calculator-pwa/components/home-wrapper.jsx",
-        lineNumber: 214,
+        lineNumber: 240,
         columnNumber: 5
     }, this);
 }
