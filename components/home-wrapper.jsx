@@ -211,7 +211,7 @@ export default function HomeWrapper() {
   }
 
   return (
-    <main className="flex items-center justify-center min-h-screen bg-black p-4">
+    <main className="bg-black">
       <div className="relative">
         <Calculator
           onAddToHistory={handleAddToHistory}

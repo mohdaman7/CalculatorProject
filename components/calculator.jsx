@@ -1,11 +1,9 @@
 import { useState, useRef } from "react";
 
 const Display = ({ value }) => {
-  const fontSize = value.length > 9 ? 'text-5xl' : value.length > 7 ? 'text-6xl' : 'text-8xl';
-  
   return (
-    <div className="text-white text-right px-8 pb-8 min-h-[180px] flex items-end justify-end">
-      <div className={`${fontSize} font-extralight tracking-tighter leading-none break-all`}>
+    <div className="text-white text-right pr-4 py-8 min-h-[120px] flex items-end justify-end">
+      <div className="text-6xl font-light tracking-tight break-all">
         {value}
       </div>
     </div>
@@ -15,7 +13,7 @@ const Display = ({ value }) => {
 const Button = ({ variant, onClick, onMouseDown, onMouseUp, onTouchStart, onTouchEnd, label, wide }) => {
   const [isPressed, setIsPressed] = useState(false);
   
-  const baseClasses = "rounded-full flex items-center justify-center text-white font-light transition-all duration-75 cursor-pointer select-none";
+  const baseClasses = "rounded-full flex items-center justify-center text-white font-light transition-all duration-75 cursor-pointer select-none active:scale-95";
   
   const variantClasses = {
     lightGray: `bg-[#a5a5a5] text-black ${isPressed ? 'bg-[#d4d4d4]' : ''}`,
@@ -45,8 +43,8 @@ const Button = ({ variant, onClick, onMouseDown, onMouseUp, onTouchStart, onTouc
 
   return (
     <div
-      className={`${baseClasses} ${variantClasses[variant]} ${wide ? 'col-span-2' : ''} h-[85px] text-[38px]`}
-      style={{ aspectRatio: wide ? '2.2/1' : '1/1' }}
+      className={`${baseClasses} ${variantClasses[variant]} ${wide ? 'col-span-2' : ''} h-20 text-3xl`}
+      style={{ aspectRatio: wide ? '2.1/1' : '1/1' }}
       onClick={onClick}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
@@ -54,7 +52,7 @@ const Button = ({ variant, onClick, onMouseDown, onMouseUp, onTouchStart, onTouc
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      <span className={wide ? 'ml-[-60px]' : ''}>{label}</span>
+      <span className={wide ? 'ml-[-20px]' : ''}>{label}</span>
     </div>
   );
 };
@@ -122,7 +120,6 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
       const finalResult = isForced ? forcedResult : actualResult;
       const timestamp = new Date().toLocaleString();
       
-      // Add to history via parent component
       onAddToHistory({
         expression: `${previousValue} ${operation} ${display}`,
         result: finalResult,
@@ -214,13 +211,12 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
   };
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center">
-      <div className="w-full max-w-[500px] h-screen flex items-end">
-        {/* Calculator */}
-        <div className="bg-black w-full pb-10">
+    <div className="w-full h-screen bg-black flex flex-col">
+      <div className="flex-1 flex items-end justify-center">
+        <div className="w-full max-w-sm">
           <Display value={display} />
 
-          <div className="grid grid-cols-4 gap-4 px-5">
+          <div className="grid grid-cols-4 gap-3 px-4 pb-8">
             {/* Row 1 */}
             <Button variant="gray" onClick={handleClear} label="AC" />
             <Button variant="gray" onClick={handleToggleSign} label="+/-" />

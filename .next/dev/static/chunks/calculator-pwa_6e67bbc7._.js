@@ -12,20 +12,19 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_mo
 var _s = __turbopack_context__.k.signature(), _s1 = __turbopack_context__.k.signature();
 ;
 const Display = ({ value })=>{
-    const fontSize = value.length > 9 ? 'text-5xl' : value.length > 7 ? 'text-6xl' : 'text-8xl';
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "text-white text-right px-8 pb-8 min-h-[180px] flex items-end justify-end",
+        className: "text-white text-right pr-4 py-8 min-h-[120px] flex items-end justify-end",
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-            className: `${fontSize} font-extralight tracking-tighter leading-none break-all`,
+            className: "text-6xl font-light tracking-tight break-all",
             children: value
         }, void 0, false, {
             fileName: "[project]/calculator-pwa/components/calculator.jsx",
-            lineNumber: 8,
+            lineNumber: 6,
             columnNumber: 7
         }, ("TURBOPACK compile-time value", void 0))
     }, void 0, false, {
         fileName: "[project]/calculator-pwa/components/calculator.jsx",
-        lineNumber: 7,
+        lineNumber: 5,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };
@@ -33,7 +32,7 @@ _c = Display;
 const Button = ({ variant, onClick, onMouseDown, onMouseUp, onTouchStart, onTouchEnd, label, wide })=>{
     _s();
     const [isPressed, setIsPressed] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
-    const baseClasses = "rounded-full flex items-center justify-center text-white font-light transition-all duration-75 cursor-pointer select-none";
+    const baseClasses = "rounded-full flex items-center justify-center text-white font-light transition-all duration-75 cursor-pointer select-none active:scale-95";
     const variantClasses = {
         lightGray: `bg-[#a5a5a5] text-black ${isPressed ? 'bg-[#d4d4d4]' : ''}`,
         gray: `bg-[#333333] ${isPressed ? 'bg-[#737373]' : ''}`,
@@ -56,9 +55,9 @@ const Button = ({ variant, onClick, onMouseDown, onMouseUp, onTouchStart, onTouc
         onTouchEnd?.(e);
     };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: `${baseClasses} ${variantClasses[variant]} ${wide ? 'col-span-2' : ''} h-[85px] text-[38px]`,
+        className: `${baseClasses} ${variantClasses[variant]} ${wide ? 'col-span-2' : ''} h-20 text-3xl`,
         style: {
-            aspectRatio: wide ? '2.2/1' : '1/1'
+            aspectRatio: wide ? '2.1/1' : '1/1'
         },
         onClick: onClick,
         onMouseDown: handleMouseDown,
@@ -67,16 +66,16 @@ const Button = ({ variant, onClick, onMouseDown, onMouseUp, onTouchStart, onTouc
         onTouchStart: handleTouchStart,
         onTouchEnd: handleTouchEnd,
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-            className: wide ? 'ml-[-60px]' : '',
+            className: wide ? 'ml-[-20px]' : '',
             children: label
         }, void 0, false, {
             fileName: "[project]/calculator-pwa/components/calculator.jsx",
-            lineNumber: 57,
+            lineNumber: 55,
             columnNumber: 7
         }, ("TURBOPACK compile-time value", void 0))
     }, void 0, false, {
         fileName: "[project]/calculator-pwa/components/calculator.jsx",
-        lineNumber: 47,
+        lineNumber: 45,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };
@@ -134,7 +133,6 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
             }
             const finalResult = isForced ? forcedResult : actualResult;
             const timestamp = new Date().toLocaleString();
-            // Add to history via parent component
             onAddToHistory({
                 expression: `${previousValue} ${operation} ${display}`,
                 result: finalResult,
@@ -218,21 +216,21 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
         }
     };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "min-h-screen bg-black flex items-center justify-center",
+        className: "w-full h-screen bg-black flex flex-col",
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-            className: "w-full max-w-[500px] h-screen flex items-end",
+            className: "flex-1 flex items-end justify-center",
             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "bg-black w-full pb-10",
+                className: "w-full max-w-sm",
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(Display, {
                         value: display
                     }, void 0, false, {
                         fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                        lineNumber: 221,
+                        lineNumber: 217,
                         columnNumber: 11
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "grid grid-cols-4 gap-4 px-5",
+                        className: "grid grid-cols-4 gap-3 px-4 pb-8",
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(Button, {
                                 variant: "gray",
@@ -240,7 +238,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
                                 label: "AC"
                             }, void 0, false, {
                                 fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                lineNumber: 225,
+                                lineNumber: 221,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(Button, {
@@ -249,7 +247,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
                                 label: "+/-"
                             }, void 0, false, {
                                 fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                lineNumber: 226,
+                                lineNumber: 222,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(Button, {
@@ -258,7 +256,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
                                 label: "%"
                             }, void 0, false, {
                                 fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                lineNumber: 227,
+                                lineNumber: 223,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(Button, {
@@ -271,7 +269,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
                                 label: "÷"
                             }, void 0, false, {
                                 fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                lineNumber: 228,
+                                lineNumber: 224,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(Button, {
@@ -280,7 +278,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
                                 label: "7"
                             }, void 0, false, {
                                 fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                lineNumber: 239,
+                                lineNumber: 235,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(Button, {
@@ -289,7 +287,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
                                 label: "8"
                             }, void 0, false, {
                                 fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                lineNumber: 240,
+                                lineNumber: 236,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(Button, {
@@ -298,7 +296,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
                                 label: "9"
                             }, void 0, false, {
                                 fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                lineNumber: 241,
+                                lineNumber: 237,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(Button, {
@@ -311,7 +309,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
                                 label: "×"
                             }, void 0, false, {
                                 fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                lineNumber: 242,
+                                lineNumber: 238,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(Button, {
@@ -320,7 +318,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
                                 label: "4"
                             }, void 0, false, {
                                 fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                lineNumber: 253,
+                                lineNumber: 249,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(Button, {
@@ -329,7 +327,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
                                 label: "5"
                             }, void 0, false, {
                                 fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                lineNumber: 254,
+                                lineNumber: 250,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(Button, {
@@ -338,7 +336,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
                                 label: "6"
                             }, void 0, false, {
                                 fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                lineNumber: 255,
+                                lineNumber: 251,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(Button, {
@@ -347,7 +345,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
                                 label: "−"
                             }, void 0, false, {
                                 fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                lineNumber: 256,
+                                lineNumber: 252,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(Button, {
@@ -356,7 +354,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
                                 label: "1"
                             }, void 0, false, {
                                 fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                lineNumber: 259,
+                                lineNumber: 255,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(Button, {
@@ -365,7 +363,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
                                 label: "2"
                             }, void 0, false, {
                                 fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                lineNumber: 260,
+                                lineNumber: 256,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(Button, {
@@ -374,7 +372,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
                                 label: "3"
                             }, void 0, false, {
                                 fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                lineNumber: 261,
+                                lineNumber: 257,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(Button, {
@@ -387,7 +385,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
                                 label: "+"
                             }, void 0, false, {
                                 fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                lineNumber: 262,
+                                lineNumber: 258,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(Button, {
@@ -397,7 +395,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
                                 label: "0"
                             }, void 0, false, {
                                 fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                lineNumber: 273,
+                                lineNumber: 269,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(Button, {
@@ -406,7 +404,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
                                 label: "."
                             }, void 0, false, {
                                 fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                lineNumber: 274,
+                                lineNumber: 270,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(Button, {
@@ -415,29 +413,29 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
                                 label: "="
                             }, void 0, false, {
                                 fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                                lineNumber: 275,
+                                lineNumber: 271,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                        lineNumber: 223,
+                        lineNumber: 219,
                         columnNumber: 11
                     }, ("TURBOPACK compile-time value", void 0))
                 ]
             }, void 0, true, {
                 fileName: "[project]/calculator-pwa/components/calculator.jsx",
-                lineNumber: 220,
+                lineNumber: 216,
                 columnNumber: 9
             }, ("TURBOPACK compile-time value", void 0))
         }, void 0, false, {
             fileName: "[project]/calculator-pwa/components/calculator.jsx",
-            lineNumber: 218,
+            lineNumber: 215,
             columnNumber: 7
         }, ("TURBOPACK compile-time value", void 0))
     }, void 0, false, {
         fileName: "[project]/calculator-pwa/components/calculator.jsx",
-        lineNumber: 217,
+        lineNumber: 214,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };
@@ -1995,7 +1993,7 @@ function HomeWrapper() {
         }, this);
     }
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
-        className: "flex items-center justify-center min-h-screen bg-black p-4",
+        className: "bg-black",
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
             className: "relative",
             children: [
