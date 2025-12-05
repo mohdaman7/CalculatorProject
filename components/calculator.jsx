@@ -98,7 +98,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
     setOperation(op);
     setWaitingForNewValue(true);
   };
-  
+
   const handleEquals = () => {
     if (previousValue !== null && operation) {
       const currentValue = Number.parseFloat(display);
