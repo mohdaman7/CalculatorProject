@@ -1,34 +1,31 @@
-"use client"
+import React from 'react';
 
 const HistoryPanel = ({ history, onClose, onClear }) => {
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
-      <div className="bg-[#1C1C1E] rounded-t-[20px] sm:rounded-[20px] w-full sm:max-w-md max-h-[90vh] flex flex-col">
+    <div className="fixed inset-0 bg-black/70 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+      <div className="bg-black rounded-t-[20px] sm:rounded-[20px] w-full sm:max-w-md max-h-[90vh] flex flex-col shadow-2xl border border-[#2C2C2E]">
+        
         {/* Header with Logo */}
-        <div className="flex flex-col items-center pt-8 pb-4 px-6 border-b border-[#38383A]">
-          <div className="w-24 h-24 mb-3 flex items-center justify-center">
-            <div className="text-[#98989D] font-serif text-center">
-              <div className="text-xl tracking-wider">ART OF</div>
-              <div className="text-2xl font-bold tracking-wide">MENTALISM</div>
-              <div className="text-[8px] mt-1">BY SANDEEP FRADIAN</div>
-            </div>
-          </div>
+        <div className="flex flex-col items-center pt-6 pb-6 px-6">
+          <img 
+            src="/sandeep.png" 
+            alt="Sandeep Fradian" 
+            className="w-64 h-auto"
+          />
         </div>
 
         {/* History List */}
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex-1 overflow-y-auto px-6 py-4">
           {history.length === 0 ? (
-            <div className="text-center py-16 text-[#98989D]">No history yet</div>
+            <div className="text-center py-16 text-[#6C6C70]">No history yet</div>
           ) : (
-            <div className="space-y-0">
+            <div className="space-y-6">
               {history.map((entry, idx) => (
-                <div key={idx} className="border-b border-[#38383A] last:border-b-0">
-                  <div className="py-4 text-center">
-                    <div className="text-white text-6xl font-light mb-1">{entry.result}</div>
-                    {entry.forced && (
-                      <div className="text-[#98989D] text-xs">(forced)</div>
-                    )}
-                  </div>
+                <div key={idx} className="text-center">
+                  <div className="text-white text-7xl font-bold tracking-tight">{entry.result}</div>
+                  {entry.forced && (
+                    <div className="text-[#6C6C70] text-sm mt-1">(forced)</div>
+                  )}
                 </div>
               ))}
             </div>
@@ -36,18 +33,12 @@ const HistoryPanel = ({ history, onClose, onClear }) => {
         </div>
 
         {/* Clear Button */}
-        <div className="p-4 border-t border-[#38383A]">
+        <div className="p-6 pt-4">
           <button
             onClick={onClear}
-            className="w-full bg-[#FF3B30] hover:bg-[#FF4F44] text-white font-semibold py-3 rounded-xl transition-colors mb-2"
+            className="w-full bg-transparent border-2 border-white text-white font-medium py-4 rounded-xl transition-all hover:bg-white/10 text-lg"
           >
             Clear
-          </button>
-          <button
-            onClick={onClose}
-            className="w-full bg-[#2C2C2E] hover:bg-[#38383A] text-white font-semibold py-3 rounded-xl transition-colors"
-          >
-            Close
           </button>
         </div>
       </div>
