@@ -10,3 +10,68 @@
 [00:09:21.575] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
 [00:09:21.576] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1764908615101}
 [00:09:21.576] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1764908615102}
+[00:11:27.030] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:11:27.030] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:11:27.030] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:11:27.030] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1764908740556}
+[00:11:27.030] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1764908740556}
+[00:13:19.363] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:13:19.363] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:13:19.363] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:13:19.363] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1764908852889}
+[00:13:19.363] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1764908852889}
+[00:13:31.614] Browser ERROR   uncaughtError: TypeError: Cannot read properties of null (reading 'secondForceTriggerNumber')
+[00:13:47.121] Browser ERROR   uncaughtError: TypeError: Cannot read properties of null (reading 'secondForceTriggerNumber')
+[00:13:48.180] Browser ERROR   uncaughtError: TypeError: Cannot read properties of null (reading 'secondForceTriggerNumber')
+[00:13:48.806] Browser ERROR   uncaughtError: TypeError: Cannot read properties of null (reading 'secondForceTriggerNumber')
+[00:13:48.983] Browser ERROR   uncaughtError: TypeError: Cannot read properties of null (reading 'secondForceTriggerNumber')
+[00:13:49.181] Browser ERROR   uncaughtError: TypeError: Cannot read properties of null (reading 'secondForceTriggerNumber')
+[00:13:49.365] Browser ERROR   uncaughtError: TypeError: Cannot read properties of null (reading 'secondForceTriggerNumber')
+[00:13:49.545] Browser ERROR   uncaughtError: TypeError: Cannot read properties of null (reading 'secondForceTriggerNumber')
+[00:13:50.043] Browser ERROR   uncaughtError: TypeError: Cannot read properties of null (reading 'secondForceTriggerNumber')
+[00:13:50.219] Browser ERROR   uncaughtError: TypeError: Cannot read properties of null (reading 'secondForceTriggerNumber')
+[00:13:50.417] Browser ERROR   uncaughtError: TypeError: Cannot read properties of null (reading 'secondForceTriggerNumber')
+[00:13:50.601] Browser ERROR   uncaughtError: TypeError: Cannot read properties of null (reading 'secondForceTriggerNumber')
+[00:13:50.791] Browser ERROR   uncaughtError: TypeError: Cannot read properties of null (reading 'secondForceTriggerNumber')
+[00:13:50.982] Browser ERROR   uncaughtError: TypeError: Cannot read properties of null (reading 'secondForceTriggerNumber')
+[00:13:51.159] Browser ERROR   uncaughtError: TypeError: Cannot read properties of null (reading 'secondForceTriggerNumber')
+[00:13:51.343] Browser ERROR   uncaughtError: TypeError: Cannot read properties of null (reading 'secondForceTriggerNumber')
+[00:13:51.540] Browser ERROR   uncaughtError: TypeError: Cannot read properties of null (reading 'secondForceTriggerNumber')
+[00:13:51.731] Browser ERROR   uncaughtError: TypeError: Cannot read properties of null (reading 'secondForceTriggerNumber')
+[00:13:51.911] Browser ERROR   uncaughtError: TypeError: Cannot read properties of null (reading 'secondForceTriggerNumber')
+[00:13:52.629] Browser ERROR   uncaughtError: TypeError: Cannot read properties of null (reading 'secondForceTriggerNumber')
+[00:13:52.808] Browser ERROR   uncaughtError: TypeError: Cannot read properties of null (reading 'secondForceTriggerNumber')
+[00:13:53.267] Browser ERROR   uncaughtError: TypeError: Cannot read properties of null (reading 'secondForceTriggerNumber')
+[00:13:53.681] Browser ERROR   uncaughtError: TypeError: Cannot read properties of null (reading 'secondForceTriggerNumber')
+[00:13:53.861] Browser ERROR   uncaughtError: TypeError: Cannot read properties of null (reading 'secondForceTriggerNumber')
+[00:14:04.618] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:14:04.619] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:14:04.619] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:14:04.619] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1764908898145}
+[00:14:04.619] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1764908898145}
+[00:14:22.162] Browser ERROR   uncaughtError: TypeError: Cannot read properties of null (reading 'secondForceTriggerNumber')
+[00:16:47.326] Server  LOG      ✓ Compiled in 116ms
+[00:17:22.672] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:17:22.672] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:17:22.672] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:17:22.672] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1764909096198}
+[00:17:22.672] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1764909096198}
+[00:19:32.878] Server  LOG      ✓ Compiled in 123ms
+[00:19:37.293] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:19:37.293] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:19:37.293] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:19:37.293] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1764909230819}
+[00:19:37.293] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1764909230819}
+[00:19:57.887] Server  LOG      ✓ Compiled in 101ms
+[00:20:53.709] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:20:53.709] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:20:53.709] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:20:53.709] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1764909307234}
+[00:20:53.709] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1764909307235}
+[00:26:02.736] Server  LOG      ✓ Compiled in 192ms
+[00:26:25.875] Server  LOG      ✓ Compiled in 66ms
+[00:26:38.036] Server  LOG      ✓ Compiled in 85ms
+[00:26:40.969] Server  LOG      ✓ Compiled in 43ms
+[00:37:59.082] Server  LOG      ✓ Compiled in 103ms
+[00:38:08.886] Server  LOG      ✓ Compiled in 114ms
+[00:38:13.320] Server  LOG      ✓ Compiled in 98ms
