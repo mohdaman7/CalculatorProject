@@ -1,9 +1,9 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 
-// Force Number Modal
-const ForceNumberModal = ({ currentValue, onSave, onClose }) => {
+const ForcedNumberModal = ({ currentValue, onSave, onClose }) => {
   const [formData, setFormData] = useState({
     forcedNumber: currentValue?.forcedNumber ? String(currentValue.forcedNumber) : "",
     secondForceNumber: currentValue?.secondForceNumber ? String(currentValue.secondForceNumber) : "",
@@ -32,26 +32,41 @@ const ForceNumberModal = ({ currentValue, onSave, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
-      <div className="bg-[#1C1C1E] rounded-t-[20px] sm:rounded-[20px] w-full sm:max-w-md max-h-[90vh] overflow-y-auto">
-        {/* Header with Logo */}
-        <div className="flex flex-col items-center pt-8 pb-6 px-6 border-b border-[#38383A]">
-          <div className="w-32 h-32 mb-4 flex items-center justify-center">
-            <div className="w-full h-full rounded-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center">
-              <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="40" cy="40" r="38" fill="#2C2C2E" stroke="#48484A" strokeWidth="2"/>
-                <text x="40" y="52" fontSize="32" fill="#D4D4D2" textAnchor="middle" fontWeight="300">AOM</text>
-              </svg>
-            </div>
+    <div className="fixed inset-0 bg-black z-50 overflow-y-auto">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-5">
+        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+              <circle cx="50" cy="50" r="40" fill="none" stroke="#666" strokeWidth="0.5" opacity="0.3"/>
+              <path d="M50 10 L90 90 M10 90 L90 10" stroke="#666" strokeWidth="0.5" opacity="0.2"/>
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#pattern)"/>
+        </svg>
+      </div>
+
+      {/* Content */}
+      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-6 py-8">
+        {/* Top Logo Section */}
+        <div className="mb-8 text-center">
+          <div className="mb-6">
+            <Image
+              src="/sandeep.png"
+              alt="Sandeep Fradian"
+              width={800}
+              height={250}
+              className="mx-auto h-56 w-auto"
+              priority
+            />
           </div>
-          <h2 className="text-white text-xl font-semibold">Sandeep Fradian</h2>
         </div>
 
-        {/* Form Content */}
-        <div className="p-6 space-y-6">
+        {/* Form Container */}
+        <div className="w-full max-w-md space-y-8">
           {/* Forcing Number */}
           <div>
-            <label className="block text-[#98989D] text-sm font-medium mb-2 uppercase tracking-wide">
+            <label className="block text-white text-sm font-semibold mb-3 uppercase tracking-widest">
               Forcing Number
             </label>
             <input
@@ -59,13 +74,13 @@ const ForceNumberModal = ({ currentValue, onSave, onClose }) => {
               value={formData.forcedNumber}
               onChange={(e) => handleInputChange('forcedNumber', e.target.value)}
               placeholder="100"
-              className="w-full bg-[#2C2C2E] text-white text-lg px-4 py-4 rounded-xl border border-[#38383A] focus:outline-none focus:border-[#FF9F0A] placeholder-[#48484A]"
+              className="w-full bg-transparent text-white text-lg px-4 py-3 rounded-lg border border-gray-600 focus:outline-none focus:border-white transition-colors placeholder-gray-500"
             />
           </div>
 
           {/* Second Force Number */}
           <div>
-            <label className="block text-[#98989D] text-sm font-medium mb-2 uppercase tracking-wide">
+            <label className="block text-white text-sm font-semibold mb-3 uppercase tracking-widest">
               Second Force Number
             </label>
             <input
@@ -73,13 +88,13 @@ const ForceNumberModal = ({ currentValue, onSave, onClose }) => {
               value={formData.secondForceNumber}
               onChange={(e) => handleInputChange('secondForceNumber', e.target.value)}
               placeholder="200"
-              className="w-full bg-[#2C2C2E] text-white text-lg px-4 py-4 rounded-xl border border-[#38383A] focus:outline-none focus:border-[#FF9F0A] placeholder-[#48484A]"
+              className="w-full bg-transparent text-white text-lg px-4 py-3 rounded-lg border border-gray-600 focus:outline-none focus:border-white transition-colors placeholder-gray-500"
             />
           </div>
 
           {/* Second Force Trigger Number */}
           <div>
-            <label className="block text-[#98989D] text-sm font-medium mb-2 uppercase tracking-wide">
+            <label className="block text-white text-sm font-semibold mb-3 uppercase tracking-widest">
               Second Force Trigger Number
             </label>
             <input
@@ -87,34 +102,58 @@ const ForceNumberModal = ({ currentValue, onSave, onClose }) => {
               value={formData.secondForceTriggerNumber}
               onChange={(e) => handleInputChange('secondForceTriggerNumber', e.target.value)}
               placeholder="Enter trigger number"
-              className="w-full bg-[#2C2C2E] text-white text-lg px-4 py-4 rounded-xl border border-[#38383A] focus:outline-none focus:border-[#FF9F0A] placeholder-[#48484A]"
+              className="w-full bg-transparent text-white text-lg px-4 py-3 rounded-lg border border-gray-600 focus:outline-none focus:border-white transition-colors placeholder-gray-500"
             />
           </div>
 
           {/* Save Button */}
-          <button 
-            onClick={handleSave}
-            className="w-full bg-[#FF9F0A] hover:bg-[#FFB340] text-white font-semibold py-4 rounded-xl transition-colors"
-          >
-            SAVE
-          </button>
-        </div>
-
-        {/* Footer Logo */}
-        <div className="flex justify-center pb-8 pt-4">
-          <div className="text-[#98989D] text-xs">
-            <div className="font-serif text-2xl tracking-wider">ART OF MENTALISM</div>
-            <div className="text-center text-[10px] mt-1">BY SANDEEP FRADIAN</div>
+          <div className="flex justify-center pt-6">
+            <button 
+              onClick={handleSave}
+              className="px-12 py-3 border-2 border-white text-white font-semibold uppercase tracking-widest rounded-lg hover:bg-white hover:text-black transition-all duration-300"
+            >
+              Save
+            </button>
           </div>
         </div>
 
-        <div className="text-center pb-4 text-[#98989D] text-xs">
-          AOM FORCE V1<br/>
-          2025 COPYRIGHT TO SANDEEP FRADIAN
+        {/* Bottom Logo Section */}
+        <div className="mt-12 flex flex-col items-center space-y-6">
+          {/* Art of Mentalism Logo */}
+          <div className="relative w-56 h-56">
+            <Image
+              src="/logo.png"
+              alt="Art of Mentalism"
+              width={224}
+              height={224}
+              className="w-full h-full object-contain"
+            />
+          </div>
+
+          {/* Footer Text */}
+          <div className="text-center space-y-2">
+            <p className="text-gray-400 text-sm font-semibold uppercase tracking-widest">
+              AOM FORCE V1
+            </p>
+            <p className="text-gray-500 text-xs uppercase tracking-widest">
+              2025 COPYRIGHT TO SANDEEP FRADIAN
+            </p>
+          </div>
         </div>
+
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-6 right-6 text-gray-400 hover:text-white transition-colors"
+          aria-label="Close"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       </div>
     </div>
   );
 };
 
-export default ForceNumberModal;
+export default ForcedNumberModal;
