@@ -647,12 +647,12 @@ const ForcedNumberModal = ({ currentValue, onSave, onClose })=>{
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "relative z-10 min-h-screen flex flex-col items-center justify-center px-6 py-8",
+                className: "relative z-10 min-h-screen flex flex-col items-center justify-center px-6 py-4",
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "mb-8 text-center",
+                        className: "mb-2 text-center",
                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "mb-6",
+                            className: "mb-2",
                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
                                 src: "/sandeep.png",
                                 alt: "Sandeep Fradian",
@@ -676,12 +676,12 @@ const ForcedNumberModal = ({ currentValue, onSave, onClose })=>{
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "w-full max-w-md space-y-8",
+                        className: "w-full max-w-sm space-y-5",
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                        className: "block text-white text-sm font-semibold mb-3 uppercase tracking-widest",
+                                        className: "block text-white text-sm font-semibold mb-3 uppercase tracking-widest text-center",
                                         children: "Forcing Number"
                                     }, void 0, false, {
                                         fileName: "[project]/calculator-pwa/components/forced-number-modal.jsx",
@@ -692,7 +692,7 @@ const ForcedNumberModal = ({ currentValue, onSave, onClose })=>{
                                         type: "number",
                                         value: formData.forcedNumber,
                                         onChange: (e)=>handleInputChange('forcedNumber', e.target.value),
-                                        placeholder: "100",
+                                        placeholder: "Enter forced value",
                                         className: "w-full bg-transparent text-white text-lg px-4 py-3 rounded-lg border border-gray-600 focus:outline-none focus:border-white transition-colors placeholder-gray-500"
                                     }, void 0, false, {
                                         fileName: "[project]/calculator-pwa/components/forced-number-modal.jsx",
@@ -708,7 +708,7 @@ const ForcedNumberModal = ({ currentValue, onSave, onClose })=>{
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                        className: "block text-white text-sm font-semibold mb-3 uppercase tracking-widest",
+                                        className: "block text-white text-sm font-semibold mb-3 uppercase tracking-widest text-center",
                                         children: "Second Force Number"
                                     }, void 0, false, {
                                         fileName: "[project]/calculator-pwa/components/forced-number-modal.jsx",
@@ -719,7 +719,7 @@ const ForcedNumberModal = ({ currentValue, onSave, onClose })=>{
                                         type: "number",
                                         value: formData.secondForceNumber,
                                         onChange: (e)=>handleInputChange('secondForceNumber', e.target.value),
-                                        placeholder: "200",
+                                        placeholder: "Enter second force value",
                                         className: "w-full bg-transparent text-white text-lg px-4 py-3 rounded-lg border border-gray-600 focus:outline-none focus:border-white transition-colors placeholder-gray-500"
                                     }, void 0, false, {
                                         fileName: "[project]/calculator-pwa/components/forced-number-modal.jsx",
@@ -735,7 +735,7 @@ const ForcedNumberModal = ({ currentValue, onSave, onClose })=>{
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                        className: "block text-white text-sm font-semibold mb-3 uppercase tracking-widest",
+                                        className: "block text-white text-sm font-semibold mb-3 uppercase tracking-widest text-center",
                                         children: "Second Force Trigger Number"
                                     }, void 0, false, {
                                         fileName: "[project]/calculator-pwa/components/forced-number-modal.jsx",
@@ -760,7 +760,7 @@ const ForcedNumberModal = ({ currentValue, onSave, onClose })=>{
                                 columnNumber: 11
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "flex justify-center pt-6",
+                                className: "flex justify-center pt-2",
                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                     onClick: handleSave,
                                     className: "px-12 py-3 border-2 border-white text-white font-semibold uppercase tracking-widest rounded-lg hover:bg-white hover:text-black transition-all duration-300",

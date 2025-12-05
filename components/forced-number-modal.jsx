@@ -47,10 +47,10 @@ const ForcedNumberModal = ({ currentValue, onSave, onClose }) => {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-6 py-8">
+      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-6 py-4">
         {/* Top Logo Section */}
-        <div className="mb-8 text-center">
-          <div className="mb-6">
+        <div className="mb-2 text-center">
+          <div className="mb-2">
             <Image
               src="/sandeep.png"
               alt="Sandeep Fradian"
@@ -63,38 +63,38 @@ const ForcedNumberModal = ({ currentValue, onSave, onClose }) => {
         </div>
 
         {/* Form Container */}
-        <div className="w-full max-w-md space-y-8">
+        <div className="w-full max-w-sm space-y-5">
           {/* Forcing Number */}
           <div>
-            <label className="block text-white text-sm font-semibold mb-3 uppercase tracking-widest">
+            <label className="block text-white text-sm font-semibold mb-3 uppercase tracking-widest text-center">
               Forcing Number
             </label>
             <input
               type="number"
               value={formData.forcedNumber}
               onChange={(e) => handleInputChange('forcedNumber', e.target.value)}
-              placeholder="100"
+              placeholder="Enter forced value"
               className="w-full bg-transparent text-white text-lg px-4 py-3 rounded-lg border border-gray-600 focus:outline-none focus:border-white transition-colors placeholder-gray-500"
             />
           </div>
 
           {/* Second Force Number */}
           <div>
-            <label className="block text-white text-sm font-semibold mb-3 uppercase tracking-widest">
+            <label className="block text-white text-sm font-semibold mb-3 uppercase tracking-widest text-center">
               Second Force Number
             </label>
             <input
               type="number"
               value={formData.secondForceNumber}
               onChange={(e) => handleInputChange('secondForceNumber', e.target.value)}
-              placeholder="200"
+              placeholder="Enter second force value"
               className="w-full bg-transparent text-white text-lg px-4 py-3 rounded-lg border border-gray-600 focus:outline-none focus:border-white transition-colors placeholder-gray-500"
             />
           </div>
 
           {/* Second Force Trigger Number */}
           <div>
-            <label className="block text-white text-sm font-semibold mb-3 uppercase tracking-widest">
+            <label className="block text-white text-sm font-semibold mb-3 uppercase tracking-widest text-center">
               Second Force Trigger Number
             </label>
             <input
@@ -107,7 +107,7 @@ const ForcedNumberModal = ({ currentValue, onSave, onClose }) => {
           </div>
 
           {/* Save Button */}
-          <div className="flex justify-center pt-6">
+          <div className="flex justify-center pt-2">
             <button 
               onClick={handleSave}
               className="px-12 py-3 border-2 border-white text-white font-semibold uppercase tracking-widest rounded-lg hover:bg-white hover:text-black transition-all duration-300"
