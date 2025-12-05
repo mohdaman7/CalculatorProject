@@ -1,14 +1,28 @@
 import React from 'react';
+import Image from 'next/image';
 
 const HistoryPanel = ({ history, onClose, onClear }) => {
+  // Parse expression to get operands
+  const parseExpression = (expression) => {
+    // Expression format: "10 + 20" or "10 - 5" etc
+    const parts = expression.split(/\s+/);
+    return {
+      firstOperand: parts[0],
+      operator: parts[1],
+      secondOperand: parts[2]
+    };
+  };
+
   return (
     <div className="fixed inset-0 bg-black z-50 flex flex-col overflow-hidden">
       
       {/* Header with Logo */}
       <div className="flex flex-col items-center pt-3 pb-6 px-6 flex-shrink-0">
-        <img 
+        <Image 
           src="/sandeep.png" 
           alt="Sandeep Fradian" 
+          width={400}
+          height={100}
           className="w-64 h-auto"
         />
       </div>
@@ -18,17 +32,23 @@ const HistoryPanel = ({ history, onClose, onClear }) => {
         {history.length === 0 ? (
           <div className="text-center py-20 text-[#666] text-base">No history yet</div>
         ) : (
-          <div className="space-y-6 pt-2">
-            {history.map((entry, idx) => (
-              <div key={idx} className="text-center">
-                <div className="text-white text-4xl font-bold tracking-tight leading-none">
-                  {Number.isInteger(entry.result) ? entry.result : parseFloat(entry.result).toFixed(2)}
+          <div className="space-y-8 pt-2">
+            {history.map((entry, idx) => {
+              const { firstOperand, operator, secondOperand } = parseExpression(entry.expression);
+              return (
+                <div key={idx} className="text-center">
+                  {/* First Operand */}
+                  <div className="text-white text-5xl font-light tracking-tight mb-4">
+                    {firstOperand}
+                  </div>
+                  
+                  {/* Second Operand */}
+                  <div className="text-white text-5xl font-light tracking-tight">
+                    {secondOperand}
+                  </div>
                 </div>
-                {entry.forced && (
-                  <div className="text-[#666] text-xs mt-1">(forced)</div>
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
@@ -42,6 +62,17 @@ const HistoryPanel = ({ history, onClose, onClear }) => {
           Clear
         </button>
       </div>
+
+      {/* Close Button */}
+      <button
+        onClick={onClose}
+        className="absolute top-6 right-6 text-gray-400 hover:text-white transition-colors z-10"
+        aria-label="Close"
+      >
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
     </div>
   );
 };

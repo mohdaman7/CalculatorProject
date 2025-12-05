@@ -4,6 +4,17 @@ const auth = require('../middleware/auth');
 
 const router = express.Router();
 
+// Helper function to parse expression and extract operands
+const parseExpression = (expression) => {
+  // Expression format: "10 + 20" or "10 - 5" etc
+  const parts = expression.split(/\s+/);
+  return {
+    firstOperand: parts[0],
+    operator: parts[1],
+    secondOperand: parts[2]
+  };
+};
+
 // Save calculation history
 router.post('/history', auth, async (req, res) => {
   try {
@@ -36,7 +47,7 @@ router.post('/history', auth, async (req, res) => {
   }
 });
 
-// Get calculation history
+// Get calculation history with operands
 router.get('/history', auth, async (req, res) => {
   try {
     const { page = 1, limit = 20, forcedOnly = true } = req.query;
@@ -53,8 +64,17 @@ router.get('/history', auth, async (req, res) => {
 
     const total = await CalculationHistory.countDocuments(query);
 
+    // Parse expressions to extract operands
+    const historyWithOperands = history.map(item => {
+      const operands = parseExpression(item.expression);
+      return {
+        ...item.toObject(),
+        operands
+      };
+    });
+
     res.json({
-      history,
+      history: historyWithOperands,
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
@@ -65,6 +85,36 @@ router.get('/history', auth, async (req, res) => {
   } catch (error) {
     console.error('Get history error:', error);
     res.status(500).json({ error: 'Server error fetching history' });
+  }
+});
+
+// Get operands from expression
+router.get('/operands/:id', auth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const history = await CalculationHistory.findById(id);
+    
+    if (!history) {
+      return res.status(404).json({ error: 'Calculation not found' });
+    }
+
+    if (history.userId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    const operands = parseExpression(history.expression);
+
+    res.json({
+      expression: history.expression,
+      operands,
+      result: history.actualResult,
+      forcedResult: history.forcedResult,
+      wasForced: history.wasForced
+    });
+  } catch (error) {
+    console.error('Get operands error:', error);
+    res.status(500).json({ error: 'Server error fetching operands' });
   }
 });
 
