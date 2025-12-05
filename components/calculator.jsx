@@ -17,7 +17,7 @@ const Button = ({ variant, onClick, onMouseDown, onMouseUp, onTouchStart, onTouc
   
   const variantClasses = {
     lightGray: `bg-[#a5a5a5] text-black ${isPressed ? 'bg-[#d4d4d4]' : ''}`,
-    gray: `bg-[#333333] ${isPressed ? 'bg-[#737373]' : ''}`,
+    gray: `bg-[#4a4a4a] ${isPressed ? 'bg-[#5a5a5a]' : ''}`,
     orange: `bg-[#ff9f0a] ${isPressed ? 'bg-[#ffb143]' : ''}`
   };
 
@@ -265,8 +265,9 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
               label="+"
             />
 
-            {/* Row 5 */}
-            <Button variant="gray" wide onClick={() => handleNumberClick(0)} label="0" />
+            {/* Row 5 - Last Row with 3 items */}
+            <Button variant="gray" onClick={handleBackspace} label="✕" />
+            <Button variant="gray" onClick={() => handleNumberClick(0)} label="0" />
             <Button variant="gray" onClick={handleDecimal} label="." />
             <Button variant="orange" onClick={handleEquals} label="=" />
           </div>
