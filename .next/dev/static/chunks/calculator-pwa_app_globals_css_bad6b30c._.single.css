@@ -1808,12 +1808,24 @@
     background-color: #333;
   }
 
+  .bg-\[\#424242\] {
+    background-color: #424242;
+  }
+
   .bg-\[\#737373\] {
     background-color: #737373;
   }
 
+  .bg-\[\#E08C0F\] {
+    background-color: #e08c0f;
+  }
+
   .bg-\[\#FF9F0A\] {
     background-color: #ff9f0a;
+  }
+
+  .bg-\[\#FFD400\] {
+    background-color: #ffd400;
   }
 
   .bg-\[\#a5a5a5\] {

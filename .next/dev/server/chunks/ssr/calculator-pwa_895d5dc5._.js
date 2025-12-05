@@ -32,8 +32,8 @@ const Button = ({ variant, onClick, onMouseDown, onMouseUp, onTouchStart, onTouc
     const baseClasses = "rounded-full flex items-center justify-center text-white font-light transition-all duration-75 cursor-pointer select-none active:scale-95";
     const variantClasses = {
         lightGray: `bg-[#a5a5a5] text-black ${isPressed ? 'bg-[#d4d4d4]' : ''}`,
-        gray: `bg-[#4a4a4a] ${isPressed ? 'bg-[#5a5a5a]' : ''}`,
-        orange: `bg-[#ff9f0a] ${isPressed ? 'bg-[#ffb143]' : ''}`
+        gray: `bg-[#424242] ${isPressed ? 'bg-[#5a5a5a]' : ''}`,
+        orange: `bg-[#E08C0F] ${isPressed ? 'bg-[#ffb143]' : ''}`
     };
     const handleMouseDown = (e)=>{
         setIsPressed(true);
