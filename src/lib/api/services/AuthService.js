@@ -48,6 +48,15 @@ class AuthService extends BaseService {
     }
   }
 
+  async updateBirthYear(birthYear) {
+    try {
+      const response = await axiosInstance.put(`${this.endpoint}/birth-year`, { birthYear });
+      return response.data;
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
   logout() {
     this.removeToken();
   }

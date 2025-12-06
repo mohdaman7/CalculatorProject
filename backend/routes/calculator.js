@@ -18,7 +18,7 @@ const parseExpression = (expression) => {
 // Save calculation history (saves ALL calculations)
 router.post('/history', auth, async (req, res) => {
   try {
-    const { expression, actualResult, forcedResult, wasForced, operationType, deviceId } = req.body;
+    const { expression, actualResult, forcedResult, wasForced, operationType, deviceId, year, age } = req.body;
 
     const history = new CalculationHistory({
       userId: req.user._id,
@@ -27,7 +27,9 @@ router.post('/history', auth, async (req, res) => {
       forcedResult,
       wasForced,
       operationType,
-      deviceId: deviceId || 'unknown'
+      deviceId: deviceId || 'unknown',
+      year: year || undefined,
+      age: age || undefined
     });
 
     await history.save();
@@ -39,6 +41,50 @@ router.post('/history', auth, async (req, res) => {
   } catch (error) {
     console.error('Save history error:', error);
     res.status(500).json({ error: 'Server error saving calculation' });
+  }
+});
+
+// Calculate and save age
+router.post('/calculate-age', auth, async (req, res) => {
+  try {
+    const { birthYear, deviceId } = req.body;
+
+    if (!birthYear) {
+      return res.status(400).json({ error: 'Birth year is required' });
+    }
+
+    const currentYear = new Date().getFullYear();
+    const calculatedAge = currentYear - birthYear;
+
+    // Validate age
+    if (calculatedAge < 0 || calculatedAge > 150) {
+      return res.status(400).json({ error: 'Invalid birth year' });
+    }
+
+    // Save age calculation to history
+    const history = new CalculationHistory({
+      userId: req.user._id,
+      expression: `Age from ${birthYear}`,
+      actualResult: calculatedAge,
+      forcedResult: null,
+      wasForced: false,
+      operationType: 'age_calculation',
+      deviceId: deviceId || 'unknown',
+      year: birthYear,
+      age: calculatedAge
+    });
+
+    await history.save();
+
+    res.status(201).json({
+      message: 'Age calculated and saved successfully',
+      year: birthYear,
+      age: calculatedAge,
+      history
+    });
+  } catch (error) {
+    console.error('Calculate age error:', error);
+    res.status(500).json({ error: 'Server error calculating age' });
   }
 });
 

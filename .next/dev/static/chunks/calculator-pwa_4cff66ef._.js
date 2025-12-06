@@ -198,6 +198,16 @@ class AuthService extends __TURBOPACK__imported__module__$5b$project$5d2f$calcul
             this.handleError(error);
         }
     }
+    async updateBirthYear(birthYear) {
+        try {
+            const response = await __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$src$2f$lib$2f$api$2f$config$2f$axios$2e$config$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].put(`${this.endpoint}/birth-year`, {
+                birthYear
+            });
+            return response.data;
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
     logout() {
         this.removeToken();
     }
@@ -343,6 +353,20 @@ function AuthProvider({ children }) {
             throw error;
         }
     };
+    const updateBirthYear = async (birthYear)=>{
+        try {
+            setError(null);
+            const data = await __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$src$2f$lib$2f$api$2f$services$2f$AuthService$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].updateBirthYear(birthYear);
+            setUser((prev)=>({
+                    ...prev,
+                    birthYear: data.birthYear
+                }));
+            return data;
+        } catch (error) {
+            setError(error.message);
+            throw error;
+        }
+    };
     const value = {
         user,
         loading,
@@ -351,6 +375,7 @@ function AuthProvider({ children }) {
         register,
         logout,
         updateForcedNumber,
+        updateBirthYear,
         isAuthenticated: !!user
     };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(AuthContext.Provider, {
@@ -362,12 +387,13 @@ function AuthProvider({ children }) {
             register,
             logout,
             updateForcedNumber,
+            updateBirthYear,
             isAuthenticated: !!user
         },
         children: !loading && children
     }, void 0, false, {
         fileName: "[project]/calculator-pwa/contexts/AuthContext.jsx",
-        lineNumber: 114,
+        lineNumber: 130,
         columnNumber: 5
     }, this);
 }

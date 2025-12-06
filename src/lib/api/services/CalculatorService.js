@@ -30,6 +30,32 @@ class CalculatorService extends BaseService {
       this.handleError(error);
     }
   }
+
+  async calculateAge(birthYear, deviceId) {
+    try {
+      const response = await this.request({
+        method: 'POST',
+        url: '/calculate-age',
+        data: { birthYear, deviceId }
+      });
+      return response;
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  async clearHistory(deviceId = null) {
+    try {
+      const response = await this.request({
+        method: 'DELETE',
+        url: '/history',
+        params: deviceId ? { deviceId } : {}
+      });
+      return response;
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
 }
 
 export default new CalculatorService();

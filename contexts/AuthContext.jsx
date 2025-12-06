@@ -99,6 +99,21 @@ export function AuthProvider({ children }) {
     }
   }
 
+  const updateBirthYear = async (birthYear) => {
+    try {
+      setError(null);
+      const data = await authService.updateBirthYear(birthYear);
+      setUser(prev => ({ 
+        ...prev, 
+        birthYear: data.birthYear
+      }));
+      return data;
+    } catch (error) {
+      setError(error.message);
+      throw error;
+    }
+  }
+
   const value = {
     user,
     loading,
@@ -107,6 +122,7 @@ export function AuthProvider({ children }) {
     register,
     logout,
     updateForcedNumber,
+    updateBirthYear,
     isAuthenticated: !!user
   }
 
@@ -119,6 +135,7 @@ export function AuthProvider({ children }) {
         register,
         logout,
         updateForcedNumber,
+        updateBirthYear,
         isAuthenticated: !!user,
       }}
     >

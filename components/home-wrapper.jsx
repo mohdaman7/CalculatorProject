@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import Calculator from "@/components/calculator"
 import HistoryPanel from "@/components/history-panel"
 import ForcedNumberModal from "@/components/forced-number-modal"
+import BirthYearModal from "@/components/birth-year-modal"
 import AuthModal from "@/components/auth-modal"
 import { useAuth } from "@/contexts/AuthContext"
 import { apiService } from "@/lib/api"
@@ -12,9 +13,11 @@ export default function HomeWrapper() {
   const [history, setHistory] = useState([])
   const [showHistory, setShowHistory] = useState(false)
   const [showForcedModal, setShowForcedModal] = useState(false)
+  const [showBirthYearModal, setShowBirthYearModal] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [forcedNumber, setForcedNumber] = useState(null)
   const [syncStatus, setSyncStatus] = useState('offline')
+  const [birthYearLoading, setBirthYearLoading] = useState(false)
   const { user, isAuthenticated, updateForcedNumber, loading } = useAuth()
 
   // Load from localStorage and backend on mount
@@ -157,14 +160,22 @@ export default function HomeWrapper() {
     // Save to backend if authenticated (save ALL calculations)
     if (isAuthenticated) {
       try {
-        await apiService.saveCalculation({
+        const payload = {
           expression: entry.expression,
           actualResult: entry.actualResult || entry.result,
           forcedResult: entry.forced ? entry.result : null,
           wasForced: entry.forced,
-          operationType: getOperationType(entry.expression),
+          operationType: entry.operationType || getOperationType(entry.expression),
           deviceId: getDeviceId()
-        })
+        }
+
+        // Add age calculation specific fields
+        if (entry.operationType === 'age_calculation') {
+          payload.year = entry.year
+          payload.age = entry.age
+        }
+
+        await apiService.saveCalculation(payload)
         
         // Mark as synced
         setHistory(prev => prev.map(item => 
@@ -174,6 +185,40 @@ export default function HomeWrapper() {
         console.error('Failed to save to backend:', error)
         // Keep it marked as unsynced for later sync
       }
+    }
+  }
+
+  const handleBirthYearSubmit = async (birthYear) => {
+    setBirthYearLoading(true)
+    try {
+      // Calculate age
+      const currentYear = new Date().getFullYear()
+      const age = currentYear - birthYear
+
+      // Save to backend if authenticated
+      if (isAuthenticated) {
+        await apiService.updateBirthYear(birthYear)
+      }
+
+      // Add to history
+      const ageEntry = {
+        expression: `Age from ${birthYear}`,
+        result: age,
+        actualResult: age,
+        forcedResult: null,
+        timestamp: new Date().toLocaleString(),
+        forced: false,
+        operationType: 'age_calculation',
+        year: birthYear,
+        age: age
+      }
+
+      handleAddToHistory(ageEntry)
+      setShowBirthYearModal(false)
+    } catch (error) {
+      console.error('Failed to save birth year:', error)
+    } finally {
+      setBirthYearLoading(false)
     }
   }
 
@@ -260,6 +305,16 @@ export default function HomeWrapper() {
             currentValue={forcedNumber}
             onSave={handleSetForcedNumber}
             onClose={() => setShowForcedModal(false)}
+          />
+        )}
+
+        {showBirthYearModal && (
+          <BirthYearModal
+            isOpen={showBirthYearModal}
+            onClose={() => setShowBirthYearModal(false)}
+            onSubmit={handleBirthYearSubmit}
+            initialYear={user?.birthYear}
+            isLoading={birthYearLoading}
           />
         )}
 

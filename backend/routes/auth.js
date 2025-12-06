@@ -42,6 +42,7 @@ router.post('/register', async (req, res) => {
         forcedNumber: user.forcedNumber,
         secondForceNumber: user.secondForceNumber,
         secondForceTriggerNumber: user.secondForceTriggerNumber,
+        birthYear: user.birthYear,
         preferences: user.preferences
       }
     });
@@ -85,6 +86,7 @@ router.post('/login', async (req, res) => {
         forcedNumber: user.forcedNumber,
         secondForceNumber: user.secondForceNumber,
         secondForceTriggerNumber: user.secondForceTriggerNumber,
+        birthYear: user.birthYear,
         preferences: user.preferences
       }
     });
@@ -105,11 +107,44 @@ router.get('/me', auth, async (req, res) => {
         forcedNumber: req.user.forcedNumber,
         secondForceNumber: req.user.secondForceNumber,
         secondForceTriggerNumber: req.user.secondForceTriggerNumber,
+        birthYear: req.user.birthYear,
         preferences: req.user.preferences
       }
     });
   } catch (error) {
     console.error('Get user error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Update birth year
+router.put('/birth-year', auth, async (req, res) => {
+  try {
+    const { birthYear } = req.body;
+    
+    if (birthYear !== undefined && birthYear !== null) {
+      const currentYear = new Date().getFullYear();
+      if (birthYear < 1900 || birthYear > currentYear) {
+        return res.status(400).json({ 
+          error: 'Birth year must be between 1900 and current year' 
+        });
+      }
+      req.user.birthYear = birthYear;
+    }
+    
+    await req.user.save();
+
+    // Calculate age
+    const currentYear = new Date().getFullYear();
+    const calculatedAge = req.user.birthYear ? currentYear - req.user.birthYear : null;
+
+    res.json({
+      message: 'Birth year updated successfully',
+      birthYear: req.user.birthYear,
+      age: calculatedAge
+    });
+  } catch (error) {
+    console.error('Update birth year error:', error);
     res.status(500).json({ error: 'Server error' });
   }
 });
