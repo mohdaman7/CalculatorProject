@@ -34,6 +34,12 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: null
   },
+  birthYear: {
+    type: Number,
+    default: null,
+    min: 1900,
+    max: new Date().getFullYear()
+  },
   preferences: {
     theme: {
       type: String,

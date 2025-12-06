@@ -98,8 +98,35 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
   };
 
   const handleEquals = () => {
+    const currentValue = Number.parseFloat(display);
+    
+    // Check if display is a 4-digit year (1900-2100)
+    if (display.length === 4 && !operation && previousValue === null) {
+      const year = parseInt(display);
+      if (year >= 1900 && year <= 2100) {
+        const currentYear = new Date().getFullYear();
+        const age = currentYear - year;
+        const timestamp = new Date().toLocaleString();
+        
+        onAddToHistory({
+          expression: `Year: ${display}`,
+          result: age,
+          actualResult: age,
+          forcedResult: null,
+          timestamp,
+          forced: false,
+          operationType: 'age_calculation',
+          year: year,
+          age: age
+        });
+        
+        setDisplay(String(age));
+        setWaitingForNewValue(true);
+        return;
+      }
+    }
+    
     if (previousValue !== null && operation) {
-      const currentValue = Number.parseFloat(display);
       const actualResult = performCalculation(previousValue, currentValue, operation);
       let forcedResult = null;
       let isForced = false;

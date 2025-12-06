@@ -24,8 +24,16 @@ const calculationHistorySchema = new mongoose.Schema({
   },
   operationType: {
     type: String,
-    enum: ['addition', 'subtraction', 'multiplication', 'division', 'mixed'],
+    enum: ['addition', 'subtraction', 'multiplication', 'division', 'mixed', 'age_calculation'],
     required: true
+  },
+  year: {
+    type: Number,
+    required: false
+  },
+  age: {
+    type: Number,
+    required: false
   },
   deviceId: {
     type: String,

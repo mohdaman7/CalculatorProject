@@ -34,6 +34,29 @@ const HistoryPanel = ({ history, onClose, onClear }) => {
         ) : (
           <div className="space-y-8 pt-2">
             {history.map((entry, idx) => {
+              // Check if this is an age calculation entry
+              if (entry.operationType === 'age_calculation') {
+                return (
+                  <div key={idx} className="text-center">
+                    {/* Year */}
+                    <div className="text-white text-5xl font-light tracking-tight mb-4">
+                      {entry.year}
+                    </div>
+                    
+                    {/* Age Label */}
+                    <div className="text-gray-400 text-sm mb-2">
+                      Age
+                    </div>
+                    
+                    {/* Age Result */}
+                    <div className="text-white text-5xl font-light tracking-tight">
+                      {entry.age}
+                    </div>
+                  </div>
+                );
+              }
+              
+              // Regular calculation entry
               const { firstOperand, operator, secondOperand } = parseExpression(entry.expression);
               return (
                 <div key={idx} className="text-center">
