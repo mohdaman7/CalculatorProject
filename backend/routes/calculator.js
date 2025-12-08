@@ -15,6 +15,27 @@ const parseExpression = (expression) => {
   };
 };
 
+// Helper function to normalize operation type
+const normalizeOperationType = (operationType) => {
+  const mapping = {
+    '+': 'addition',
+    '-': 'subtraction',
+    '*': 'multiplication',
+    '×': 'multiplication',
+    '/': 'division',
+    '÷': 'division',
+    'add': 'addition',
+    'sub': 'subtraction',
+    'mul': 'multiplication',
+    'div': 'division',
+  };
+  
+  const normalized = mapping[operationType] || operationType;
+  const validTypes = ['addition', 'subtraction', 'multiplication', 'division', 'mixed', 'age_calculation'];
+  
+  return validTypes.includes(normalized) ? normalized : 'mixed';
+};
+
 // Save calculation history (saves ALL calculations)
 router.post('/history', auth, async (req, res) => {
   try {
@@ -26,7 +47,7 @@ router.post('/history', auth, async (req, res) => {
       actualResult,
       forcedResult,
       wasForced,
-      operationType,
+      operationType: normalizeOperationType(operationType),
       deviceId: deviceId || 'unknown',
       year: year || undefined,
       age: age || undefined
