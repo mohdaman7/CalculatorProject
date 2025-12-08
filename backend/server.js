@@ -7,6 +7,7 @@ require('dotenv').config();
 const connectDB = require('./config/database');
 const authRoutes = require('./routes/auth');
 const calculatorRoutes = require('./routes/calculator');
+const verificationRoutes = require('./routes/verification');
 
 // Connect to database
 connectDB();
@@ -37,6 +38,7 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/calculator', calculatorRoutes);
+app.use('/api/verification', verificationRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

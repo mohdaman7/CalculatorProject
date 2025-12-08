@@ -17,9 +17,23 @@ const userSchema = new mongoose.Schema({
     trim: true,
     lowercase: true
   },
+  phoneNumber: {
+    type: String,
+    default: null,
+    trim: true,
+    match: /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/
+  },
+  isPhoneVerified: {
+    type: Boolean,
+    default: false
+  },
+  isAdmin: {
+    type: Boolean,
+    default: false
+  },
   password: {
     type: String,
-    required: true,
+    required: false,
     minlength: 6
   },
   forcedNumber: {

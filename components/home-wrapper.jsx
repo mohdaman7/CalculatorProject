@@ -6,10 +6,14 @@ import HistoryPanel from "@/components/history-panel"
 import ForcedNumberModal from "@/components/forced-number-modal"
 import BirthYearModal from "@/components/birth-year-modal"
 import AuthModal from "@/components/auth-modal"
+import VerificationPage from "@/components/verification-page"
 import { useAuth } from "@/contexts/AuthContext"
 import { apiService } from "@/lib/api"
+import { verificationService } from "@/lib/verification-service"
 
 export default function HomeWrapper() {
+  const [isPhoneVerified, setIsPhoneVerified] = useState(false)
+  const [verificationLoading, setVerificationLoading] = useState(true)
   const [history, setHistory] = useState([])
   const [showHistory, setShowHistory] = useState(false)
   const [showForcedModal, setShowForcedModal] = useState(false)
@@ -19,6 +23,17 @@ export default function HomeWrapper() {
   const [syncStatus, setSyncStatus] = useState('offline')
   const [birthYearLoading, setBirthYearLoading] = useState(false)
   const { user, isAuthenticated, updateForcedNumber, loading } = useAuth()
+
+  // Check phone verification on mount
+  useEffect(() => {
+    const checkVerification = () => {
+      const verified = verificationService.isVerified()
+      setIsPhoneVerified(verified)
+      setVerificationLoading(false)
+    }
+
+    checkVerification()
+  }, [])
 
   // Load from localStorage and backend on mount
   useEffect(() => {
@@ -268,6 +283,28 @@ export default function HomeWrapper() {
         console.error('Failed to clear forced numbers in backend:', error)
       }
     }
+  }
+
+  // Show verification page if not verified
+  if (verificationLoading) {
+    return (
+      <main className="flex items-center justify-center min-h-screen bg-black p-4">
+        <div className="text-white text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+          <p>Loading...</p>
+        </div>
+      </main>
+    )
+  }
+
+  if (!isPhoneVerified) {
+    return (
+      <VerificationPage 
+        onVerificationComplete={(user, token) => {
+          setIsPhoneVerified(true)
+        }}
+      />
+    )
   }
 
   if (loading) {
