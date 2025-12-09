@@ -1,6 +1,8 @@
 const PhoneVerification = require('../models/PhoneVerification');
-const AllowedPhoneNumber = require('../models/AllowedPhoneNumber');
 const twilio = require('twilio');
+
+// External Admin API URL
+const EXTERNAL_ADMIN_API = process.env.EXTERNAL_ADMIN_API || 'https://artofmentalism.bloombizsuite.com/api';
 
 class VerificationService {
   constructor() {
@@ -16,9 +18,10 @@ class VerificationService {
       this.twilioClient = null;
       console.log('Twilio not configured - OTP will be logged to console');
     }
+    console.log('External Admin API:', EXTERNAL_ADMIN_API);
   }
 
-  // Send SMS via Twilio
+  // Sencalculator-maind SMS via Twilio
   async sendSMS(phoneNumber, message) {
     if (!this.twilioClient) {
       console.log(`[SMS MOCK] To: ${phoneNumber} | Message: ${message}`);
@@ -29,7 +32,7 @@ class VerificationService {
       // Format phone number for Twilio (needs country code)
       let formattedPhone = phoneNumber.replace(/\D/g, '');
       if (formattedPhone.length === 10) {
-        formattedPhone = '+91' + formattedPhone; // Default to India, change as needed
+        formattedPhone = '+91' + formattedPhone; // Default to India
       } else if (!formattedPhone.startsWith('+')) {
         formattedPhone = '+' + formattedPhone;
       }
@@ -47,21 +50,45 @@ class VerificationService {
       return { success: false, error: error.message };
     }
   }
+
   // Generate 6-digit OTP
   generateOTP() {
     return Math.floor(100000 + Math.random() * 900000).toString();
   }
 
-  // Check if phone number is in whitelist
+  // Check if phone number is allowed via external admin API
   async isPhoneNumberAllowed(phoneNumber) {
     try {
-      const allowed = await AllowedPhoneNumber.findOne({
-        phoneNumber: this.normalizePhoneNumber(phoneNumber),
-        isActive: true
+      const normalizedPhone = this.normalizePhoneNumber(phoneNumber);
+      
+      console.log('[EXTERNAL API] Checking phone:', normalizedPhone);
+      console.log('[EXTERNAL API] URL:', `${EXTERNAL_ADMIN_API}/check-phone`);
+      
+      const response = await fetch(`${EXTERNAL_ADMIN_API}/check-phone`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({ phone: normalizedPhone }),
       });
-      return !!allowed;
+
+      console.log('[EXTERNAL API] HTTP Status:', response.status);
+      
+      const data = await response.json();
+      console.log('[EXTERNAL API] Response:', JSON.stringify(data));
+      
+      // Check if phone exists in Laravel admin
+      // Laravel returns: {"exists": true} if phone is registered
+      if (data.exists === true) {
+        console.log('[EXTERNAL API] Phone is registered');
+        return true;
+      }
+      
+      console.log('[EXTERNAL API] Phone is NOT registered');
+      return false;
     } catch (error) {
-      console.error('Error checking allowed phone number:', error);
+      console.error('[EXTERNAL API] Error:', error.message);
       return false;
     }
   }
@@ -74,7 +101,7 @@ class VerificationService {
   // Request OTP for phone number
   async requestOTP(phoneNumber) {
     try {
-      // Check if phone is allowed
+      // Check if phone is allowed via external admin
       const isAllowed = await this.isPhoneNumberAllowed(phoneNumber);
       if (!isAllowed) {
         return {
@@ -178,12 +205,6 @@ class VerificationService {
       verification.isVerified = true;
       await verification.save();
 
-      // Update allowed phone number's lastUsedAt
-      await AllowedPhoneNumber.updateOne(
-        { phoneNumber: normalizedPhone },
-        { lastUsedAt: new Date() }
-      );
-
       return {
         success: true,
         message: 'Phone number verified successfully!',
@@ -220,82 +241,6 @@ class VerificationService {
     } catch (error) {
       console.error('Error checking recent verification:', error);
       return false;
-    }
-  }
-
-  // Add phone to whitelist (Admin only)
-  async addPhoneToWhitelist(phoneNumber, description = '') {
-    try {
-      const normalizedPhone = this.normalizePhoneNumber(phoneNumber);
-
-      const allowed = new AllowedPhoneNumber({
-        phoneNumber: normalizedPhone,
-        description,
-        addedBy: 'admin'
-      });
-
-      await allowed.save();
-
-      return {
-        success: true,
-        message: 'Phone number added to whitelist successfully',
-        phoneNumber: normalizedPhone
-      };
-    } catch (error) {
-      if (error.code === 11000) {
-        return {
-          success: false,
-          message: 'Phone number already in whitelist'
-        };
-      }
-      console.error('Error adding phone to whitelist:', error);
-      return {
-        success: false,
-        message: 'Failed to add phone number to whitelist'
-      };
-    }
-  }
-
-  // Remove phone from whitelist (Admin only)
-  async removePhoneFromWhitelist(phoneNumber) {
-    try {
-      const normalizedPhone = this.normalizePhoneNumber(phoneNumber);
-
-      const result = await AllowedPhoneNumber.deleteOne({
-        phoneNumber: normalizedPhone
-      });
-
-      return {
-        success: result.deletedCount > 0,
-        message: result.deletedCount > 0 
-          ? 'Phone number removed from whitelist'
-          : 'Phone number not found in whitelist'
-      };
-    } catch (error) {
-      console.error('Error removing phone from whitelist:', error);
-      return {
-        success: false,
-        message: 'Failed to remove phone number from whitelist'
-      };
-    }
-  }
-
-  // Get all allowed phones (Admin only)
-  async getAllowedPhones() {
-    try {
-      const phones = await AllowedPhoneNumber.find({ isActive: true })
-        .sort({ createdAt: -1 });
-      return {
-        success: true,
-        count: phones.length,
-        phones
-      };
-    } catch (error) {
-      console.error('Error fetching allowed phones:', error);
-      return {
-        success: false,
-        message: 'Failed to fetch allowed phones'
-      };
     }
   }
 }

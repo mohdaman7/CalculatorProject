@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import AdminDashboard from './admin-dashboard';
 
 const VerificationPage = ({ onVerificationComplete }) => {
   const [step, setStep] = useState('phone'); // phone or otp
@@ -13,9 +12,6 @@ const VerificationPage = ({ onVerificationComplete }) => {
   const [maskedPhone, setMaskedPhone] = useState('');
   const [expiresIn, setExpiresIn] = useState(0);
   const [attempts, setAttempts] = useState(5);
-  const [showAdminDashboard, setShowAdminDashboard] = useState(false);
-  const [adminToken, setAdminToken] = useState(null);
-  const [adminUser, setAdminUser] = useState(null);
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
@@ -109,10 +105,6 @@ const VerificationPage = ({ onVerificationComplete }) => {
         localStorage.setItem('calculator_token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
 
-        // Store admin credentials for dashboard
-        setAdminToken(data.token);
-        setAdminUser(data.user);
-
         // Call completion callback
         onVerificationComplete(data.user, data.token);
       } else {
@@ -143,17 +135,6 @@ const VerificationPage = ({ onVerificationComplete }) => {
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
-
-  // Show admin dashboard if opened
-  if (showAdminDashboard && adminToken) {
-    return (
-      <AdminDashboard 
-        onClose={() => setShowAdminDashboard(false)}
-        token={adminToken}
-        user={adminUser}
-      />
-    );
-  }
 
   return (
     <div className="min-h-screen bg-black flex flex-col items-center justify-center p-4">
@@ -322,19 +303,6 @@ const VerificationPage = ({ onVerificationComplete }) => {
       <div className="mt-12 text-center text-gray-500 text-xs max-w-md">
         <p>This calculator is restricted to registered users only.</p>
         <p className="mt-2">Contact the administrator for access.</p>
-        
-        {/* Admin Button - Only show after successful verification */}
-        {adminToken && adminUser && (
-          <button
-            onClick={() => setShowAdminDashboard(true)}
-            className="mt-6 inline-flex items-center gap-2 text-[#FF9F0A] hover:text-[#FFB340] transition-colors"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-            </svg>
-            Admin Dashboard
-          </button>
-        )}
       </div>
     </div>
   );
