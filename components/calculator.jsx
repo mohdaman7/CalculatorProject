@@ -101,7 +101,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
     setWaitingForNewValue(true);
   };
 
-  const handleEquals = async () => {
+  const handleEquals = () => {
     const currentValue = Number.parseFloat(display);
     
     // Check if display is a 4-digit year (1900-2100)
@@ -136,13 +136,16 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
       let isForced = false;
       
       if (operation === '+' || operation === '-') {
-        if (forcedNumber?.secondForceTriggerNumber !== null && 
+        // Check for second force trigger first
+        if (forcedNumber?.secondForceTriggerNumber != null && 
+            forcedNumber?.secondForceNumber != null &&
             (currentValue === forcedNumber.secondForceTriggerNumber || 
              previousValue === forcedNumber.secondForceTriggerNumber)) {
           forcedResult = forcedNumber.secondForceNumber;
           isForced = true;
         }
-        else if (forcedNumber?.forcedNumber !== null) {
+        // Then check for primary forced number
+        else if (forcedNumber?.forcedNumber != null) {
           forcedResult = forcedNumber.forcedNumber;
           isForced = true;
         }
@@ -150,35 +153,44 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
       
       const finalResult = isForced ? forcedResult : actualResult;
       const timestamp = new Date().toLocaleString();
+      const expressionStr = `${previousValue} ${operation} ${display}`;
+      const isPincodeCalc = (operation === '+' || operation === '-') && pincodeService.isPincode(firstOperandRaw);
       
-      // Check if first operand is a 6-digit pincode
-      let pincodeData = null;
-      if ((operation === '+' || operation === '-') && pincodeService.isPincode(firstOperandRaw)) {
-        const address = await pincodeService.fetchAddress(firstOperandRaw);
-        if (address) {
-          pincodeData = {
-            pincode: firstOperandRaw,
-            addressTaluk: address.taluk,
-            addressDistrict: address.district,
-            addressState: address.state
-          };
-          // Notify parent about pincode address
-          onPincodeAddress?.(pincodeData);
-        }
-      }
+      // Show result immediately - don't wait for pincode fetch
+      setDisplay(String(finalResult));
       
+      // Add to history immediately
       onAddToHistory({
-        expression: `${previousValue} ${operation} ${display}`,
+        expression: expressionStr,
         result: finalResult,
         actualResult: actualResult,
         forcedResult: forcedResult,
         timestamp,
         forced: isForced,
         operationType: operation,
-        ...(pincodeData && pincodeData)
+        // Mark as pincode calculation for later update
+        pincode: isPincodeCalc ? firstOperandRaw : null,
+        addressTaluk: null,
+        addressDistrict: null,
+        addressState: null
       });
       
-      setDisplay(String(finalResult));
+      // Fetch pincode address in background (non-blocking)
+      if (isPincodeCalc) {
+        const pincodeValue = firstOperandRaw;
+        pincodeService.fetchAddress(pincodeValue).then(address => {
+          if (address) {
+            const pincodeData = {
+              pincode: pincodeValue,
+              addressTaluk: address.taluk,
+              addressDistrict: address.district,
+              addressState: address.state
+            };
+            // Notify parent to update history with address
+            onPincodeAddress?.(pincodeData);
+          }
+        });
+      }
     }
 
     setPreviousValue(null);

@@ -308,6 +308,29 @@ export default function HomeWrapper() {
     }
   }
 
+  // Handle pincode address update (called after background fetch)
+  const handlePincodeAddress = (pincodeData) => {
+    setLastPincodeAddress(pincodeData)
+    
+    // Update the most recent history entry with this pincode
+    setHistory(prev => {
+      const updated = [...prev]
+      // Find the most recent entry with this pincode but no address
+      const idx = updated.findIndex(entry => 
+        entry.pincode === pincodeData.pincode && !entry.addressTaluk
+      )
+      if (idx !== -1) {
+        updated[idx] = {
+          ...updated[idx],
+          addressTaluk: pincodeData.addressTaluk,
+          addressDistrict: pincodeData.addressDistrict,
+          addressState: pincodeData.addressState
+        }
+      }
+      return updated
+    })
+  }
+
   // Show verification page if not verified
   if (verificationLoading) {
     return (
@@ -350,7 +373,7 @@ export default function HomeWrapper() {
           onOpenForcedModal={() => setShowForcedModal(true)}
           forcedNumber={forcedNumber}
           onClearForcedNumber={handleClearForcedNumber}
-          onPincodeAddress={setLastPincodeAddress}
+          onPincodeAddress={handlePincodeAddress}
         />
 
         {showHistory && (
