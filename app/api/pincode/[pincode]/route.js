@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 
-export async function GET(request, { params }) {
-  const { pincode } = await params;
+export async function GET(request, context) {
+  // Next.js 15+ requires awaiting params
+  const params = await context.params;
+  const pincode = params?.pincode || '';
 
   if (!/^\d{6}$/.test(pincode)) {
     return NextResponse.json({ error: 'Invalid pincode format' }, { status: 400 });

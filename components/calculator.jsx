@@ -124,7 +124,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
           age: age
         });
         
-        setDisplay(String(age));
+        // Don't change display - keep showing the year
         setWaitingForNewValue(true);
         return;
       }

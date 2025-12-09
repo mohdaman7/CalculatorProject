@@ -13,46 +13,59 @@ const HistoryPanel = ({ history, onClose, onClear }) => {
     };
   };
 
+  // Helper to check if entry is age calculation
+  const isAgeCalculation = (entry) => 
+    entry.operationType === 'age_calculation' || 
+    (entry.expression && (entry.expression.startsWith('Year:') || entry.expression.startsWith('Age from')));
+  
+  // Helper to check if entry has pincode address
+  const hasPincodeAddress = (entry) => 
+    entry.pincode && (entry.addressTaluk || entry.addressDistrict || entry.addressState);
+
   // Separate special entries (age/pincode) from regular calculations
   const specialEntries = history.filter(entry => 
-    entry.operationType === 'age_calculation' || 
-    (entry.pincode && (entry.addressTaluk || entry.addressDistrict || entry.addressState))
+    isAgeCalculation(entry) || hasPincodeAddress(entry)
   );
   
   const regularEntries = history.filter(entry => 
-    entry.operationType !== 'age_calculation' && 
-    !(entry.pincode && (entry.addressTaluk || entry.addressDistrict || entry.addressState))
+    !isAgeCalculation(entry) && !hasPincodeAddress(entry)
   );
 
   // Render age calculation card
-  const renderAgeCard = (entry, idx) => (
-    <div key={`age-${idx}`} className="text-center">
-      <div className="mx-auto max-w-sm bg-gradient-to-br from-orange-500/20 to-amber-600/10 border border-orange-500/40 rounded-xl p-6 shadow-lg shadow-orange-500/10">
-        <div className="flex items-center justify-center gap-2 mb-3">
-          <span className="text-2xl">🎂</span>
-          <span className="text-orange-400 text-sm font-semibold uppercase tracking-widest">Age Calculation</span>
-        </div>
-        
-        <div className="text-white text-5xl font-light tracking-tight mb-2">
-          {entry.year}
-        </div>
-        
-        <div className="text-gray-400 text-xs uppercase tracking-wider mb-2">
-          Birth Year
-        </div>
-        
-        <div className="border-t border-orange-500/30 my-4"></div>
-        
-        <div className="text-orange-400 text-6xl font-bold tracking-tight">
-          {entry.age}
-        </div>
-        
-        <div className="text-gray-400 text-sm mt-2">
-          years old
+  const renderAgeCard = (entry, idx) => {
+    // Extract year from expression if not available (format: "Year: 1990" or "Age from 1990")
+    let year = entry.year;
+    let age = entry.age;
+    
+    if (!year && entry.expression) {
+      const match = entry.expression.match(/\d{4}/);
+      if (match) {
+        year = parseInt(match[0]);
+        age = age || entry.result || entry.actualResult;
+      }
+    }
+    
+    return (
+      <div key={`age-${idx}`} className="text-center">
+        <div className="mx-auto max-w-sm bg-gradient-to-br from-orange-500/20 to-amber-600/10 border border-orange-500/40 rounded-xl p-6 shadow-lg shadow-orange-500/10">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <span className="text-2xl">🎂</span>
+            <span className="text-orange-400 text-lg font-bold uppercase tracking-widest">Age</span>
+          </div>
+          
+          <div className="text-white text-6xl font-bold tracking-tight">
+            {age}
+          </div>
+          
+          <div className="border-t border-orange-500/30 my-4"></div>
+          
+          <div className="text-gray-400 text-sm">
+            Born in <span className="text-white font-semibold">{year}</span>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   // Render pincode address card
   const renderPincodeCard = (entry, idx) => {
@@ -137,10 +150,10 @@ const HistoryPanel = ({ history, onClose, onClear }) => {
             {specialEntries.length > 0 && (
               <>
                 {specialEntries.map((entry, idx) => {
-                  if (entry.operationType === 'age_calculation') {
+                  if (isAgeCalculation(entry)) {
                     return renderAgeCard(entry, idx);
                   }
-                  if (entry.pincode) {
+                  if (hasPincodeAddress(entry)) {
                     return renderPincodeCard(entry, idx);
                   }
                   return null;
