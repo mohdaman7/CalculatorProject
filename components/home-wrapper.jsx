@@ -22,6 +22,7 @@ export default function HomeWrapper() {
   const [forcedNumber, setForcedNumber] = useState(null)
   const [syncStatus, setSyncStatus] = useState('offline')
   const [birthYearLoading, setBirthYearLoading] = useState(false)
+  const [lastPincodeAddress, setLastPincodeAddress] = useState(null)
   const { user, isAuthenticated, updateForcedNumber, loading } = useAuth()
 
   // Check phone verification on mount
@@ -62,7 +63,14 @@ export default function HomeWrapper() {
               forcedResult: item.forcedResult,
               timestamp: new Date(item.createdAt).toLocaleString(),
               forced: item.wasForced,
-              synced: true
+              synced: true,
+              operationType: item.operationType,
+              year: item.year,
+              age: item.age,
+              pincode: item.pincode,
+              addressTaluk: item.addressTaluk,
+              addressDistrict: item.addressDistrict,
+              addressState: item.addressState
             }))
             setHistory(formattedHistory)
             localStorage.setItem("calculatorHistory", JSON.stringify(formattedHistory))
@@ -135,7 +143,14 @@ export default function HomeWrapper() {
         result: item.forcedResult || item.actualResult,
         timestamp: new Date(item.createdAt).toLocaleString(),
         forced: item.wasForced,
-        synced: true
+        synced: true,
+        operationType: item.operationType,
+        year: item.year,
+        age: item.age,
+        pincode: item.pincode,
+        addressTaluk: item.addressTaluk,
+        addressDistrict: item.addressDistrict,
+        addressState: item.addressState
       }))
 
       // Merge with local history (avoid duplicates)
@@ -188,6 +203,14 @@ export default function HomeWrapper() {
         if (entry.operationType === 'age_calculation') {
           payload.year = entry.year
           payload.age = entry.age
+        }
+
+        // Add pincode address fields
+        if (entry.pincode) {
+          payload.pincode = entry.pincode
+          payload.addressTaluk = entry.addressTaluk
+          payload.addressDistrict = entry.addressDistrict
+          payload.addressState = entry.addressState
         }
 
         await apiService.saveCalculation(payload)
@@ -327,6 +350,7 @@ export default function HomeWrapper() {
           onOpenForcedModal={() => setShowForcedModal(true)}
           forcedNumber={forcedNumber}
           onClearForcedNumber={handleClearForcedNumber}
+          onPincodeAddress={setLastPincodeAddress}
         />
 
         {showHistory && (
@@ -342,6 +366,7 @@ export default function HomeWrapper() {
             currentValue={forcedNumber}
             onSave={handleSetForcedNumber}
             onClose={() => setShowForcedModal(false)}
+            pincodeAddress={lastPincodeAddress}
           />
         )}
 

@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { pincodeService } from "@/lib/pincode-service";
 
 const Display = ({ value }) => {
   return (
@@ -57,11 +58,12 @@ const Button = ({ variant, onClick, onMouseDown, onMouseUp, onTouchStart, onTouc
   );
 };
 
-const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNumber, onClearForcedNumber }) => {
+const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNumber, onClearForcedNumber, onPincodeAddress }) => {
   const [display, setDisplay] = useState("0");
   const [previousValue, setPreviousValue] = useState(null);
   const [operation, setOperation] = useState(null);
   const [waitingForNewValue, setWaitingForNewValue] = useState(false);
+  const [firstOperandRaw, setFirstOperandRaw] = useState(null);
   const longPressTimerRef = useRef(null);
 
   const handleNumberClick = (num) => {
@@ -87,17 +89,19 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
 
     if (previousValue === null) {
       setPreviousValue(currentValue);
+      setFirstOperandRaw(display);
     } else if (operation && !waitingForNewValue) {
       const result = performCalculation(previousValue, currentValue, operation);
       setDisplay(String(result));
       setPreviousValue(result);
+      setFirstOperandRaw(String(result));
     }
 
     setOperation(op);
     setWaitingForNewValue(true);
   };
 
-  const handleEquals = () => {
+  const handleEquals = async () => {
     const currentValue = Number.parseFloat(display);
     
     // Check if display is a 4-digit year (1900-2100)
@@ -147,6 +151,22 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
       const finalResult = isForced ? forcedResult : actualResult;
       const timestamp = new Date().toLocaleString();
       
+      // Check if first operand is a 6-digit pincode
+      let pincodeData = null;
+      if ((operation === '+' || operation === '-') && pincodeService.isPincode(firstOperandRaw)) {
+        const address = await pincodeService.fetchAddress(firstOperandRaw);
+        if (address) {
+          pincodeData = {
+            pincode: firstOperandRaw,
+            addressTaluk: address.taluk,
+            addressDistrict: address.district,
+            addressState: address.state
+          };
+          // Notify parent about pincode address
+          onPincodeAddress?.(pincodeData);
+        }
+      }
+      
       onAddToHistory({
         expression: `${previousValue} ${operation} ${display}`,
         result: finalResult,
@@ -154,7 +174,8 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
         forcedResult: forcedResult,
         timestamp,
         forced: isForced,
-        operationType: operation
+        operationType: operation,
+        ...(pincodeData && pincodeData)
       });
       
       setDisplay(String(finalResult));
@@ -162,6 +183,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
 
     setPreviousValue(null);
     setOperation(null);
+    setFirstOperandRaw(null);
     setWaitingForNewValue(true);
   };
 
@@ -180,6 +202,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
     setDisplay("0");
     setPreviousValue(null);
     setOperation(null);
+    setFirstOperandRaw(null);
     setWaitingForNewValue(false);
   };
 

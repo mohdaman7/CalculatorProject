@@ -35,6 +35,22 @@ const calculationHistorySchema = new mongoose.Schema({
     type: Number,
     required: false
   },
+  pincode: {
+    type: String,
+    required: false
+  },
+  addressTaluk: {
+    type: String,
+    required: false
+  },
+  addressDistrict: {
+    type: String,
+    required: false
+  },
+  addressState: {
+    type: String,
+    required: false
+  },
   deviceId: {
     type: String,
     required: true

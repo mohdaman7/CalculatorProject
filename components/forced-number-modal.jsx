@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Image from "next/image"
 
-const ForcedNumberModal = ({ currentValue, onSave, onClose }) => {
+const ForcedNumberModal = ({ currentValue, onSave, onClose, pincodeAddress }) => {
   const [formData, setFormData] = useState({
     forcedNumber: currentValue?.forcedNumber ? String(currentValue.forcedNumber) : "",
     secondForceNumber: currentValue?.secondForceNumber ? String(currentValue.secondForceNumber) : "",
@@ -61,6 +61,25 @@ const ForcedNumberModal = ({ currentValue, onSave, onClose }) => {
             />
           </div>
         </div>
+
+        {/* Pincode Address Display */}
+        {pincodeAddress && (
+          <div className="w-full max-w-sm mb-6">
+            <div className="bg-gradient-to-r from-gray-800/50 to-gray-900/50 border border-gray-600 rounded-lg p-4">
+              <div className="flex items-center gap-2 text-white">
+                <span className="text-xl">📍</span>
+                <span className="text-lg font-light">
+                  {[pincodeAddress.addressTaluk, pincodeAddress.addressDistrict, pincodeAddress.addressState]
+                    .filter(Boolean)
+                    .join(', ')}
+                </span>
+              </div>
+              <div className="text-gray-400 text-sm mt-1 ml-7">
+                Pincode: {pincodeAddress.pincode}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Form Container */}
         <div className="w-full max-w-sm space-y-5">

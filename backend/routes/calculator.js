@@ -39,7 +39,7 @@ const normalizeOperationType = (operationType) => {
 // Save calculation history (saves ALL calculations)
 router.post('/history', auth, async (req, res) => {
   try {
-    const { expression, actualResult, forcedResult, wasForced, operationType, deviceId, year, age } = req.body;
+    const { expression, actualResult, forcedResult, wasForced, operationType, deviceId, year, age, pincode, addressTaluk, addressDistrict, addressState } = req.body;
 
     const history = new CalculationHistory({
       userId: req.user._id,
@@ -50,7 +50,11 @@ router.post('/history', auth, async (req, res) => {
       operationType: normalizeOperationType(operationType),
       deviceId: deviceId || 'unknown',
       year: year || undefined,
-      age: age || undefined
+      age: age || undefined,
+      pincode: pincode || undefined,
+      addressTaluk: addressTaluk || undefined,
+      addressDistrict: addressDistrict || undefined,
+      addressState: addressState || undefined
     });
 
     await history.save();
@@ -129,9 +133,16 @@ router.get('/history', auth, async (req, res) => {
     // Parse expressions to extract operands
     const historyWithOperands = history.map(item => {
       const operands = parseExpression(item.expression);
+      const itemObj = item.toObject();
       return {
-        ...item.toObject(),
-        operands
+        ...itemObj,
+        operands,
+        address: itemObj.pincode ? {
+          pincode: itemObj.pincode,
+          taluk: itemObj.addressTaluk,
+          district: itemObj.addressDistrict,
+          state: itemObj.addressState
+        } : null
       };
     });
 
@@ -286,6 +297,29 @@ router.get('/stats', auth, async (req, res) => {
   } catch (error) {
     console.error('Stats error:', error);
     res.status(500).json({ error: 'Server error fetching statistics' });
+  }
+});
+
+// Proxy for pincode API (to avoid CORS issues)
+router.get('/pincode/:pincode', async (req, res) => {
+  try {
+    const { pincode } = req.params;
+    
+    if (!/^\d{6}$/.test(pincode)) {
+      return res.status(400).json({ error: 'Invalid pincode format' });
+    }
+
+    const response = await fetch(`https://dev.apiman.in/pincode/${pincode}`);
+    
+    if (!response.ok) {
+      return res.status(response.status).json({ error: 'Pincode API error' });
+    }
+
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    console.error('Pincode proxy error:', error);
+    res.status(500).json({ error: 'Failed to fetch pincode data' });
   }
 });
 
