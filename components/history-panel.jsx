@@ -22,89 +22,41 @@ const HistoryPanel = ({ history, onClose, onClear }) => {
   const hasPincodeAddress = (entry) => 
     entry.pincode && (entry.addressTaluk || entry.addressDistrict || entry.addressState);
 
-  // Separate special entries (age/pincode) from regular calculations
-  const specialEntries = history.filter(entry => 
-    isAgeCalculation(entry) || hasPincodeAddress(entry)
-  );
+  // Get only the LAST pincode entry with address
+  const lastPincodeEntry = history.find(entry => hasPincodeAddress(entry));
+  
+  // Get only the LAST age calculation entry
+  const lastAgeEntry = history.find(entry => isAgeCalculation(entry));
   
   const regularEntries = history.filter(entry => 
     !isAgeCalculation(entry) && !hasPincodeAddress(entry)
   );
 
-  // Render age calculation card
-  const renderAgeCard = (entry, idx) => {
-    // Extract year from expression if not available (format: "Year: 1990" or "Age from 1990")
-    let year = entry.year;
+  // Render age calculation - simple text
+  const renderAge = (entry) => {
     let age = entry.age;
     
-    if (!year && entry.expression) {
-      const match = entry.expression.match(/\d{4}/);
-      if (match) {
-        year = parseInt(match[0]);
-        age = age || entry.result || entry.actualResult;
-      }
+    if (!age && entry.expression) {
+      age = entry.result || entry.actualResult;
     }
     
     return (
-      <div key={`age-${idx}`} className="text-center">
-        <div className="mx-auto max-w-sm bg-gradient-to-br from-orange-500/20 to-amber-600/10 border border-orange-500/40 rounded-xl p-6 shadow-lg shadow-orange-500/10">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <span className="text-2xl">🎂</span>
-            <span className="text-orange-400 text-lg font-bold uppercase tracking-widest">Age</span>
-          </div>
-          
-          <div className="text-white text-6xl font-bold tracking-tight">
-            {age}
-          </div>
-          
-          <div className="border-t border-orange-500/30 my-4"></div>
-          
-          <div className="text-gray-400 text-sm">
-            Born in <span className="text-white font-semibold">{year}</span>
-          </div>
-        </div>
+      <div className="text-center py-2">
+        <span className="text-orange-400 text-2xl font-bold">
+          Age : {age}
+        </span>
       </div>
     );
   };
 
-  // Render pincode address card
-  const renderPincodeCard = (entry, idx) => {
-    const { firstOperand, secondOperand } = parseExpression(entry.expression);
+  // Render pincode address - simple text
+  const renderAddress = (entry) => {
+    const addressParts = [entry.addressTaluk, entry.addressDistrict, entry.addressState].filter(Boolean);
+    
     return (
-      <div key={`pincode-${idx}`} className="text-center">
-        <div className="mx-auto max-w-sm bg-gradient-to-br from-emerald-500/20 to-teal-600/10 border border-emerald-500/40 rounded-xl p-6 shadow-lg shadow-emerald-500/10">
-          <div className="flex items-center justify-center gap-2 mb-3">
-            <span className="text-2xl">📍</span>
-            <span className="text-emerald-400 text-sm font-semibold uppercase tracking-widest">Location</span>
-          </div>
-          
-          <div className="text-white text-4xl font-light tracking-tight mb-2">
-            {entry.pincode}
-          </div>
-          
-          <div className="text-gray-400 text-xs uppercase tracking-wider mb-3">
-            Pincode
-          </div>
-          
-          <div className="border-t border-emerald-500/30 my-4"></div>
-          
-          <div className="text-emerald-400 text-xl font-medium">
-            {entry.addressTaluk}
-          </div>
-          
-          <div className="text-white text-lg mt-1">
-            {entry.addressDistrict}
-          </div>
-          
-          <div className="text-gray-300 text-base mt-1">
-            {entry.addressState}
-          </div>
-          
-          <div className="border-t border-emerald-500/30 my-4"></div>
-          
-          <div className="text-gray-500 text-sm">
-            {firstOperand} → {secondOperand}
-          </div>
+      <div className="text-center py-2">
+        <div className="text-emerald-400 text-xl font-bold">
+          {addressParts.join(', ')}
         </div>
       </div>
     );
@@ -115,11 +67,11 @@ const HistoryPanel = ({ history, onClose, onClear }) => {
     const { firstOperand, secondOperand } = parseExpression(entry.expression);
     return (
       <div key={`regular-${idx}`} className="text-center">
-        <div className="text-white text-5xl font-light tracking-tight mb-4">
+        <div className="text-white text-4xl font-bold tracking-tight mb-4">
           {firstOperand}
         </div>
         
-        <div className="text-white text-5xl font-light tracking-tight">
+        <div className="text-white text-4xl font-bold tracking-tight">
           {secondOperand}
         </div>
       </div>
@@ -145,29 +97,20 @@ const HistoryPanel = ({ history, onClose, onClear }) => {
         {history.length === 0 ? (
           <div className="text-center py-20 text-[#666] text-base">No history yet</div>
         ) : (
-          <div className="space-y-8 pt-2">
-            {/* Special entries (Age & Pincode) at the top with highlighting */}
-            {specialEntries.length > 0 && (
-              <>
-                {specialEntries.map((entry, idx) => {
-                  if (isAgeCalculation(entry)) {
-                    return renderAgeCard(entry, idx);
-                  }
-                  if (hasPincodeAddress(entry)) {
-                    return renderPincodeCard(entry, idx);
-                  }
-                  return null;
-                })}
-                
-                {/* Separator if there are regular entries */}
-                {regularEntries.length > 0 && (
-                  <div className="flex items-center gap-4 py-4">
-                    <div className="flex-1 border-t border-gray-700"></div>
-                    <span className="text-gray-500 text-xs uppercase tracking-widest">Calculations</span>
-                    <div className="flex-1 border-t border-gray-700"></div>
-                  </div>
-                )}
-              </>
+          <div className="space-y-6 pt-2">
+            {/* Last Pincode Address at the top */}
+            {lastPincodeEntry && renderAddress(lastPincodeEntry)}
+            
+            {/* Last Age after address */}
+            {lastAgeEntry && renderAge(lastAgeEntry)}
+            
+            {/* Separator if there are regular entries */}
+            {(lastPincodeEntry || lastAgeEntry) && regularEntries.length > 0 && (
+              <div className="flex items-center gap-4 py-4">
+                <div className="flex-1 border-t border-gray-700"></div>
+                <span className="text-gray-500 text-xs uppercase tracking-widest">Calculations</span>
+                <div className="flex-1 border-t border-gray-700"></div>
+              </div>
             )}
             
             {/* Regular calculation entries */}

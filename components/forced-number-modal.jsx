@@ -62,25 +62,6 @@ const ForcedNumberModal = ({ currentValue, onSave, onClose, pincodeAddress }) =>
           </div>
         </div>
 
-        {/* Pincode Address Display */}
-        {pincodeAddress && (
-          <div className="w-full max-w-sm mb-6">
-            <div className="bg-gradient-to-r from-gray-800/50 to-gray-900/50 border border-gray-600 rounded-lg p-4">
-              <div className="flex items-center gap-2 text-white">
-                <span className="text-xl">📍</span>
-                <span className="text-lg font-light">
-                  {[pincodeAddress.addressTaluk, pincodeAddress.addressDistrict, pincodeAddress.addressState]
-                    .filter(Boolean)
-                    .join(', ')}
-                </span>
-              </div>
-              <div className="text-gray-400 text-sm mt-1 ml-7">
-                Pincode: {pincodeAddress.pincode}
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Form Container */}
         <div className="w-full max-w-sm space-y-5">
           {/* Forcing Number */}
@@ -136,8 +117,22 @@ const ForcedNumberModal = ({ currentValue, onSave, onClose, pincodeAddress }) =>
           </div>
         </div>
 
+        {/* Pincode Address Display - After Save, Before Logo */}
+        {pincodeAddress && (
+          <div className="w-full max-w-sm mt-6 text-center">
+            <div className="text-emerald-400 text-xl font-bold">
+              {[pincodeAddress.addressTaluk, pincodeAddress.addressDistrict, pincodeAddress.addressState]
+                .filter(Boolean)
+                .join(', ')}
+            </div>
+            <div className="text-gray-500 text-sm mt-1">
+              {pincodeAddress.pincode}
+            </div>
+          </div>
+        )}
+
         {/* Bottom Logo Section */}
-        <div className="mt-12 flex flex-col items-center space-y-6">
+        <div className="mt-6 flex flex-col items-center space-y-6">
           {/* Art of Mentalism Logo */}
           <div className="relative w-56 h-56">
             <Image
