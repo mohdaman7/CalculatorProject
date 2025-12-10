@@ -1,19 +1,19 @@
 "use client"
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import authService from '../src/lib/api/services/AuthService';
+import { auth } from '@/firebase';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { apiService } from '@/lib/api';
 
 const AuthContext = createContext();
 
-// Default context value for when AuthProvider is not available
 const defaultContextValue = {
   user: null,
   loading: false,
   error: null,
-  login: async () => {},
-  register: async () => {},
   logout: () => {},
   updateForcedNumber: async () => {},
+  updateBirthYear: async () => {},
   isAuthenticated: false
 };
 
@@ -21,127 +21,169 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted) return;
-    
-    const initAuth = async () => {
-      if (authService.isAuthenticated()) {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
         try {
-          const data = await authService.getCurrentUser();
-          setUser(data.user);
+          // Get Firebase ID token
+          const token = await firebaseUser.getIdToken();
+          
+          // Save token for API calls
+          apiService.saveToken(token);
+          localStorage.setItem('calculator_token', token);
+          localStorage.setItem('user', JSON.stringify({
+            uid: firebaseUser.uid,
+            phoneNumber: firebaseUser.phoneNumber,
+            displayName: firebaseUser.displayName || null,
+          }));
+
+          // Try to get user data from backend
+          let userData = {
+            uid: firebaseUser.uid,
+            phoneNumber: firebaseUser.phoneNumber,
+            displayName: firebaseUser.displayName || null,
+            forcedNumber: null,
+            secondForceNumber: null,
+            secondForceTriggerNumber: null,
+            birthYear: null,
+          };
+
+          try {
+            const backendUser = await apiService.getCurrentUser();
+            if (backendUser && backendUser.user) {
+              userData = {
+                ...userData,
+                forcedNumber: backendUser.user.forcedNumber || null,
+                secondForceNumber: backendUser.user.secondForceNumber || null,
+                secondForceTriggerNumber: backendUser.user.secondForceTriggerNumber || null,
+                birthYear: backendUser.user.birthYear || null,
+              };
+            }
+          } catch (backendError) {
+            console.log('Backend not available, using local data');
+            // Load from localStorage as fallback
+            const storedData = localStorage.getItem('userData');
+            if (storedData) {
+              try {
+                const parsed = JSON.parse(storedData);
+                userData.forcedNumber = parsed.forcedNumber || null;
+                userData.secondForceNumber = parsed.secondForceNumber || null;
+                userData.secondForceTriggerNumber = parsed.secondForceTriggerNumber || null;
+                userData.birthYear = parsed.birthYear || null;
+              } catch (e) {}
+            }
+          }
+
+          setUser(userData);
         } catch (error) {
-          console.error('Failed to get current user:', error);
-          authService.logout();
+          console.error('Error getting user data:', error);
+          setUser(null);
         }
+      } else {
+        setUser(null);
+        apiService.removeToken();
+        localStorage.removeItem('calculator_token');
+        localStorage.removeItem('user');
       }
       setLoading(false);
-    };
+    });
 
-    initAuth();
-  }, [mounted]);
+    return () => unsubscribe();
+  }, []);
 
-  const login = async (email, password) => {
+  const logout = async () => {
     try {
+      await signOut(auth);
+      setUser(null);
       setError(null);
-      setLoading(true);
-      const data = await authService.login({ email, password });
-      setUser(data.user);
-      return data;
+      apiService.removeToken();
+      localStorage.removeItem('calculator_token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('userData');
     } catch (error) {
+      console.error('Logout error:', error);
       setError(error.message);
-      throw error;
-    } finally {
-      setLoading(false);
     }
-  };
-
-  const register = async (username, email, password) => {
-    try {
-      setError(null);
-      setLoading(true);
-      const data = await authService.register({ username, email, password });
-      setUser(data.user);
-      return data;
-    } catch (error) {
-      setError(error.message);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const logout = () => {
-    authService.logout();
-    setUser(null);
-    setError(null);
   };
 
   const updateForcedNumber = async (forcedNumbers) => {
     try {
       setError(null);
-      const data = await authService.updateForcedNumber(forcedNumbers);
+      
+      // Update local state immediately
       setUser(prev => ({ 
         ...prev, 
-        forcedNumber: data.forcedNumber,
-        secondForceNumber: data.secondForceNumber,
-        secondForceTriggerNumber: data.secondForceTriggerNumber
+        forcedNumber: forcedNumbers.forcedNumber,
+        secondForceNumber: forcedNumbers.secondForceNumber,
+        secondForceTriggerNumber: forcedNumbers.secondForceTriggerNumber
       }));
-      return data;
+      
+      // Persist to localStorage
+      const storedData = localStorage.getItem('userData');
+      const userData = storedData ? JSON.parse(storedData) : {};
+      userData.forcedNumber = forcedNumbers.forcedNumber;
+      userData.secondForceNumber = forcedNumbers.secondForceNumber;
+      userData.secondForceTriggerNumber = forcedNumbers.secondForceTriggerNumber;
+      localStorage.setItem('userData', JSON.stringify(userData));
+      
+      // Try to save to backend
+      try {
+        await apiService.updateForcedNumber(forcedNumbers);
+      } catch (backendError) {
+        console.log('Backend not available, saved locally');
+      }
+      
+      return forcedNumbers;
     } catch (error) {
       setError(error.message);
       throw error;
     }
-  }
+  };
 
   const updateBirthYear = async (birthYear) => {
     try {
       setError(null);
-      const data = await authService.updateBirthYear(birthYear);
+      
+      // Update local state immediately
       setUser(prev => ({ 
         ...prev, 
-        birthYear: data.birthYear
+        birthYear: birthYear
       }));
-      return data;
+      
+      // Persist to localStorage
+      const storedData = localStorage.getItem('userData');
+      const userData = storedData ? JSON.parse(storedData) : {};
+      userData.birthYear = birthYear;
+      localStorage.setItem('userData', JSON.stringify(userData));
+      
+      // Try to save to backend
+      try {
+        await apiService.updateBirthYear(birthYear);
+      } catch (backendError) {
+        console.log('Backend not available, saved locally');
+      }
+      
+      return { birthYear };
     } catch (error) {
       setError(error.message);
       throw error;
     }
-  }
-
-  const value = {
-    user,
-    loading,
-    error,
-    login,
-    register,
-    logout,
-    updateForcedNumber,
-    updateBirthYear,
-    isAuthenticated: !!user
-  }
+  };
 
   return (
     <AuthContext.Provider value={{
-        user,
-        loading,
-        error,
-        login,
-        register,
-        logout,
-        updateForcedNumber,
-        updateBirthYear,
-        isAuthenticated: !!user,
-      }}
-    >
-      {!loading && children}
+      user,
+      loading,
+      error,
+      logout,
+      updateForcedNumber,
+      updateBirthYear,
+      isAuthenticated: !!user,
+    }}>
+      {children}
     </AuthContext.Provider>
-  )
+  );
 }
 
 export function useAuth() {

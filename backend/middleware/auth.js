@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
+const admin = require('../config/firebase');
 const User = require('../models/User');
 
 const auth = async (req, res, next) => {
@@ -9,17 +9,41 @@ const auth = async (req, res, next) => {
       return res.status(401).json({ error: 'Access denied. No token provided.' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.userId).select('-password');
+    // Verify Firebase ID token
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    
+    // Find or create user based on Firebase UID
+    let user = await User.findOne({ firebaseUid: decodedToken.uid });
     
     if (!user) {
-      return res.status(401).json({ error: 'Token is not valid.' });
+      // Create new user from Firebase auth
+      user = new User({
+        firebaseUid: decodedToken.uid,
+        phoneNumber: decodedToken.phone_number || null,
+        email: decodedToken.email || null,
+        isPhoneVerified: !!decodedToken.phone_number
+      });
+      await user.save();
+    } else {
+      // Update phone number if changed
+      if (decodedToken.phone_number && user.phoneNumber !== decodedToken.phone_number) {
+        user.phoneNumber = decodedToken.phone_number;
+        user.isPhoneVerified = true;
+        await user.save();
+      }
     }
 
     req.user = user;
+    req.firebaseUser = decodedToken;
     next();
   } catch (error) {
-    res.status(401).json({ error: 'Token is not valid.' });
+    console.error('Auth middleware error:', error.message);
+    
+    if (error.code === 'auth/id-token-expired') {
+      return res.status(401).json({ error: 'Token expired. Please refresh.' });
+    }
+    
+    res.status(401).json({ error: 'Invalid token.' });
   }
 };
 

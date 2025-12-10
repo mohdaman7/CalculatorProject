@@ -2,26 +2,31 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
+  firebaseUid: {
+    type: String,
+    unique: true,
+    sparse: true
+  },
   username: {
     type: String,
-    required: true,
     unique: true,
+    sparse: true,
     trim: true,
     minlength: 3,
     maxlength: 30
   },
   email: {
     type: String,
-    required: true,
     unique: true,
+    sparse: true,
     trim: true,
     lowercase: true
   },
   phoneNumber: {
     type: String,
-    default: null,
-    trim: true,
-    match: /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/
+    unique: true,
+    sparse: true,
+    trim: true
   },
   isPhoneVerified: {
     type: Boolean,

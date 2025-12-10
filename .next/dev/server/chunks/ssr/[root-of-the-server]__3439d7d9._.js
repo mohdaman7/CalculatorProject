@@ -358,7 +358,9 @@ function AuthProvider({ children }) {
                     setUser(data.user);
                 } catch (error) {
                     console.error('Failed to get current user:', error);
-                    __TURBOPACK__imported__module__$5b$project$5d2f$calculator$2d$pwa$2f$src$2f$lib$2f$api$2f$services$2f$AuthService$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"].logout();
+                    // Don't logout - Firebase auth handles this separately
+                    // Just set user to null for backend-specific features
+                    setUser(null);
                 }
             }
             setLoading(false);
@@ -463,7 +465,7 @@ function AuthProvider({ children }) {
         children: !loading && children
     }, void 0, false, {
         fileName: "[project]/calculator-pwa/contexts/AuthContext.jsx",
-        lineNumber: 130,
+        lineNumber: 132,
         columnNumber: 5
     }, this);
 }

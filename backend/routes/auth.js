@@ -102,8 +102,10 @@ router.get('/me', auth, async (req, res) => {
     res.json({
       user: {
         id: req.user._id,
+        firebaseUid: req.user.firebaseUid,
         username: req.user.username,
         email: req.user.email,
+        phoneNumber: req.user.phoneNumber,
         forcedNumber: req.user.forcedNumber,
         secondForceNumber: req.user.secondForceNumber,
         secondForceTriggerNumber: req.user.secondForceTriggerNumber,

@@ -9,87 +9,53 @@ import AuthModal from "@/components/auth-modal"
 import VerificationPage from "@/components/verification-page"
 import { useAuth } from "@/contexts/AuthContext"
 import { apiService } from "@/lib/api"
-import { verificationService } from "@/lib/verification-service"
 
 export default function HomeWrapper() {
-  const [isPhoneVerified, setIsPhoneVerified] = useState(false)
-  const [verificationLoading, setVerificationLoading] = useState(true)
   const [history, setHistory] = useState([])
   const [showHistory, setShowHistory] = useState(false)
   const [showForcedModal, setShowForcedModal] = useState(false)
   const [showBirthYearModal, setShowBirthYearModal] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [forcedNumber, setForcedNumber] = useState(null)
-  const [syncStatus, setSyncStatus] = useState('offline')
   const [birthYearLoading, setBirthYearLoading] = useState(false)
   const [lastPincodeAddress, setLastPincodeAddress] = useState(null)
   const { user, isAuthenticated, updateForcedNumber, loading } = useAuth()
 
-  // Check phone verification on mount
+  // Load from localStorage on mount
   useEffect(() => {
-    const checkVerification = () => {
-      const verified = verificationService.isVerified()
-      setIsPhoneVerified(verified)
-      setVerificationLoading(false)
-    }
-
-    checkVerification()
-  }, [])
-
-  // Load from localStorage and backend on mount
-  useEffect(() => {
-    const loadData = async () => {
-      // Always load from localStorage first
+    const loadData = () => {
       const savedHistory = localStorage.getItem("calculatorHistory")
       const savedForcedNumber = localStorage.getItem("forcedNumber")
 
       if (savedHistory) {
-        setHistory(JSON.parse(savedHistory))
+        try {
+          setHistory(JSON.parse(savedHistory))
+        } catch (e) {
+          console.error('Failed to parse history:', e)
+        }
       }
       if (savedForcedNumber) {
-        setForcedNumber(JSON.parse(savedForcedNumber))
+        try {
+          setForcedNumber(JSON.parse(savedForcedNumber))
+        } catch (e) {
+          console.error('Failed to parse forcedNumber:', e)
+        }
       }
 
-      // If authenticated, load from backend
-      if (isAuthenticated && user && !loading) {
-        try {
-          const backendHistory = await apiService.getHistory({ forcedOnly: false })
-          if (backendHistory.history && backendHistory.history.length > 0) {
-            const formattedHistory = backendHistory.history.map(item => ({
-              id: item._id,
-              expression: item.expression,
-              result: item.forcedResult || item.actualResult,
-              actualResult: item.actualResult,
-              forcedResult: item.forcedResult,
-              timestamp: new Date(item.createdAt).toLocaleString(),
-              forced: item.wasForced,
-              synced: true,
-              operationType: item.operationType,
-              year: item.year,
-              age: item.age,
-              pincode: item.pincode,
-              addressTaluk: item.addressTaluk,
-              addressDistrict: item.addressDistrict,
-              addressState: item.addressState
-            }))
-            setHistory(formattedHistory)
-            localStorage.setItem("calculatorHistory", JSON.stringify(formattedHistory))
-          }
-        } catch (error) {
-          console.error('Failed to load history from backend:', error)
+      // Load forced numbers from user profile if authenticated
+      if (isAuthenticated && user) {
+        if (user.forcedNumber || user.secondForceNumber || user.secondForceTriggerNumber) {
+          setForcedNumber({
+            forcedNumber: user.forcedNumber,
+            secondForceNumber: user.secondForceNumber,
+            secondForceTriggerNumber: user.secondForceTriggerNumber
+          })
         }
-
-        // Load forced numbers from user profile
-        setForcedNumber({
-          forcedNumber: user.forcedNumber,
-          secondForceNumber: user.secondForceNumber,
-          secondForceTriggerNumber: user.secondForceTriggerNumber
-        })
       }
     }
 
     loadData()
-  }, [isAuthenticated, user, loading])
+  }, [isAuthenticated, user])
 
   // Save to localStorage whenever history changes
   useEffect(() => {
@@ -101,69 +67,14 @@ export default function HomeWrapper() {
     localStorage.setItem("forcedNumber", JSON.stringify(forcedNumber))
   }, [forcedNumber])
 
-  // Sync with backend when online and authenticated
-  useEffect(() => {
-    if (isAuthenticated && navigator.onLine && !loading) {
-      syncWithBackend()
+  const getDeviceId = () => {
+    if (typeof window === 'undefined') return 'unknown'
+    let deviceId = localStorage.getItem('deviceId')
+    if (!deviceId) {
+      deviceId = 'device_' + Math.random().toString(36).substr(2, 9)
+      localStorage.setItem('deviceId', deviceId)
     }
-  }, [isAuthenticated, loading])
-
-  const syncWithBackend = async () => {
-    try {
-      setSyncStatus('syncing')
-      
-      // Get offline calculations that haven't been synced
-      const offlineHistory = history.filter(item => !item.synced)
-      
-      if (offlineHistory.length > 0) {
-        const calculationsToSync = offlineHistory.map(item => ({
-          expression: item.expression,
-          actualResult: item.actualResult || item.result,
-          forcedResult: item.forced ? item.result : null,
-          wasForced: item.forced,
-          operationType: getOperationType(item.expression),
-          deviceId: getDeviceId()
-        }))
-
-        await apiService.syncCalculations(calculationsToSync)
-        
-        // Mark as synced
-        const updatedHistory = history.map(item => ({
-          ...item,
-          synced: true
-        }))
-        setHistory(updatedHistory)
-      }
-
-      // Load latest history from backend
-      const backendHistory = await apiService.getHistory({ forcedOnly: true })
-      const formattedHistory = backendHistory.history.map(item => ({
-        id: item._id,
-        expression: item.expression,
-        result: item.forcedResult || item.actualResult,
-        timestamp: new Date(item.createdAt).toLocaleString(),
-        forced: item.wasForced,
-        synced: true,
-        operationType: item.operationType,
-        year: item.year,
-        age: item.age,
-        pincode: item.pincode,
-        addressTaluk: item.addressTaluk,
-        addressDistrict: item.addressDistrict,
-        addressState: item.addressState
-      }))
-
-      // Merge with local history (avoid duplicates)
-      const mergedHistory = [...formattedHistory, ...history.filter(local => 
-        !formattedHistory.some(backend => backend.expression === local.expression)
-      )]
-      setHistory(mergedHistory.slice(0, 100)) // Keep only last 100 items
-
-      setSyncStatus('online')
-    } catch (error) {
-      console.error('Sync failed:', error)
-      setSyncStatus('offline')
-    }
+    return deviceId
   }
 
   const getOperationType = (expression) => {
@@ -174,20 +85,11 @@ export default function HomeWrapper() {
     return 'mixed'
   }
 
-  const getDeviceId = () => {
-    let deviceId = localStorage.getItem('deviceId')
-    if (!deviceId) {
-      deviceId = 'device_' + Math.random().toString(36).substr(2, 9)
-      localStorage.setItem('deviceId', deviceId)
-    }
-    return deviceId
-  }
-
   const handleAddToHistory = async (entry) => {
     const newEntry = { ...entry, id: Date.now(), synced: false }
-    setHistory([newEntry, ...history])
+    setHistory(prev => [newEntry, ...prev].slice(0, 100))
 
-    // Save to backend if authenticated (save ALL calculations)
+    // Try to save to backend if authenticated
     if (isAuthenticated) {
       try {
         const payload = {
@@ -199,13 +101,11 @@ export default function HomeWrapper() {
           deviceId: getDeviceId()
         }
 
-        // Add age calculation specific fields
         if (entry.operationType === 'age_calculation') {
           payload.year = entry.year
           payload.age = entry.age
         }
 
-        // Add pincode address fields
         if (entry.pincode) {
           payload.pincode = entry.pincode
           payload.addressTaluk = entry.addressTaluk
@@ -215,35 +115,25 @@ export default function HomeWrapper() {
 
         await apiService.saveCalculation(payload)
         
-        // Mark as synced
         setHistory(prev => prev.map(item => 
           item.id === newEntry.id ? { ...item, synced: true } : item
         ))
       } catch (error) {
-        console.error('Failed to save to backend:', error)
-        // Keep it marked as unsynced for later sync
+        console.log('Backend not available, saved locally')
       }
     }
   }
 
-  const handleBirthYearSubmit = async (birthYear) => {
+  const handleBirthYearSubmit = (birthYear) => {
     setBirthYearLoading(true)
     try {
-      // Calculate age
       const currentYear = new Date().getFullYear()
       const age = currentYear - birthYear
 
-      // Save to backend if authenticated
-      if (isAuthenticated) {
-        await apiService.updateBirthYear(birthYear)
-      }
-
-      // Add to history
       const ageEntry = {
         expression: `Age from ${birthYear}`,
         result: age,
         actualResult: age,
-        forcedResult: null,
         timestamp: new Date().toLocaleString(),
         forced: false,
         operationType: 'age_calculation',
@@ -262,49 +152,38 @@ export default function HomeWrapper() {
 
   const handleClearHistory = async () => {
     setHistory([])
+    localStorage.removeItem("calculatorHistory")
     
-    // Clear from backend if authenticated
+    // Try to clear from backend
     if (isAuthenticated) {
       try {
         await apiService.clearHistory(getDeviceId())
       } catch (error) {
-        console.error('Failed to clear backend history:', error)
+        console.log('Backend not available')
       }
     }
   }
 
-  const handleSetForcedNumber = async (forcedNumbers) => {
+  const handleSetForcedNumber = (forcedNumbers) => {
     setForcedNumber(forcedNumbers)
     setShowForcedModal(false)
-
-    // Update backend if authenticated
+    
+    // Also update in AuthContext for persistence
     if (isAuthenticated) {
-      try {
-        await updateForcedNumber(forcedNumbers)
-      } catch (error) {
-        console.error('Failed to update forced numbers in backend:', error)
-      }
+      updateForcedNumber(forcedNumbers)
     }
   }
 
-  const handleClearForcedNumber = async () => {
-    setForcedNumber({
+  const handleClearForcedNumber = () => {
+    const clearedNumbers = {
       forcedNumber: null,
       secondForceNumber: null,
       secondForceTriggerNumber: null
-    })
-
-    // Update backend if authenticated
+    }
+    setForcedNumber(clearedNumbers)
+    
     if (isAuthenticated) {
-      try {
-        await updateForcedNumber({
-          forcedNumber: null,
-          secondForceNumber: null,
-          secondForceTriggerNumber: null
-        })
-      } catch (error) {
-        console.error('Failed to clear forced numbers in backend:', error)
-      }
+      updateForcedNumber(clearedNumbers)
     }
   }
 
@@ -331,28 +210,7 @@ export default function HomeWrapper() {
     })
   }
 
-  // Show verification page if not verified
-  if (verificationLoading) {
-    return (
-      <main className="flex items-center justify-center min-h-screen bg-black p-4">
-        <div className="text-white text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-          <p>Loading...</p>
-        </div>
-      </main>
-    )
-  }
-
-  if (!isPhoneVerified) {
-    return (
-      <VerificationPage 
-        onVerificationComplete={(user, token) => {
-          setIsPhoneVerified(true)
-        }}
-      />
-    )
-  }
-
+  // Show loading while checking auth state
   if (loading) {
     return (
       <main className="flex items-center justify-center min-h-screen bg-black p-4">
@@ -362,6 +220,11 @@ export default function HomeWrapper() {
         </div>
       </main>
     )
+  }
+
+  // Show verification page if not authenticated
+  if (!isAuthenticated) {
+    return <VerificationPage onVerificationComplete={() => {}} />
   }
 
   return (
