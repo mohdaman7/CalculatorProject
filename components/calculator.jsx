@@ -3,7 +3,7 @@ import { pincodeService } from "@/lib/pincode-service";
 
 const Display = ({ value }) => {
   return (
-    <div className="text-white text-right pr-4 py-8 min-h-[120px] flex items-end justify-end">
+    <div className="text-white text-right pr-6 py-8 min-h-[120px] flex items-end justify-end">
       <div className="text-6xl font-light tracking-tight break-all">
         {value}
       </div>

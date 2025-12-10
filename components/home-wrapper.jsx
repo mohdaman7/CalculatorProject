@@ -210,20 +210,8 @@ export default function HomeWrapper() {
     })
   }
 
-  // Show loading while checking auth state
-  if (loading) {
-    return (
-      <main className="flex items-center justify-center min-h-screen bg-black p-4">
-        <div className="text-white text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-          <p>Loading...</p>
-        </div>
-      </main>
-    )
-  }
-
-  // Show verification page if not authenticated
-  if (!isAuthenticated) {
+  // Show verification page only if definitely not authenticated (loading complete and no user)
+  if (!loading && !isAuthenticated) {
     return <VerificationPage onVerificationComplete={() => {}} />
   }
 

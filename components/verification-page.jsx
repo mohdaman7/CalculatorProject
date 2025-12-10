@@ -247,12 +247,6 @@ const VerificationPage = ({ onVerificationComplete }) => {
     <div className="min-h-screen bg-gradient-to-b from-black via-zinc-950 to-black flex flex-col items-center justify-center p-4">
       
 
-      {/* Logo */}
-      <div className="mb-8 animate-fade-in">
-        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-500/20">
-          <span className="text-4xl font-bold text-black">=</span>
-        </div>
-      </div>
 
       {/* Main Card */}
       <div className="w-full max-w-sm">

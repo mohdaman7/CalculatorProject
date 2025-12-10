@@ -18,7 +18,21 @@ const defaultContextValue = {
 };
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+  // Check localStorage immediately for faster initial render
+  const getInitialUser = () => {
+    if (typeof window === 'undefined') return null;
+    const stored = localStorage.getItem('user');
+    if (stored) {
+      try {
+        return JSON.parse(stored);
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
+  };
+
+  const [user, setUser] = useState(getInitialUser);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
