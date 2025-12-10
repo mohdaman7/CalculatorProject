@@ -126,3 +126,38 @@ Incoming: %s useEffect [()=>{
 [00:16:07.728] Browser LOG     reCAPTCHA verified
 [00:16:59.161] Browser LOG     reCAPTCHA expired
 [00:16:59.662] Browser LOG     reCAPTCHA verified
+[00:17:07.728] Browser LOG     reCAPTCHA expired
+[00:17:08.229] Browser LOG     reCAPTCHA verified
+[00:17:59.662] Browser LOG     reCAPTCHA expired
+[00:18:00.163] Browser LOG     reCAPTCHA verified
+[00:18:08.229] Browser LOG     reCAPTCHA expired
+[00:18:08.729] Browser LOG     reCAPTCHA verified
+[00:18:14.435] Browser ERROR   Pincode API error: 524
+[00:19:01.786] Browser LOG     reCAPTCHA expired
+[00:19:02.786] Browser LOG     reCAPTCHA verified
+[00:19:09.786] Browser LOG     reCAPTCHA expired
+[00:19:10.786] Browser LOG     reCAPTCHA verified
+[00:21:39.786] Browser LOG     reCAPTCHA expired
+[00:21:39.786] Browser LOG     reCAPTCHA expired
+[00:22:39.797] Browser LOG     reCAPTCHA verified
+[00:22:39.797] Browser LOG     reCAPTCHA verified
+[00:23:39.786] Browser LOG     reCAPTCHA expired
+[00:23:39.786] Browser LOG     reCAPTCHA expired
+[00:24:39.786] Browser LOG     reCAPTCHA verified
+[00:24:39.787] Browser LOG     reCAPTCHA verified
+[00:26:26.090] Browser LOG     reCAPTCHA expired
+[00:26:26.090] Browser LOG     reCAPTCHA expired
+[00:26:26.090] Browser LOG     reCAPTCHA verified
+[00:26:26.191] Browser LOG     reCAPTCHA verified
+[00:26:39.889] Browser LOG     reCAPTCHA expired
+[00:26:40.389] Browser LOG     reCAPTCHA verified
+[00:27:04.150] Browser ERROR   API Error: {"code":"ERR_BAD_REQUEST","config":{"_retry":true,"adapter":["xhr","http","fetch"],"allowAbsoluteUrls":true,"baseURL":"http://localhost:5000/api","env":{},"headers":{"Accept":"application/json, text/plain, */*","Authorization":"Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6Ijk1MTg5MTkxMTA3NjA1NDM0NGUxNWUyNTY0MjViYjQyNWVlYjNhNWMiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vY2FsY3VsYXRvci00OWY3YSIsImF1ZCI6ImNhbGN1bGF0b3ItNDlmN2EiLCJhdXRoX3RpbWUiOjE3NjUzNTI1MDIsInVzZXJfaWQiOiJiS09JeE1yTjVkTjBSbFI2RXEwOEVDSkFZZ1kyIiwic3ViIjoiYktPSXhNck41ZE4wUmxSNkVxMDhFQ0pBWWdZMiIsImlhdCI6MTc2NTM1MjUwMiwiZXhwIjoxNzY1MzU2MTAyLCJwaG9uZV9udW1iZXIiOiIrOTE5OTk5OTk5OTk5IiwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJwaG9uZSI6WyIrOTE5OTk5OTk5OTk5Il19LCJzaWduX2luX3Byb3ZpZGVyIjoicGhvbmUifX0.YEbtJzcLE7QnM8TPiDGq8zI0ct1ZmWME_2-Ln7N5Zx88z1tFeuVqLmSH5OPN9ojc6_ZqArTQinkVcdRCCOcxa3AaDfLxfK1wGixOB6IzCJeLT8S6UG8mf5RQyx2e2_DAqmJBuxOYbzsWemqOMu8DssCvLUPK3b9tW0nvShIuzNdK6sytXRrLz1hscbcZ5Jybk6zOJ1RlmJ9dfSgvHUXEc8jVjdud8DyJ5wA9ZwcSRHw1Tm-b10_Js83OxJZmIJElmmFiLGVXxqTlAXfB8gqK0x7yZ0BxW5nkNk5Gc07fZ6cOglbLE534dbTPwo8wD9iR3dP1Hxq9VDS6-tduFnujuA","Content-Type":"application/json"},"maxBodyLength":-1,"maxContentLength":-1,"method":"get","timeout":0,"transformRequest":[null],"transformResponse":[null],"transitional":{"clarifyTimeoutError":false,"forcedJSONParsing":true,"silentJSONParsing":true},"url":"/auth/me","withCredentials":true,"xsrfCookieName":"XSRF-TOKEN","xsrfHeaderName":"X-XSRF-TOKEN"},"message":"Request failed with status code 401","name":"AxiosError","stack":"AxiosError: Request failed with status code 401\n    at settle (http://localhost:3000/_next/static/chunks/12c86_9086369e._.js:3905:16)\n    at XMLHttpRequest.onloadend (http://localhost:3000/_next/static/chunks/12c86_9086369e._.js:4420:195)\n    at Axios.request (http://localhost:3000/_next/static/chunks/12c86_9086369e._.js:5224:49)\n    at async AuthService.getCurrentUser (http://localhost:3000/_next/static/chunks/calculator-pwa_4cff66ef._.js:187:30)\n    at async AuthProvider.useEffect.initAuth (http://localhost:3000/_next/static/chunks/calculator-pwa_4cff66ef._.js:285:42)","status":401}
+[00:27:04.150] Browser ERROR   Failed to get current user: {}
+[00:27:04.150] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:27:04.150] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:27:04.150] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:27:04.150] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765353317953}
+[00:27:04.150] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765353317954}
+[00:27:05.327] Browser LOG     reCAPTCHA verified
+[00:27:05.647] Browser LOG     reCAPTCHA verified
+[00:28:05.327] Browser LOG     reCAPTCHA expired

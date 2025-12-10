@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 
 export async function GET(request, context) {
-  // Next.js 15+ requires awaiting params
   const params = await context.params;
   const pincode = params?.pincode || '';
 
@@ -10,7 +9,7 @@ export async function GET(request, context) {
   }
 
   try {
-    const response = await fetch(`https://dev.apiman.in/pincode/${pincode}`, {
+    const response = await fetch(`https://api.postalpincode.in/pincode/${pincode}`, {
       headers: {
         'Accept': 'application/json',
       },
@@ -22,15 +21,16 @@ export async function GET(request, context) {
 
     const data = await response.json();
     
-    // Extract the first post office and return formatted data
-    if (data.Postoffice && data.Postoffice.length > 0) {
-      const postOffice = data.Postoffice[0];
+    if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length > 0) {
+      const postOffice = data[0].PostOffice[0];
       return NextResponse.json({
         success: true,
-        taluk: postOffice.Taluk || '',
-        district: postOffice.Districtname || '',
-        state: postOffice.statename || '',
-        pincode: postOffice.pincode
+        pincode: postOffice.Pincode,
+        taluk: postOffice.Block || postOffice.Name || '',
+        district: postOffice.District || '',
+        state: postOffice.State || '',
+        postOfficeName: postOffice.Name || '',
+        region: postOffice.Region || ''
       });
     }
     
