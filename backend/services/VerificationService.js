@@ -1,13 +1,20 @@
 const PhoneVerification = require('../models/PhoneVerification');
-const twilio = require('twilio');
 
 // External Admin API URL
 const EXTERNAL_ADMIN_API = process.env.EXTERNAL_ADMIN_API || 'https://artofmentalism.bloombizsuite.com/api';
 
 class VerificationService {
   constructor() {
-    // Initialize Twilio client if credentials are provided
-    if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
+    // Check for Fast2SMS (preferred for India)
+    if (process.env.FAST2SMS_API_KEY) {
+      this.smsProvider = 'fast2sms';
+      this.fast2smsApiKey = process.env.FAST2SMS_API_KEY;
+      console.log('Fast2SMS service initialized');
+    }
+    // Check for Twilio (international)
+    else if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
+      const twilio = require('twilio');
+      this.smsProvider = 'twilio';
       this.twilioClient = twilio(
         process.env.TWILIO_ACCOUNT_SID,
         process.env.TWILIO_AUTH_TOKEN
@@ -15,19 +22,50 @@ class VerificationService {
       this.twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
       console.log('Twilio SMS service initialized');
     } else {
-      this.twilioClient = null;
-      console.log('Twilio not configured - OTP will be logged to console');
+      this.smsProvider = 'console';
+      console.log('No SMS provider configured - OTP will be logged to console');
     }
     console.log('External Admin API:', EXTERNAL_ADMIN_API);
   }
 
-  // Sencalculator-maind SMS via Twilio
-  async sendSMS(phoneNumber, message) {
-    if (!this.twilioClient) {
-      console.log(`[SMS MOCK] To: ${phoneNumber} | Message: ${message}`);
-      return { success: true, mock: true };
-    }
+  // Send SMS via Fast2SMS (OTP Route)
+  async sendFast2SMS(phoneNumber, otp) {
+    try {
+      // Format phone number (10 digits only for Fast2SMS)
+      const formattedPhone = phoneNumber.replace(/\D/g, '').slice(-10);
+      
+      // Build URL with query parameters (GET method)
+      const params = new URLSearchParams({
+        authorization: this.fast2smsApiKey,
+        route: 'otp',
+        variables_values: otp,
+        flash: '0',
+        numbers: formattedPhone
+      });
+      
+      const url = `https://www.fast2sms.com/dev/bulkV2?${params.toString()}`;
+      
+      const response = await fetch(url, {
+        method: 'GET'
+      });
 
+      const data = await response.json();
+      
+      if (data.return === true) {
+        console.log(`[Fast2SMS] OTP sent to ${formattedPhone} | Request ID: ${data.request_id}`);
+        return { success: true, requestId: data.request_id };
+      } else {
+        console.error('[Fast2SMS Error]', data.message || data);
+        return { success: false, error: data.message || 'Failed to send OTP' };
+      }
+    } catch (error) {
+      console.error('[Fast2SMS Error]', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Send SMS via Twilio
+  async sendTwilioSMS(phoneNumber, message) {
     try {
       // Format phone number for Twilio (needs country code)
       let formattedPhone = phoneNumber.replace(/\D/g, '');
@@ -43,11 +81,30 @@ class VerificationService {
         to: formattedPhone
       });
 
-      console.log(`[SMS SENT] To: ${formattedPhone} | SID: ${result.sid}`);
+      console.log(`[Twilio] SMS sent to ${formattedPhone} | SID: ${result.sid}`);
       return { success: true, sid: result.sid };
     } catch (error) {
-      console.error('[SMS ERROR]', error.message);
+      console.error('[Twilio Error]', error.message);
       return { success: false, error: error.message };
+    }
+  }
+
+  // Send SMS (auto-selects provider)
+  async sendSMS(phoneNumber, otp) {
+    const message = `Your AOM Force verification code is: ${otp}. Valid for 10 minutes.`;
+    
+    switch (this.smsProvider) {
+      case 'fast2sms':
+        return await this.sendFast2SMS(phoneNumber, otp);
+      case 'twilio':
+        return await this.sendTwilioSMS(phoneNumber, message);
+      default:
+        // Console logging for development
+        console.log(`\n========================================`);
+        console.log(`[OTP] Phone: ${phoneNumber}`);
+        console.log(`[OTP] Code: ${otp}`);
+        console.log(`========================================\n`);
+        return { success: true, mock: true };
     }
   }
 
@@ -78,8 +135,6 @@ class VerificationService {
       const data = await response.json();
       console.log('[EXTERNAL API] Response:', JSON.stringify(data));
       
-      // Check if phone exists in Laravel admin
-      // Laravel returns: {"exists": true} if phone is registered
       if (data.exists === true) {
         console.log('[EXTERNAL API] Phone is registered');
         return true;
@@ -114,10 +169,7 @@ class VerificationService {
       const otp = this.generateOTP();
       
       // Send OTP via SMS
-      const smsResult = await this.sendSMS(
-        phoneNumber, 
-        `Your verification code is: ${otp}. Valid for 10 minutes.`
-      );
+      const smsResult = await this.sendSMS(phoneNumber, otp);
       
       if (!smsResult.success && !smsResult.mock) {
         return {

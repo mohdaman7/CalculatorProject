@@ -1,3 +1,4 @@
 {
+  "/api/pincode/[pincode]/route": "app/api/pincode/[pincode]/route.js",
   "/page": "app/page.js"
 }
