@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { pincodeService } from "@/lib/pincode-service";
+import { MdBackspace } from "react-icons/md";
 
 const Display = ({ value }) => {
   return (
@@ -328,7 +329,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
             />
 
             {/* Row 5 - Last Row with 3 items */}
-            <Button variant="gray" onClick={handleBackspace} label="✕" />
+             <Button variant="gray" onClick={handleBackspace} label={<MdBackspace size={28} />} />
             <Button variant="gray" onClick={() => handleNumberClick(0)} label="0" />
             <Button variant="gray" onClick={handleDecimal} label="." />
             <Button variant="orange" onClick={handleEquals} label="=" />
