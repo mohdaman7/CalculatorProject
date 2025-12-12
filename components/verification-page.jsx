@@ -488,7 +488,7 @@ const VerificationPage = ({ onVerificationComplete }) => {
           </div>
         )}
       </div>
-
+      
       {/* Bottom Badge */}
       <div className="mt-8 flex items-center gap-2 text-zinc-600 text-xs">
         <Shield className="w-3.5 h-3.5" />
