@@ -332,7 +332,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
   };
 
   return (
-    <div className="w-full h-screen bg-black flex flex-col overflow-hidden">
+    <div className="w-full min-h-screen h-full bg-black flex flex-col overflow-hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
       <ModeToast show={showModeToast} isNormalMode={isNormalMode} />
       <div className="flex-1 flex items-end justify-center">
         <div className="w-full max-w-sm">
