@@ -68,7 +68,7 @@ const HistoryPanel = ({ history, onClose, onClear }) => {
     return (
       <div key={`regular-${idx}`} className="text-center space-y-2">
         {operands.map((operand, i) => (
-          <div key={i} className="text-white text-4xl font-bold tracking-tight">
+          <div key={i} className="text-white text-4xl font-medium tracking-tight">
             {operand}
           </div>
         ))}

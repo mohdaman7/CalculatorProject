@@ -33,7 +33,7 @@ const ModeToast = ({ show, isNormalMode }) => {
 const Button = ({ variant, onClick, onMouseDown, onMouseUp, onTouchStart, onTouchEnd, label, wide }) => {
   const [isPressed, setIsPressed] = useState(false);
   
-  const baseClasses = "rounded-full flex items-center justify-center text-white font-light transition-all duration-75 cursor-pointer select-none active:scale-95";
+  const baseClasses = "rounded-full flex items-center justify-center text-white font-medium transition-all duration-75 cursor-pointer select-none active:scale-95";
   
   const variantClasses = {
     lightGray: `bg-[#a5a5a5] text-black ${isPressed ? 'bg-[#d4d4d4]' : ''}`,
@@ -332,7 +332,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
   };
 
   return (
-    <div className="w-full h-screen bg-black flex flex-col">
+    <div className="w-full h-screen bg-black flex flex-col overflow-hidden">
       <ModeToast show={showModeToast} isNormalMode={isNormalMode} />
       <div className="flex-1 flex items-end justify-center">
         <div className="w-full max-w-sm">
