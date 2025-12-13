@@ -2,15 +2,15 @@ import React from 'react';
 import Image from 'next/image';
 
 const HistoryPanel = ({ history, onClose, onClear }) => {
-  // Parse expression to get operands
-  const parseExpression = (expression) => {
-    // Expression format: "10 + 20" or "10 - 5" etc
-    const parts = expression.split(/\s+/);
-    return {
-      firstOperand: parts[0],
-      operator: parts[1],
-      secondOperand: parts[2]
-    };
+  // Get all operands from entry
+  const getOperands = (entry) => {
+    // If operands array exists, use it
+    if (entry.operands && Array.isArray(entry.operands)) {
+      return entry.operands;
+    }
+    // Fallback: parse expression for older entries
+    const parts = entry.expression?.split(/\s+/) || [];
+    return parts.filter((_, i) => i % 2 === 0); // Get only operands (skip operators)
   };
 
   // Helper to check if entry is age calculation
@@ -62,18 +62,16 @@ const HistoryPanel = ({ history, onClose, onClear }) => {
     );
   };
 
-  // Render regular calculation
+  // Render regular calculation - show all operands
   const renderRegularEntry = (entry, idx) => {
-    const { firstOperand, secondOperand } = parseExpression(entry.expression);
+    const operands = getOperands(entry);
     return (
-      <div key={`regular-${idx}`} className="text-center">
-        <div className="text-white text-4xl font-bold tracking-tight mb-4">
-          {firstOperand}
-        </div>
-        
-        <div className="text-white text-4xl font-bold tracking-tight">
-          {secondOperand}
-        </div>
+      <div key={`regular-${idx}`} className="text-center space-y-2">
+        {operands.map((operand, i) => (
+          <div key={i} className="text-white text-4xl font-bold tracking-tight">
+            {operand}
+          </div>
+        ))}
       </div>
     );
   };

@@ -82,7 +82,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
   const [previousValue, setPreviousValue] = useState(null);
   const [operation, setOperation] = useState(null);
   const [waitingForNewValue, setWaitingForNewValue] = useState(false);
-  const [firstOperandRaw, setFirstOperandRaw] = useState(null);
+  const [allOperands, setAllOperands] = useState([]); // Track all operands in chain
   const longPressTimerRef = useRef(null);
   const dotLongPressTimerRef = useRef(null);
   
@@ -134,12 +134,16 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
 
     if (previousValue === null) {
       setPreviousValue(currentValue);
-      setFirstOperandRaw(display);
-    } else if (operation && !waitingForNewValue) {
-      const result = performCalculation(previousValue, currentValue, operation);
-      setDisplay(String(result));
-      setPreviousValue(result);
-      setFirstOperandRaw(String(result));
+      setAllOperands([display]); // Start tracking operands
+    } else if (operation) {
+      if (!waitingForNewValue) {
+        // User entered a new number, add it to operands and calculate
+        const result = performCalculation(previousValue, currentValue, operation);
+        setDisplay(String(result));
+        setPreviousValue(result);
+        setAllOperands(prev => [...prev, display]); // Add current operand to chain
+      }
+      // If waitingForNewValue is true, user just changed operator - don't add duplicate
     }
 
     setOperation(op);
@@ -166,7 +170,8 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
           forced: false,
           operationType: 'age_calculation',
           year: year,
-          age: age
+          age: age,
+          operands: [display]
         });
         
         // Don't change display - keep showing the year
@@ -199,7 +204,13 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
       const finalResult = isForced ? forcedResult : actualResult;
       const timestamp = new Date().toLocaleString();
       const expressionStr = `${previousValue} ${operation} ${display}`;
-      const isPincodeCalc = (operation === '+' || operation === '-') && pincodeService.isPincode(firstOperandRaw);
+      
+      // Collect all operands including the final one
+      const finalOperands = [...allOperands, display];
+      
+      // Find pincode from ANY operand
+      const pincodeOperand = finalOperands.find(op => pincodeService.isPincode(op));
+      const isPincodeCalc = (operation === '+' || operation === '-') && pincodeOperand;
       
       // Show result immediately - don't wait for pincode fetch
       setDisplay(String(finalResult));
@@ -213,8 +224,9 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
         timestamp,
         forced: isForced,
         operationType: operation,
+        operands: finalOperands, // Pass all operands
         // Mark as pincode calculation for later update
-        pincode: isPincodeCalc ? firstOperandRaw : null,
+        pincode: isPincodeCalc ? pincodeOperand : null,
         addressTaluk: null,
         addressDistrict: null,
         addressState: null
@@ -222,11 +234,10 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
       
       // Fetch pincode address in background (non-blocking)
       if (isPincodeCalc) {
-        const pincodeValue = firstOperandRaw;
-        pincodeService.fetchAddress(pincodeValue).then(address => {
+        pincodeService.fetchAddress(pincodeOperand).then(address => {
           if (address) {
             const pincodeData = {
-              pincode: pincodeValue,
+              pincode: pincodeOperand,
               addressTaluk: address.taluk,
               addressDistrict: address.district,
               addressState: address.state
@@ -240,7 +251,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
 
     setPreviousValue(null);
     setOperation(null);
-    setFirstOperandRaw(null);
+    setAllOperands([]);
     setWaitingForNewValue(true);
   };
 
@@ -259,7 +270,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
     setDisplay("0");
     setPreviousValue(null);
     setOperation(null);
-    setFirstOperandRaw(null);
+    setAllOperands([]);
     setWaitingForNewValue(false);
   };
 
