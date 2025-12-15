@@ -338,7 +338,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
         <div className="w-full max-w-sm">
           <Display value={display} />
 
-          <div className="grid grid-cols-4 gap-3 px-4 pb-8">
+          <div className="grid grid-cols-4 gap-3 px-4 pb-20">
             {/* Row 1 */}
             <Button variant="gray" onClick={handleClear} label="AC" />
             <Button variant="gray" onClick={handleToggleSign} label="+/-" />
