@@ -5,8 +5,8 @@ import { IoCheckmarkCircle, IoCloseCircle } from "react-icons/io5";
 
 const Display = ({ value }) => {
   return (
-    <div className="text-white text-right pr-6 py-8 min-h-[120px] flex items-end justify-end">
-      <div className="text-6xl font-light tracking-tight break-all">
+    <div className="text-white text-right pr-6 lg:pr-12 py-8 lg:py-12 min-h-[120px] lg:min-h-[180px] flex items-end justify-end">
+      <div className="text-6xl lg:text-8xl font-light tracking-tight break-all">
         {value}
       </div>
     </div>
@@ -63,7 +63,7 @@ const Button = ({ variant, onClick, onMouseDown, onMouseUp, onTouchStart, onTouc
 
   return (
     <div
-      className={`${baseClasses} ${variantClasses[variant]} ${wide ? 'col-span-2' : ''} h-20 text-3xl`}
+      className={`${baseClasses} ${variantClasses[variant]} ${wide ? 'col-span-2' : ''} h-20 lg:h-24 text-3xl lg:text-4xl`}
       style={{ aspectRatio: wide ? '2.1/1' : '1/1' }}
       onClick={onClick}
       onMouseDown={handleMouseDown}
@@ -334,11 +334,11 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
   return (
     <div className="w-full min-h-screen h-full bg-black flex flex-col overflow-hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
       <ModeToast show={showModeToast} isNormalMode={isNormalMode} />
-      <div className="flex-1 flex items-end justify-center">
-        <div className="w-full max-w-sm">
+      <div className="flex-1 flex items-end lg:items-center justify-center">
+        <div className="w-full max-w-sm lg:max-w-2xl">
           <Display value={display} />
 
-          <div className="grid grid-cols-4 gap-3 px-4 pb-20">
+          <div className="grid grid-cols-4 gap-3 lg:gap-4 px-4 lg:px-8 pb-20 lg:pb-8">
             {/* Row 1 */}
             <Button variant="gray" onClick={handleClear} label="AC" />
             <Button variant="gray" onClick={handleToggleSign} label="+/-" />
