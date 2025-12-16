@@ -5,8 +5,8 @@ import { IoCheckmarkCircle, IoCloseCircle } from "react-icons/io5";
 
 const Display = ({ value }) => {
   return (
-    <div className="text-white text-right pr-6 lg:pr-12 py-8 lg:py-12 min-h-[120px] lg:min-h-[180px] flex items-end justify-end">
-      <div className="text-6xl lg:text-8xl font-light tracking-tight break-all">
+    <div className="text-white text-right pr-6 md:pr-10 lg:pr-12 py-8 md:py-10 lg:py-12 min-h-[120px] md:min-h-[150px] lg:min-h-[180px] flex items-end justify-end">
+      <div className="text-6xl md:text-7xl lg:text-8xl font-light tracking-tight break-all">
         {value}
       </div>
     </div>
@@ -63,7 +63,7 @@ const Button = ({ variant, onClick, onMouseDown, onMouseUp, onTouchStart, onTouc
 
   return (
     <div
-      className={`${baseClasses} ${variantClasses[variant]} ${wide ? 'col-span-2' : ''} h-20 lg:h-24 text-3xl lg:text-4xl`}
+      className={`${baseClasses} ${variantClasses[variant]} ${wide ? 'col-span-2' : ''} h-20 md:h-22 lg:h-24 text-3xl md:text-3xl lg:text-4xl`}
       style={{ aspectRatio: wide ? '2.1/1' : '1/1' }}
       onClick={onClick}
       onMouseDown={handleMouseDown}
@@ -334,11 +334,11 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
   return (
     <div className="w-full min-h-screen h-full bg-black flex flex-col overflow-hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
       <ModeToast show={showModeToast} isNormalMode={isNormalMode} />
-      <div className="flex-1 flex items-end lg:items-center justify-center">
-        <div className="w-full max-w-sm lg:max-w-2xl">
+      <div className="flex-1 flex items-end md:items-center lg:items-center justify-center">
+        <div className="w-full max-w-sm md:max-w-md lg:max-w-2xl">
           <Display value={display} />
 
-          <div className="grid grid-cols-4 gap-3 lg:gap-4 px-4 lg:px-8 pb-20 lg:pb-8">
+          <div className="grid grid-cols-4 gap-3 md:gap-3.5 lg:gap-4 px-4 md:px-6 lg:px-8 pb-20 md:pb-16 lg:pb-8">
             {/* Row 1 */}
             <Button variant="gray" onClick={handleClear} label="AC" />
             <Button variant="gray" onClick={handleToggleSign} label="+/-" />
