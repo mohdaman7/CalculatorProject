@@ -85,12 +85,23 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
   const longPressTimerRef = useRef(null);
   const dotLongPressTimerRef = useRef(null);
   
-  const [isNormalMode, setIsNormalMode] = useState(true);
+  const [isNormalMode, setIsNormalMode] = useState(false); // Default to force mode
   const [showModeToast, setShowModeToast] = useState(false);
+  const [modeLoaded, setModeLoaded] = useState(false);
+
+  // Load mode from localStorage on client mount only
+  useEffect(() => {
+    const savedMode = localStorage.getItem("calculatorMode");
+    if (savedMode !== null) {
+      setIsNormalMode(savedMode === "normal");
+    }
+    setModeLoaded(true);
+  }, []);
   
   const toggleMode = () => {
     const newMode = !isNormalMode;
     setIsNormalMode(newMode);
+    localStorage.setItem("calculatorMode", newMode ? "normal" : "force");
     setShowModeToast(true);
     setTimeout(() => setShowModeToast(false), 1500);
   };

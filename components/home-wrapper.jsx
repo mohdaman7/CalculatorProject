@@ -21,19 +21,44 @@ export default function HomeWrapper() {
   const [lastPincodeAddress, setLastPincodeAddress] = useState(null)
   const { user, isAuthenticated, updateForcedNumber, loading } = useAuth()
 
-  // Load from localStorage on mount
+  // Load from localStorage and backend on mount
   useEffect(() => {
-    const loadData = () => {
+    const loadData = async () => {
+      // Load from localStorage first
       const savedHistory = localStorage.getItem("calculatorHistory")
       const savedForcedNumber = localStorage.getItem("forcedNumber")
+      const savedPincodeAddress = localStorage.getItem("lastPincodeAddress")
 
       if (savedHistory) {
         try {
-          setHistory(JSON.parse(savedHistory))
+          const parsedHistory = JSON.parse(savedHistory)
+          setHistory(parsedHistory)
+          
+          // Extract last pincode address from history
+          const lastPincode = parsedHistory.find(entry => 
+            entry.pincode && (entry.addressTaluk || entry.addressDistrict || entry.addressState)
+          )
+          if (lastPincode) {
+            setLastPincodeAddress({
+              pincode: lastPincode.pincode,
+              addressTaluk: lastPincode.addressTaluk,
+              addressDistrict: lastPincode.addressDistrict,
+              addressState: lastPincode.addressState
+            })
+          }
         } catch (e) {
           console.error('Failed to parse history:', e)
         }
       }
+      
+      if (savedPincodeAddress) {
+        try {
+          setLastPincodeAddress(JSON.parse(savedPincodeAddress))
+        } catch (e) {
+          console.error('Failed to parse pincodeAddress:', e)
+        }
+      }
+      
       if (savedForcedNumber) {
         try {
           setForcedNumber(JSON.parse(savedForcedNumber))
@@ -50,6 +75,50 @@ export default function HomeWrapper() {
             secondForceNumber: user.secondForceNumber,
             secondForceTriggerNumber: user.secondForceTriggerNumber
           })
+        }
+
+        // Also fetch history from backend
+        try {
+          const response = await apiService.getHistory()
+          if (response.history && response.history.length > 0) {
+            // Map backend history to local format
+            const backendHistory = response.history.map(item => ({
+              id: item._id,
+              expression: item.expression,
+              result: item.forcedResult || item.actualResult,
+              actualResult: item.actualResult,
+              forcedResult: item.forcedResult,
+              timestamp: item.createdAt,
+              forced: item.wasForced,
+              operationType: item.operationType,
+              operands: item.operands ? [item.operands.firstOperand, item.operands.secondOperand].filter(Boolean) : [],
+              pincode: item.pincode,
+              addressTaluk: item.addressTaluk,
+              addressDistrict: item.addressDistrict,
+              addressState: item.addressState,
+              year: item.year,
+              age: item.age,
+              synced: true
+            }))
+            setHistory(backendHistory)
+            
+            // Extract last pincode address from backend history
+            const lastPincode = backendHistory.find(entry => 
+              entry.pincode && (entry.addressTaluk || entry.addressDistrict || entry.addressState)
+            )
+            if (lastPincode) {
+              const pincodeData = {
+                pincode: lastPincode.pincode,
+                addressTaluk: lastPincode.addressTaluk,
+                addressDistrict: lastPincode.addressDistrict,
+                addressState: lastPincode.addressState
+              }
+              setLastPincodeAddress(pincodeData)
+              localStorage.setItem("lastPincodeAddress", JSON.stringify(pincodeData))
+            }
+          }
+        } catch (error) {
+          console.log('Could not fetch history from backend, using local:', error)
         }
       }
     }
@@ -190,6 +259,8 @@ export default function HomeWrapper() {
   // Handle pincode address update (called after background fetch)
   const handlePincodeAddress = (pincodeData) => {
     setLastPincodeAddress(pincodeData)
+    // Save to localStorage for persistence
+    localStorage.setItem("lastPincodeAddress", JSON.stringify(pincodeData))
     
     // Update the most recent history entry with this pincode
     setHistory(prev => {

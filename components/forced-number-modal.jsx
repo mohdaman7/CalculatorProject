@@ -115,21 +115,21 @@ const ForcedNumberModal = ({ currentValue, onSave, onClose, pincodeAddress }) =>
               Save
             </button>
           </div>
-        </div>
 
-        {/* Pincode Address Display - After Save, Before Logo - UPPERCASE */}
-        {pincodeAddress && (
-          <div className="w-full max-w-sm mt-6 text-center">
-            <div className="text-emerald-400 text-xl font-bold uppercase">
-              {[pincodeAddress.addressTaluk, pincodeAddress.addressDistrict, pincodeAddress.addressState]
-                .filter(Boolean)
-                .join(', ')}
+          {/* Pincode Address Display - Between Save and Logo - UPPERCASE */}
+          {pincodeAddress && (
+            <div className="mt-8 text-center">
+              <div className="text-emerald-400 text-2xl font-bold uppercase tracking-wide">
+                {[pincodeAddress.addressTaluk, pincodeAddress.addressDistrict, pincodeAddress.addressState]
+                  .filter(Boolean)
+                  .join(', ')}
+              </div>
+              <div className="text-gray-500 text-sm mt-2">
+                {pincodeAddress.pincode}
+              </div>
             </div>
-            <div className="text-gray-500 text-sm mt-1">
-              {pincodeAddress.pincode}
-            </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Bottom Logo Section */}
         <div className="mt-6 flex flex-col items-center space-y-6">
