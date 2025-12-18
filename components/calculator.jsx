@@ -147,9 +147,9 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
       setAllOperands([display]); // Start tracking operands
     } else if (operation) {
       if (!waitingForNewValue) {
-        // User entered a new number, add it to operands and calculate
+        // User entered a new number, calculate but don't show result
         const result = performCalculation(previousValue, currentValue, operation);
-        setDisplay(String(result));
+        // Don't update display - keep showing current input
         setPreviousValue(result);
         setAllOperands(prev => [...prev, display]); // Add current operand to chain
       }
