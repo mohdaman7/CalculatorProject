@@ -257,7 +257,7 @@ export default function HomeWrapper() {
   }
 
   // Handle pincode address update (called after background fetch)
-  const handlePincodeAddress = (pincodeData) => {
+  const handlePincodeAddress = async (pincodeData) => {
     setLastPincodeAddress(pincodeData)
     // Save to localStorage for persistence
     localStorage.setItem("lastPincodeAddress", JSON.stringify(pincodeData))
@@ -279,6 +279,19 @@ export default function HomeWrapper() {
       }
       return updated
     })
+
+    // Also update in backend if authenticated
+    if (isAuthenticated) {
+      try {
+        await apiService.updateHistoryAddress(pincodeData.pincode, {
+          addressTaluk: pincodeData.addressTaluk,
+          addressDistrict: pincodeData.addressDistrict,
+          addressState: pincodeData.addressState
+        })
+      } catch (error) {
+        console.log('Could not update address in backend:', error)
+      }
+    }
   }
 
   // Show verification page only if definitely not authenticated (loading complete and no user)

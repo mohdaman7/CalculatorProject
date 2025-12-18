@@ -182,6 +182,61 @@ router.get('/operands/:id', auth, async (req, res) => {
   }
 });
 
+// Update history entry with pincode address
+router.put('/history/address', auth, async (req, res) => {
+  try {
+    const { pincode, addressTaluk, addressDistrict, addressState } = req.body;
+
+    if (!pincode) {
+      return res.status(400).json({ error: 'Pincode is required' });
+    }
+
+    // Find and update the most recent entry with this pincode
+    const result = await CalculationHistory.findOneAndUpdate(
+      { 
+        userId: req.user._id, 
+        pincode: pincode,
+        addressTaluk: { $exists: false }
+      },
+      { 
+        addressTaluk,
+        addressDistrict,
+        addressState
+      },
+      { new: true, sort: { createdAt: -1 } }
+    );
+
+    if (!result) {
+      // Try updating any entry with this pincode that has null address
+      const result2 = await CalculationHistory.findOneAndUpdate(
+        { 
+          userId: req.user._id, 
+          pincode: pincode,
+          $or: [
+            { addressTaluk: null },
+            { addressTaluk: '' }
+          ]
+        },
+        { 
+          addressTaluk,
+          addressDistrict,
+          addressState
+        },
+        { new: true, sort: { createdAt: -1 } }
+      );
+
+      if (result2) {
+        return res.json({ message: 'Address updated', history: result2 });
+      }
+    }
+
+    res.json({ message: 'Address updated', history: result });
+  } catch (error) {
+    console.error('Update address error:', error);
+    res.status(500).json({ error: 'Server error updating address' });
+  }
+});
+
 // Clear calculation history
 router.delete('/history', auth, async (req, res) => {
   try {
