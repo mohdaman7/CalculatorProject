@@ -18,19 +18,21 @@ const HistoryPanel = ({ history, onClose, onClear }) => {
     entry.operationType === 'age_calculation' || 
     (entry.expression && (entry.expression.startsWith('Year:') || entry.expression.startsWith('Age from')));
   
+  // Helper to check if entry has pincode (with or without address)
+  const hasPincode = (entry) => entry.pincode;
+  
   // Helper to check if entry has pincode address
   const hasPincodeAddress = (entry) => 
     entry.pincode && (entry.addressTaluk || entry.addressDistrict || entry.addressState);
 
-  // Get only the LAST pincode entry with address
-  const lastPincodeEntry = history.find(entry => hasPincodeAddress(entry));
+  // Get the LAST pincode entry with address (for showing address at top)
+  const lastPincodeWithAddress = history.find(entry => hasPincodeAddress(entry));
   
   // Get only the LAST age calculation entry
   const lastAgeEntry = history.find(entry => isAgeCalculation(entry));
   
-  const regularEntries = history.filter(entry => 
-    !isAgeCalculation(entry) && !hasPincodeAddress(entry)
-  );
+  // Get ALL calculation entries (including pincode ones) - exclude only age calculations
+  const allCalculationEntries = history.filter(entry => !isAgeCalculation(entry));
 
   // Render age calculation - simple text
   const renderAge = (entry) => {
@@ -49,13 +51,13 @@ const HistoryPanel = ({ history, onClose, onClear }) => {
     );
   };
 
-  // Render pincode address - simple text
+  // Render address only (shown at top) - UPPERCASE
   const renderAddress = (entry) => {
     const addressParts = [entry.addressTaluk, entry.addressDistrict, entry.addressState].filter(Boolean);
     
     return (
       <div className="text-center py-2">
-        <div className="text-emerald-400 text-xl font-bold">
+        <div className="text-emerald-400 text-xl font-bold uppercase">
           {addressParts.join(', ')}
         </div>
       </div>
@@ -97,13 +99,13 @@ const HistoryPanel = ({ history, onClose, onClear }) => {
         ) : (
           <div className="space-y-6 pt-2">
             {/* Last Pincode Address at the top */}
-            {lastPincodeEntry && renderAddress(lastPincodeEntry)}
+            {lastPincodeWithAddress && renderAddress(lastPincodeWithAddress)}
             
             {/* Last Age after address */}
             {lastAgeEntry && renderAge(lastAgeEntry)}
             
-            {/* Separator if there are regular entries */}
-            {(lastPincodeEntry || lastAgeEntry) && regularEntries.length > 0 && (
+            {/* Separator if there are calculation entries */}
+            {(lastPincodeWithAddress || lastAgeEntry) && allCalculationEntries.length > 0 && (
               <div className="flex items-center gap-4 py-4">
                 <div className="flex-1 border-t border-gray-700"></div>
                 <span className="text-gray-500 text-xs uppercase tracking-widest">Calculations</span>
@@ -111,8 +113,8 @@ const HistoryPanel = ({ history, onClose, onClear }) => {
               </div>
             )}
             
-            {/* Regular calculation entries */}
-            {regularEntries.map((entry, idx) => renderRegularEntry(entry, idx))}
+            {/* ALL calculation entries including pincode ones */}
+            {allCalculationEntries.map((entry, idx) => renderRegularEntry(entry, idx))}
           </div>
         )}
       </div>

@@ -113,10 +113,10 @@ router.post('/calculate-age', auth, async (req, res) => {
   }
 });
 
-// Get calculation history with operands
+// Get calculation history with operands (no pagination - returns all)
 router.get('/history', auth, async (req, res) => {
   try {
-    const { page = 1, limit = 20, forcedOnly = true } = req.query;
+    const { forcedOnly = false } = req.query;
     
     const query = { userId: req.user._id };
     if (forcedOnly === 'true') {
@@ -124,11 +124,7 @@ router.get('/history', auth, async (req, res) => {
     }
 
     const history = await CalculationHistory.find(query)
-      .sort({ createdAt: -1 })
-      .limit(limit * 1)
-      .skip((page - 1) * limit);
-
-    const total = await CalculationHistory.countDocuments(query);
+      .sort({ createdAt: -1 });
 
     // Parse expressions to extract operands
     const historyWithOperands = history.map(item => {
@@ -148,12 +144,7 @@ router.get('/history', auth, async (req, res) => {
 
     res.json({
       history: historyWithOperands,
-      pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total,
-        pages: Math.ceil(total / limit)
-      }
+      total: history.length
     });
   } catch (error) {
     console.error('Get history error:', error);

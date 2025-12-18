@@ -117,10 +117,10 @@ const ForcedNumberModal = ({ currentValue, onSave, onClose, pincodeAddress }) =>
           </div>
         </div>
 
-        {/* Pincode Address Display - After Save, Before Logo */}
+        {/* Pincode Address Display - After Save, Before Logo - UPPERCASE */}
         {pincodeAddress && (
           <div className="w-full max-w-sm mt-6 text-center">
-            <div className="text-emerald-400 text-xl font-bold">
+            <div className="text-emerald-400 text-xl font-bold uppercase">
               {[pincodeAddress.addressTaluk, pincodeAddress.addressDistrict, pincodeAddress.addressState]
                 .filter(Boolean)
                 .join(', ')}

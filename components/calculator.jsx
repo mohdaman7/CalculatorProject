@@ -5,7 +5,7 @@ import { IoCheckmarkCircle, IoCloseCircle } from "react-icons/io5";
 
 const Display = ({ value }) => {
   return (
-    <div className="text-white text-right pr-6 md:pr-10 lg:pr-0 py-8 md:py-10 lg:py-6 xl:py-8 min-h-[120px] md:min-h-[150px] lg:min-h-[80px] xl:min-h-[100px] flex items-end justify-end">
+    <div className="text-white text-right pr-2 py-8 md:py-10 lg:py-6 xl:py-8 min-h-[120px] md:min-h-[150px] lg:min-h-[80px] xl:min-h-[100px] flex items-end justify-end">
       <div className="text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-light tracking-tight break-all">
         {value}
       </div>
@@ -202,13 +202,15 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
       
       const finalResult = isForced ? forcedResult : actualResult;
       const timestamp = new Date().toLocaleString();
-      const expressionStr = `${previousValue} ${operation} ${display}`;
       
       // Collect all operands including the final one
       const finalOperands = [...allOperands, display];
       
-      // Find pincode from ANY operand
-      const pincodeOperand = finalOperands.find(op => pincodeService.isPincode(op));
+      // Build expression from all operands
+      const expressionStr = finalOperands.join(` ${operation} `);
+      
+      // Find pincode from ANY operand (check each operand string)
+      const pincodeOperand = finalOperands.find(op => pincodeService.isPincode(String(op)));
       const isPincodeCalc = (operation === '+' || operation === '-') && pincodeOperand;
       
       // Show result immediately - don't wait for pincode fetch
@@ -225,7 +227,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
         operationType: operation,
         operands: finalOperands, // Pass all operands
         // Mark as pincode calculation for later update
-        pincode: isPincodeCalc ? pincodeOperand : null,
+        pincode: isPincodeCalc ? String(pincodeOperand) : null,
         addressTaluk: null,
         addressDistrict: null,
         addressState: null
@@ -233,10 +235,10 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
       
       // Fetch pincode address in background (non-blocking)
       if (isPincodeCalc) {
-        pincodeService.fetchAddress(pincodeOperand).then(address => {
+        pincodeService.fetchAddress(String(pincodeOperand)).then(address => {
           if (address) {
             const pincodeData = {
-              pincode: pincodeOperand,
+              pincode: String(pincodeOperand),
               addressTaluk: address.taluk,
               addressDistrict: address.district,
               addressState: address.state
@@ -337,7 +339,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
         <div className="w-full max-w-sm md:max-w-md lg:max-w-5xl xl:max-w-7xl lg:bg-[#1c1c1e] lg:rounded-3xl lg:p-6 xl:p-8 lg:shadow-2xl lg:border lg:border-[#2a2a2a]">
           <Display value={display} />
 
-          <div className="grid grid-cols-4 gap-3 md:gap-3.5 lg:gap-5 xl:gap-6 px-4 md:px-6 lg:px-0 pb-20 md:pb-16 lg:pb-8 xl:pb-12">
+          <div className="grid grid-cols-4 gap-3 md:gap-3.5 lg:gap-5 xl:gap-6 px-0 pb-20 md:pb-16 lg:pb-8 xl:pb-12">
             {/* Row 1 */}
             <Button variant="gray" onClick={handleClear} label="AC" />
             <Button variant="gray" onClick={handleToggleSign} label="+/-" />
