@@ -5,8 +5,8 @@ import { IoCheckmarkCircle, IoCloseCircle } from "react-icons/io5";
 
 const Display = ({ value }) => {
   return (
-    <div className="text-white text-right pr-3 py-6 md:py-10 lg:py-6 xl:py-8 min-h-[100px] md:min-h-[150px] lg:min-h-[80px] xl:min-h-[100px] flex items-end justify-end">
-      <div className="text-[64px] md:text-7xl lg:text-8xl xl:text-9xl font-medium tracking-tight break-all">
+    <div className="text-white text-right pr-3 py-6 md:py-10 lg:py-8 xl:py-10 min-h-[100px] md:min-h-[150px] lg:min-h-[120px] xl:min-h-[140px] flex items-end justify-end">
+      <div className="text-[64px] md:text-7xl lg:text-6xl xl:text-7xl font-medium tracking-tight break-all">
         {value}
       </div>
     </div>
@@ -31,22 +31,51 @@ const ModeToast = ({ show, isNormalMode }) => {
 };
 
 const Button = ({ variant, onClick, onMouseDown, onMouseUp, onTouchStart, onTouchEnd, label, wide }) => {
-  const baseClasses = "rounded-full lg:rounded-xl flex items-center justify-center text-white font-medium cursor-pointer select-none aspect-square";
+  const [isPressed, setIsPressed] = useState(false);
+  
+  const baseClasses = "rounded-full lg:rounded-2xl flex items-center justify-center text-white font-medium cursor-pointer select-none aspect-square transition-all duration-100 active:scale-95 lg:hover:opacity-90";
   
   const variantClasses = {
-    lightGray: "bg-[#a5a5a5] text-black lg:bg-[#505050] lg:text-white",
-    gray: "bg-[#333333] lg:bg-[#2a2a2a]",
-    orange: "bg-[#ff9500]"
+    lightGray: "bg-[#a5a5a5] text-black lg:bg-[#2d2d2d] lg:text-white lg:shadow-lg",
+    gray: "bg-[#333333] lg:bg-[#2d2d2d] lg:shadow-lg",
+    orange: "bg-[#ff9500] lg:shadow-lg lg:shadow-orange-900/30"
+  };
+
+  const pressedClasses = {
+    lightGray: "!bg-[#d4d4d4] lg:!bg-[#4a4a4a]",
+    gray: "!bg-[#505050] lg:!bg-[#4a4a4a]",
+    orange: "!bg-[#ffb340]"
+  };
+
+  const handlePressStart = (e) => {
+    setIsPressed(true);
+    onMouseDown?.(e);
+  };
+
+  const handlePressEnd = (e) => {
+    setIsPressed(false);
+    onMouseUp?.(e);
+  };
+
+  const handleTouchStart = (e) => {
+    setIsPressed(true);
+    onTouchStart?.(e);
+  };
+
+  const handleTouchEnd = (e) => {
+    setIsPressed(false);
+    onTouchEnd?.(e);
   };
 
   return (
     <div
-      className={`${baseClasses} ${variantClasses[variant]} ${wide ? 'col-span-2 !aspect-auto' : ''} w-full text-[32px] md:text-4xl lg:text-2xl xl:text-3xl`}
+      className={`${baseClasses} ${variantClasses[variant]} ${isPressed ? pressedClasses[variant] : ''} ${wide ? 'col-span-2 !aspect-auto' : ''} w-full text-[32px] md:text-4xl lg:text-3xl xl:text-4xl`}
       onClick={onClick}
-      onMouseDown={onMouseDown}
-      onMouseUp={onMouseUp}
-      onTouchStart={onTouchStart}
-      onTouchEnd={onTouchEnd}
+      onMouseDown={handlePressStart}
+      onMouseUp={handlePressEnd}
+      onMouseLeave={() => setIsPressed(false)}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
     >
       <span className={wide ? 'ml-[-20px]' : ''}>{label}</span>
     </div>
@@ -321,13 +350,13 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
   };
 
   return (
-    <div className="w-full min-h-[100dvh] h-full bg-black lg:bg-[#0a0a0a] flex flex-col overflow-hidden lg:overflow-auto">
+    <div className="w-full min-h-[100dvh] h-full bg-black lg:bg-gradient-to-br lg:from-[#0f0f0f] lg:via-[#1a1a1a] lg:to-[#0f0f0f] flex flex-col overflow-hidden lg:overflow-auto">
       <ModeToast show={showModeToast} isNormalMode={isNormalMode} />
-      <div className="flex-1 flex items-end md:items-center lg:items-center justify-center lg:p-4 xl:p-6">
-        <div className="w-full lg:max-w-md xl:max-w-lg lg:bg-[#1c1c1e] lg:rounded-3xl lg:p-4 xl:p-6 lg:shadow-2xl lg:border lg:border-[#2a2a2a]">
+      <div className="flex-1 flex items-end md:items-center lg:items-center justify-center lg:p-6 xl:p-8">
+        <div className="w-full lg:max-w-lg xl:max-w-xl lg:bg-gradient-to-br lg:from-[#252525] lg:to-[#1a1a1a] lg:rounded-[32px] lg:p-6 xl:p-8 lg:shadow-2xl lg:border lg:border-[#333333]/50 lg:backdrop-blur-xl">
           <Display value={display} />
 
-          <div className="grid grid-cols-4 gap-[12px] md:gap-4 lg:gap-3 xl:gap-4 px-[2px] pb-[calc(24px+env(safe-area-inset-bottom,20px))] md:pb-16 lg:pb-4 xl:pb-6">
+          <div className="grid grid-cols-4 gap-[12px] md:gap-4 lg:gap-4 xl:gap-5 px-[2px] pb-[calc(24px+env(safe-area-inset-bottom,20px))] md:pb-16 lg:pb-0">
             {/* Row 1 */}
             <Button variant="gray" onClick={handleClear} label="AC" />
             <Button variant="gray" onClick={handleToggleSign} label="+/-" />
@@ -376,8 +405,8 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
               label="+"
             />
 
-            {/* Row 5 - Last Row with 3 items */}
-             <Button variant="gray" onClick={handleBackspace} label={<MdBackspace size={28} />} />
+            {/* Row 5 - Last Row with 4 items */}
+            <Button variant="gray" onClick={handleBackspace} label={<MdBackspace size={28} />} />
             <Button variant="gray" onClick={() => handleNumberClick(0)} label="0" />
             <Button 
               variant="gray" 
