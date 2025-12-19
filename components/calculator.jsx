@@ -5,8 +5,8 @@ import { IoCheckmarkCircle, IoCloseCircle } from "react-icons/io5";
 
 const Display = ({ value }) => {
   return (
-    <div className="text-white text-right pr-2 py-8 md:py-10 lg:py-6 xl:py-8 min-h-[120px] md:min-h-[150px] lg:min-h-[80px] xl:min-h-[100px] flex items-end justify-end">
-      <div className="text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-light tracking-tight break-all">
+    <div className="text-white text-right pr-3 py-6 md:py-10 lg:py-6 xl:py-8 min-h-[100px] md:min-h-[150px] lg:min-h-[80px] xl:min-h-[100px] flex items-end justify-end">
+      <div className="text-[64px] md:text-7xl lg:text-8xl xl:text-9xl font-medium tracking-tight break-all">
         {value}
       </div>
     </div>
@@ -31,45 +31,22 @@ const ModeToast = ({ show, isNormalMode }) => {
 };
 
 const Button = ({ variant, onClick, onMouseDown, onMouseUp, onTouchStart, onTouchEnd, label, wide }) => {
-  const [isPressed, setIsPressed] = useState(false);
-  
-  const baseClasses = "rounded-full lg:rounded-2xl flex items-center justify-center text-white font-medium transition-all duration-75 cursor-pointer select-none active:scale-95 lg:hover:brightness-110 lg:shadow-lg";
+  const baseClasses = "rounded-full lg:rounded-xl flex items-center justify-center text-white font-medium cursor-pointer select-none aspect-square";
   
   const variantClasses = {
-    lightGray: `bg-[#a5a5a5] text-black ${isPressed ? 'bg-[#d4d4d4]' : ''} lg:bg-[#505050] lg:text-white lg:hover:bg-[#606060]`,
-    gray: `bg-[#424242] ${isPressed ? 'bg-[#5a5a5a]' : ''} lg:bg-[#2a2a2a] lg:hover:bg-[#3a3a3a] lg:border lg:border-[#404040]`,
-    orange: `bg-[#E08C0F] ${isPressed ? 'bg-[#ffb143]' : ''} lg:bg-[#ff9500] lg:hover:bg-[#ffaa33]`
-  };
-
-  const handleMouseDown = (e) => {
-    setIsPressed(true);
-    onMouseDown?.(e);
-  };
-
-  const handleMouseUp = (e) => {
-    setIsPressed(false);
-    onMouseUp?.(e);
-  };
-
-  const handleTouchStart = (e) => {
-    setIsPressed(true);
-    onTouchStart?.(e);
-  };
-
-  const handleTouchEnd = (e) => {
-    setIsPressed(false);
-    onTouchEnd?.(e);
+    lightGray: "bg-[#a5a5a5] text-black lg:bg-[#505050] lg:text-white",
+    gray: "bg-[#333333] lg:bg-[#2a2a2a]",
+    orange: "bg-[#ff9500]"
   };
 
   return (
     <div
-      className={`${baseClasses} ${variantClasses[variant]} ${wide ? 'col-span-2' : ''} h-20 md:h-22 lg:h-16 xl:h-20 w-full text-3xl md:text-3xl lg:text-3xl xl:text-4xl`}
+      className={`${baseClasses} ${variantClasses[variant]} ${wide ? 'col-span-2 !aspect-auto' : ''} w-full text-[32px] md:text-4xl lg:text-2xl xl:text-3xl`}
       onClick={onClick}
-      onMouseDown={handleMouseDown}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={() => setIsPressed(false)}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
+      onMouseDown={onMouseDown}
+      onMouseUp={onMouseUp}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
     >
       <span className={wide ? 'ml-[-20px]' : ''}>{label}</span>
     </div>
@@ -344,13 +321,13 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
   };
 
   return (
-    <div className="w-full min-h-screen h-full bg-black lg:bg-[#0a0a0a] flex flex-col overflow-hidden lg:overflow-auto" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+    <div className="w-full min-h-[100dvh] h-full bg-black lg:bg-[#0a0a0a] flex flex-col overflow-hidden lg:overflow-auto">
       <ModeToast show={showModeToast} isNormalMode={isNormalMode} />
-      <div className="flex-1 flex items-end md:items-center lg:items-start justify-center lg:p-8 xl:p-12 lg:pt-16 xl:pt-20">
-        <div className="w-full max-w-sm md:max-w-md lg:max-w-5xl xl:max-w-7xl lg:bg-[#1c1c1e] lg:rounded-3xl lg:p-6 xl:p-8 lg:shadow-2xl lg:border lg:border-[#2a2a2a]">
+      <div className="flex-1 flex items-end md:items-center lg:items-center justify-center lg:p-4 xl:p-6">
+        <div className="w-full lg:max-w-md xl:max-w-lg lg:bg-[#1c1c1e] lg:rounded-3xl lg:p-4 xl:p-6 lg:shadow-2xl lg:border lg:border-[#2a2a2a]">
           <Display value={display} />
 
-          <div className="grid grid-cols-4 gap-3 md:gap-3.5 lg:gap-5 xl:gap-6 px-0 pb-20 md:pb-16 lg:pb-8 xl:pb-12">
+          <div className="grid grid-cols-4 gap-[12px] md:gap-4 lg:gap-3 xl:gap-4 px-[2px] pb-[calc(24px+env(safe-area-inset-bottom,20px))] md:pb-16 lg:pb-4 xl:pb-6">
             {/* Row 1 */}
             <Button variant="gray" onClick={handleClear} label="AC" />
             <Button variant="gray" onClick={handleToggleSign} label="+/-" />
