@@ -51,15 +51,19 @@ const HistoryPanel = ({ history, onClose, onClear }) => {
     );
   };
 
-  // Render address only (shown at top) - UPPERCASE
+  // Render address only (shown at top) - UPPERCASE, each part on new line
   const renderAddress = (entry) => {
-    const addressParts = [entry.addressTaluk, entry.addressDistrict, entry.addressState].filter(Boolean);
-    
     return (
-      <div className="text-center py-2">
-        <div className="text-emerald-400 text-xl font-bold uppercase">
-          {addressParts.join(', ')}
-        </div>
+      <div className="text-center py-2 space-y-1">
+        {entry.addressTaluk && (
+          <div className="text-white text-xl font-bold uppercase">{entry.addressTaluk}</div>
+        )}
+        {entry.addressDistrict && (
+          <div className="text-white text-xl font-bold uppercase">{entry.addressDistrict}</div>
+        )}
+        {entry.addressState && (
+          <div className="text-white text-xl font-bold uppercase">{entry.addressState}</div>
+        )}
       </div>
     );
   };
