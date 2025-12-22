@@ -1,12 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import { pincodeService } from "@/lib/pincode-service";
-import { MdBackspace } from "react-icons/md";
+import { IoBackspaceOutline } from "react-icons/io5";
 import { IoCheckmarkCircle, IoCloseCircle } from "react-icons/io5";
 
 const Display = ({ value }) => {
   return (
     <div className="text-white text-right pr-3 py-6 md:py-10 lg:py-8 xl:py-10 min-h-[100px] md:min-h-[150px] lg:min-h-[120px] xl:min-h-[140px] flex items-end justify-end">
-      <div className="text-[64px] md:text-7xl lg:text-6xl xl:text-7xl font-medium tracking-tight break-all">
+      <div className="text-[64px] md:text-7xl lg:text-6xl xl:text-7xl font-normal tracking-tight break-all">
         {value}
       </div>
     </div>
@@ -33,16 +33,16 @@ const ModeToast = ({ show, isNormalMode }) => {
 const Button = ({ variant, onClick, onMouseDown, onMouseUp, onTouchStart, onTouchEnd, label, wide, isOperator }) => {
   const [isPressed, setIsPressed] = useState(false);
   
-  const baseClasses = "rounded-full lg:rounded-2xl flex items-center justify-center text-white cursor-pointer select-none aspect-square transition-all duration-100 active:scale-95 lg:hover:opacity-90";
+  const baseClasses = "rounded-full lg:rounded-2xl flex items-center cursor-pointer select-none aspect-square transition-all duration-100 active:scale-95 lg:hover:opacity-90";
   
   const variantClasses = {
-    lightGray: "bg-[#a5a5a5] text-black lg:bg-[#a5a5a5] lg:text-black lg:shadow-lg",
-    gray: "bg-[#333333] lg:bg-[#333333] lg:shadow-lg",
-    orange: "bg-[#ff9500] lg:shadow-lg lg:shadow-orange-900/30"
+    lightGray: "bg-[#636366] text-white lg:bg-[#636366] lg:text-white lg:shadow-lg",
+    gray: "bg-[#333333] text-white lg:bg-[#333333] lg:shadow-lg",
+    orange: "bg-[#ff9500] text-white lg:shadow-lg lg:shadow-orange-900/30"
   };
 
   const pressedClasses = {
-    lightGray: "!bg-[#d4d4d4] lg:!bg-[#d4d4d4]",
+    lightGray: "!bg-[#8e8e93] lg:!bg-[#8e8e93]",
     gray: "!bg-[#505050] lg:!bg-[#505050]",
     orange: "!bg-[#ffb340]"
   };
@@ -69,12 +69,12 @@ const Button = ({ variant, onClick, onMouseDown, onMouseUp, onTouchStart, onTouc
 
   // Larger size for operators
   const textSizeClass = isOperator 
-    ? "text-[40px] md:text-5xl lg:text-4xl xl:text-5xl" 
-    : "text-[32px] md:text-4xl lg:text-3xl xl:text-4xl";
+    ? "text-[48px] md:text-6xl lg:text-5xl xl:text-6xl font-light" 
+    : "text-[32px] md:text-4xl lg:text-3xl xl:text-4xl font-medium";
 
   return (
     <div
-      className={`${baseClasses} ${variantClasses[variant]} ${isPressed ? pressedClasses[variant] : ''} ${wide ? 'col-span-2 !aspect-auto' : ''} w-full ${textSizeClass}`}
+      className={`${baseClasses} ${variantClasses[variant]} ${isPressed ? pressedClasses[variant] : ''} ${wide ? 'col-span-2 !aspect-auto !rounded-full justify-start pl-7 md:pl-9 lg:pl-8' : 'justify-center'} w-full ${textSizeClass}`}
       onClick={onClick}
       onMouseDown={handlePressStart}
       onMouseUp={handlePressEnd}
@@ -82,7 +82,7 @@ const Button = ({ variant, onClick, onMouseDown, onMouseUp, onTouchStart, onTouc
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      <span className={wide ? 'ml-[-20px]' : ''}>{label}</span>
+      {label}
     </div>
   );
 };
@@ -361,9 +361,9 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
         <div className="w-full lg:max-w-lg xl:max-w-xl lg:bg-gradient-to-br lg:from-[#252525] lg:to-[#1a1a1a] lg:rounded-[32px] lg:p-6 xl:p-8 lg:shadow-2xl lg:border lg:border-[#333333]/50 lg:backdrop-blur-xl">
           <Display value={display} />
 
-          <div className="grid grid-cols-4 gap-[12px] md:gap-4 lg:gap-4 xl:gap-5 px-[2px] pb-[calc(24px+env(safe-area-inset-bottom,20px))] md:pb-16 lg:pb-0">
+          <div className="grid grid-cols-4 gap-[8px] md:gap-3 lg:gap-3 xl:gap-4 px-[2px] pb-[calc(24px+env(safe-area-inset-bottom,20px))] md:pb-16 lg:pb-0">
             {/* Row 1 - Updated with lightGray variant for iOS style */}
-            <Button variant="lightGray" onClick={handleBackspace} label={<MdBackspace size={32} />} />
+            <Button variant="lightGray" onClick={handleBackspace} label={<IoBackspaceOutline size={42} />} />
             <Button variant="lightGray" onClick={handleClear} label="AC" />
             <Button variant="lightGray" onClick={handlePercent} label="%" />
             <Button
@@ -413,9 +413,8 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
               isOperator={true}
             />
 
-            {/* Row 5 - Last Row with 4 items */}
-            <Button variant="gray" onClick={handleToggleSign} label="+/−" />
-            <Button variant="gray" onClick={() => handleNumberClick(0)} label="0" />
+            {/* Row 5 - Last Row with 0 spanning 2 columns like iOS */}
+            <Button variant="gray" onClick={() => handleNumberClick(0)} label="0" wide={true} />
             <Button 
               variant="gray" 
               onClick={() => {}}
