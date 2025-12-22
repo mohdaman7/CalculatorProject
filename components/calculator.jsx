@@ -5,7 +5,7 @@ import { IoCheckmarkCircle, IoCloseCircle } from "react-icons/io5";
 
 const Display = ({ value }) => {
   return (
-    <div className="text-white text-right pr-3 py-4 md:py-6 lg:py-5 xl:py-6 min-h-[80px] md:min-h-[100px] lg:min-h-[90px] xl:min-h-[100px] flex items-end justify-end">
+    <div className="text-white text-right px-4 md:px-6 py-4 md:py-6 lg:py-5 xl:py-6 min-h-[80px] md:min-h-[100px] lg:min-h-[90px] xl:min-h-[100px] flex items-end justify-end">
       <div className="text-[52px] md:text-6xl lg:text-5xl xl:text-6xl font-light tracking-tight break-all">
         {value}
       </div>
@@ -361,7 +361,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
         <div className="w-full lg:max-w-lg xl:max-w-xl lg:bg-gradient-to-br lg:from-[#252525] lg:to-[#1a1a1a] lg:rounded-[32px] lg:p-6 xl:p-8 lg:shadow-2xl lg:border lg:border-[#333333]/50 lg:backdrop-blur-xl">
           <Display value={display} />
 
-          <div className="grid grid-cols-4 gap-[6px] md:gap-3 lg:gap-3 xl:gap-4 px-[2px] pb-[calc(12px+env(safe-area-inset-bottom,10px))] md:pb-10 lg:pb-0">
+          <div className="grid grid-cols-4 gap-[6px] md:gap-3 lg:gap-3 xl:gap-4 px-4 md:px-6 pb-[calc(12px+env(safe-area-inset-bottom,10px))] md:pb-10 lg:pb-0">
             {/* Row 1 - Updated with lightGray variant for iOS style */}
             <Button variant="lightGray" onClick={handleBackspace} label={<IoBackspaceOutline size={42} />} />
             <Button variant="lightGray" onClick={handleClear} label="AC" />
