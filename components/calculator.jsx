@@ -358,8 +358,8 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
 
           <div className="grid grid-cols-4 gap-[12px] md:gap-4 lg:gap-4 xl:gap-5 px-[2px] pb-[calc(24px+env(safe-area-inset-bottom,20px))] md:pb-16 lg:pb-0">
             {/* Row 1 */}
+            <Button variant="gray" onClick={handleBackspace} label={<MdBackspace size={28} />} />
             <Button variant="gray" onClick={handleClear} label="AC" />
-            <Button variant="gray" onClick={handleToggleSign} label="+/-" />
             <Button variant="gray" onClick={handlePercent} label="%" />
             <Button
               variant="orange"
@@ -406,7 +406,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
             />
 
             {/* Row 5 - Last Row with 4 items */}
-            <Button variant="gray" onClick={handleBackspace} label={<MdBackspace size={28} />} />
+            <Button variant="gray" onClick={handleToggleSign} label="+/-" />
             <Button variant="gray" onClick={() => handleNumberClick(0)} label="0" />
             <Button 
               variant="gray" 
