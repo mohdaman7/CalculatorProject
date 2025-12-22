@@ -30,20 +30,20 @@ const ModeToast = ({ show, isNormalMode }) => {
   );
 };
 
-const Button = ({ variant, onClick, onMouseDown, onMouseUp, onTouchStart, onTouchEnd, label, wide }) => {
+const Button = ({ variant, onClick, onMouseDown, onMouseUp, onTouchStart, onTouchEnd, label, wide, isOperator }) => {
   const [isPressed, setIsPressed] = useState(false);
   
-  const baseClasses = "rounded-full lg:rounded-2xl flex items-center justify-center text-white font-medium cursor-pointer select-none aspect-square transition-all duration-100 active:scale-95 lg:hover:opacity-90";
+  const baseClasses = "rounded-full lg:rounded-2xl flex items-center justify-center text-white cursor-pointer select-none aspect-square transition-all duration-100 active:scale-95 lg:hover:opacity-90";
   
   const variantClasses = {
-    lightGray: "bg-[#a5a5a5] text-black lg:bg-[#2d2d2d] lg:text-white lg:shadow-lg",
-    gray: "bg-[#333333] lg:bg-[#2d2d2d] lg:shadow-lg",
+    lightGray: "bg-[#a5a5a5] text-black lg:bg-[#a5a5a5] lg:text-black lg:shadow-lg",
+    gray: "bg-[#333333] lg:bg-[#333333] lg:shadow-lg",
     orange: "bg-[#ff9500] lg:shadow-lg lg:shadow-orange-900/30"
   };
 
   const pressedClasses = {
-    lightGray: "!bg-[#d4d4d4] lg:!bg-[#4a4a4a]",
-    gray: "!bg-[#505050] lg:!bg-[#4a4a4a]",
+    lightGray: "!bg-[#d4d4d4] lg:!bg-[#d4d4d4]",
+    gray: "!bg-[#505050] lg:!bg-[#505050]",
     orange: "!bg-[#ffb340]"
   };
 
@@ -67,9 +67,14 @@ const Button = ({ variant, onClick, onMouseDown, onMouseUp, onTouchStart, onTouc
     onTouchEnd?.(e);
   };
 
+  // Larger size for operators
+  const textSizeClass = isOperator 
+    ? "text-[40px] md:text-5xl lg:text-4xl xl:text-5xl" 
+    : "text-[32px] md:text-4xl lg:text-3xl xl:text-4xl";
+
   return (
     <div
-      className={`${baseClasses} ${variantClasses[variant]} ${isPressed ? pressedClasses[variant] : ''} ${wide ? 'col-span-2 !aspect-auto' : ''} w-full text-[32px] md:text-4xl lg:text-3xl xl:text-4xl`}
+      className={`${baseClasses} ${variantClasses[variant]} ${isPressed ? pressedClasses[variant] : ''} ${wide ? 'col-span-2 !aspect-auto' : ''} w-full ${textSizeClass}`}
       onClick={onClick}
       onMouseDown={handlePressStart}
       onMouseUp={handlePressEnd}
@@ -357,10 +362,10 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
           <Display value={display} />
 
           <div className="grid grid-cols-4 gap-[12px] md:gap-4 lg:gap-4 xl:gap-5 px-[2px] pb-[calc(24px+env(safe-area-inset-bottom,20px))] md:pb-16 lg:pb-0">
-            {/* Row 1 */}
-            <Button variant="gray" onClick={handleBackspace} label={<MdBackspace size={28} />} />
-            <Button variant="gray" onClick={handleClear} label="AC" />
-            <Button variant="gray" onClick={handlePercent} label="%" />
+            {/* Row 1 - Updated with lightGray variant for iOS style */}
+            <Button variant="lightGray" onClick={handleBackspace} label={<MdBackspace size={32} />} />
+            <Button variant="lightGray" onClick={handleClear} label="AC" />
+            <Button variant="lightGray" onClick={handlePercent} label="%" />
             <Button
               variant="orange"
               onClick={() => handleOperation("÷")}
@@ -369,6 +374,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
               onTouchStart={handleDivisionStart}
               onTouchEnd={handleDivisionEnd}
               label="÷"
+              isOperator={true}
             />
 
             {/* Row 2 */}
@@ -383,13 +389,14 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
               onTouchStart={handleMultiplyStart}
               onTouchEnd={handleMultiplyEnd}
               label="×"
+              isOperator={true}
             />
 
             {/* Row 3 */}
             <Button variant="gray" onClick={() => handleNumberClick(4)} label="4" />
             <Button variant="gray" onClick={() => handleNumberClick(5)} label="5" />
             <Button variant="gray" onClick={() => handleNumberClick(6)} label="6" />
-            <Button variant="orange" onClick={() => handleOperation("-")} label="−" />
+            <Button variant="orange" onClick={() => handleOperation("-")} label="−" isOperator={true} />
 
             {/* Row 4 */}
             <Button variant="gray" onClick={() => handleNumberClick(1)} label="1" />
@@ -403,10 +410,11 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
               onTouchStart={handleAdditionStart}
               onTouchEnd={handleAdditionEnd}
               label="+"
+              isOperator={true}
             />
 
             {/* Row 5 - Last Row with 4 items */}
-            <Button variant="gray" onClick={handleToggleSign} label="+/-" />
+            <Button variant="gray" onClick={handleToggleSign} label="+/−" />
             <Button variant="gray" onClick={() => handleNumberClick(0)} label="0" />
             <Button 
               variant="gray" 
@@ -417,7 +425,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
               onTouchEnd={handleDotLongPressEnd}
               label="." 
             />
-            <Button variant="orange" onClick={handleEquals} label="=" />
+            <Button variant="orange" onClick={handleEquals} label="=" isOperator={true} />
           </div>
         </div>
       </div>
