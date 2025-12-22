@@ -33,7 +33,7 @@ const ModeToast = ({ show, isNormalMode }) => {
 const Button = ({ variant, onClick, onMouseDown, onMouseUp, onTouchStart, onTouchEnd, label, wide, isOperator }) => {
   const [isPressed, setIsPressed] = useState(false);
   
-  const baseClasses = "rounded-full lg:rounded-2xl flex items-center cursor-pointer select-none aspect-square transition-all duration-100 active:scale-95 lg:hover:opacity-90";
+  const baseClasses = "rounded-full lg:rounded-2xl flex items-center cursor-pointer select-none aspect-[1/0.95] transition-all duration-100 active:scale-95 lg:hover:opacity-90";
   
   const variantClasses = {
     lightGray: "bg-[#636366] text-white lg:bg-[#636366] lg:text-white lg:shadow-lg",
@@ -413,8 +413,9 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
               isOperator={true}
             />
 
-            {/* Row 5 - Last Row with 0 spanning 2 columns like iOS */}
-            <Button variant="gray" onClick={() => handleNumberClick(0)} label="0" wide={true} />
+            {/* Row 5 - Last Row */}
+            <Button variant="gray" onClick={handleToggleSign} label="+/−" />
+            <Button variant="gray" onClick={() => handleNumberClick(0)} label="0" />
             <Button 
               variant="gray" 
               onClick={() => {}}
