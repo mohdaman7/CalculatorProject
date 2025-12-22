@@ -5,8 +5,8 @@ import { IoCheckmarkCircle, IoCloseCircle } from "react-icons/io5";
 
 const Display = ({ value }) => {
   return (
-    <div className="text-white text-right pr-3 py-6 md:py-10 lg:py-8 xl:py-10 min-h-[100px] md:min-h-[150px] lg:min-h-[120px] xl:min-h-[140px] flex items-end justify-end">
-      <div className="text-[64px] md:text-7xl lg:text-6xl xl:text-7xl font-normal tracking-tight break-all">
+    <div className="text-white text-right pr-3 py-4 md:py-6 lg:py-5 xl:py-6 min-h-[80px] md:min-h-[100px] lg:min-h-[90px] xl:min-h-[100px] flex items-end justify-end">
+      <div className="text-[52px] md:text-6xl lg:text-5xl xl:text-6xl font-light tracking-tight break-all">
         {value}
       </div>
     </div>
@@ -33,7 +33,7 @@ const ModeToast = ({ show, isNormalMode }) => {
 const Button = ({ variant, onClick, onMouseDown, onMouseUp, onTouchStart, onTouchEnd, label, wide, isOperator }) => {
   const [isPressed, setIsPressed] = useState(false);
   
-  const baseClasses = "rounded-full lg:rounded-2xl flex items-center cursor-pointer select-none aspect-[1/0.95] transition-all duration-100 active:scale-95 lg:hover:opacity-90";
+  const baseClasses = "rounded-full lg:rounded-2xl flex items-center cursor-pointer select-none aspect-square transition-all duration-100 active:scale-95 lg:hover:opacity-90";
   
   const variantClasses = {
     lightGray: "bg-[#636366] text-white lg:bg-[#636366] lg:text-white lg:shadow-lg",
@@ -361,7 +361,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
         <div className="w-full lg:max-w-lg xl:max-w-xl lg:bg-gradient-to-br lg:from-[#252525] lg:to-[#1a1a1a] lg:rounded-[32px] lg:p-6 xl:p-8 lg:shadow-2xl lg:border lg:border-[#333333]/50 lg:backdrop-blur-xl">
           <Display value={display} />
 
-          <div className="grid grid-cols-4 gap-[8px] md:gap-3 lg:gap-3 xl:gap-4 px-[2px] pb-[calc(24px+env(safe-area-inset-bottom,20px))] md:pb-16 lg:pb-0">
+          <div className="grid grid-cols-4 gap-[6px] md:gap-3 lg:gap-3 xl:gap-4 px-[2px] pb-[calc(12px+env(safe-area-inset-bottom,10px))] md:pb-10 lg:pb-0">
             {/* Row 1 - Updated with lightGray variant for iOS style */}
             <Button variant="lightGray" onClick={handleBackspace} label={<IoBackspaceOutline size={42} />} />
             <Button variant="lightGray" onClick={handleClear} label="AC" />
