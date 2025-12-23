@@ -6,7 +6,7 @@ import { IoCheckmarkCircle, IoCloseCircle } from "react-icons/io5";
 const Display = ({ value }) => {
   return (
     <div className="text-white text-right px-4 md:px-6 py-4 md:py-6 lg:py-5 xl:py-6 min-h-[80px] md:min-h-[100px] lg:min-h-[90px] xl:min-h-[100px] flex items-end justify-end">
-      <div className="text-[52px] md:text-6xl lg:text-5xl xl:text-6xl font-light tracking-tight break-all">
+      <div className="text-[72px] md:text-8xl lg:text-7xl xl:text-8xl font-light tracking-tight break-all">
         {value}
       </div>
     </div>
