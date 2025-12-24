@@ -43,8 +43,8 @@ const HistoryPanel = ({ history, onClose, onClear }) => {
     }
     
     return (
-      <div className="text-center py-2">
-        <span className="text-orange-400 text-2xl font-bold">
+      <div className="text-center py-1">
+        <span className="text-white text-2xl font-bold">
           Age : {age}
         </span>
       </div>
@@ -54,7 +54,7 @@ const HistoryPanel = ({ history, onClose, onClear }) => {
   // Render address only (shown at top) - UPPERCASE, each part on new line
   const renderAddress = (entry) => {
     return (
-      <div className="text-center py-2 space-y-1">
+      <div className="text-center py-1 space-y-0">
         {entry.addressTaluk && (
           <div className="text-white text-xl font-bold uppercase">{entry.addressTaluk}</div>
         )}
@@ -72,7 +72,7 @@ const HistoryPanel = ({ history, onClose, onClear }) => {
   const renderRegularEntry = (entry, idx) => {
     const operands = getOperands(entry);
     return (
-      <div key={`regular-${idx}`} className="text-center space-y-2">
+      <div key={`regular-${idx}`} className="text-center space-y-1">
         {operands.map((operand, i) => (
           <div key={i} className="text-white text-4xl font-medium tracking-tight">
             {operand}
@@ -83,25 +83,25 @@ const HistoryPanel = ({ history, onClose, onClear }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black z-50 flex flex-col overflow-hidden">
+    <div className="fixed inset-0 bg-black z-50 overflow-y-auto">
       
-      {/* Header with Logo */}
-      <div className="flex flex-col items-center pt-3 pb-6 px-6 shrink-0">
-        <Image 
-          src="/sandeep.png" 
-          alt="Sandeep Fradian" 
-          width={400}
-          height={100}
-          className="w-64 h-auto"
-        />
-      </div>
+      {/* Scrollable Content */}
+      <div className="px-6 pb-24 pt-1">
+        {/* Logo - scrolls with content */}
+        <div className="flex justify-center mb-1">
+          <Image 
+            src="/sandeep.png" 
+            alt="Sandeep Fradian" 
+            width={200}
+            height={50}
+            className="w-48 h-auto"
+          />
+        </div>
 
-      {/* History List - Scrollable Area */}
-      <div className="flex-1 overflow-y-auto px-6 pb-32">
         {history.length === 0 ? (
-          <div className="text-center py-20 text-[#666] text-base">No history yet</div>
+          <div className="text-center py-10 text-[#666] text-base">No history yet</div>
         ) : (
-          <div className="space-y-6 pt-2">
+          <div className="space-y-3">
             {/* Last Pincode Address at the top */}
             {lastPincodeWithAddress && renderAddress(lastPincodeWithAddress)}
             
@@ -124,7 +124,7 @@ const HistoryPanel = ({ history, onClose, onClear }) => {
       </div>
 
       {/* Clear Button - Fixed at Bottom */}
-      <div className="fixed bottom-0 left-0 right-0 flex justify-center pb-18 pt-4 bg-linear-to-t from-black via-black to-transparent">
+      <div className="fixed bottom-0 left-0 right-0 flex justify-center pb-8 pt-4 bg-gradient-to-t from-black via-black to-transparent">
         <button
           onClick={onClear}
           className="bg-transparent border border-white/80 text-white font-normal text-base py-2.5 px-12 rounded-lg transition-all hover:bg-white/5 active:bg-white/10"

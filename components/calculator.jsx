@@ -123,6 +123,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
   const [allOperands, setAllOperands] = useState([]); // Track all operands in chain
   const longPressTimerRef = useRef(null);
   const dotLongPressTimerRef = useRef(null);
+  const dotModeToggledRef = useRef(false);
   
   const [isNormalMode, setIsNormalMode] = useState(false); // Default to force mode
   const [showModeToast, setShowModeToast] = useState(false);
@@ -146,8 +147,10 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
   };
   
   const handleDotLongPressStart = () => {
+    dotModeToggledRef.current = false;
     dotLongPressTimerRef.current = setTimeout(() => {
       toggleMode();
+      dotModeToggledRef.current = true;
       dotLongPressTimerRef.current = null;
     }, 800);
   };
@@ -156,8 +159,12 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
     if (dotLongPressTimerRef.current) {
       clearTimeout(dotLongPressTimerRef.current);
       dotLongPressTimerRef.current = null;
+    }
+    // Only add decimal if mode was NOT toggled
+    if (!dotModeToggledRef.current) {
       handleDecimal();
     }
+    dotModeToggledRef.current = false;
   };
 
   const handleNumberClick = (num) => {
@@ -235,16 +242,22 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
       let isForced = false;
       
       if (!isNormalMode && (operation === '+' || operation === '-')) {
-        // Check for second force trigger first
+        // Collect all operands including current one
+        const allOperandsForCheck = [...allOperands, display];
+        
+        // Check for second force trigger first - check ALL operands
         if (forcedNumber?.secondForceTriggerNumber != null && 
-            forcedNumber?.secondForceNumber != null &&
-            (currentValue === forcedNumber.secondForceTriggerNumber || 
-             previousValue === forcedNumber.secondForceTriggerNumber)) {
-          forcedResult = forcedNumber.secondForceNumber;
-          isForced = true;
+            forcedNumber?.secondForceNumber != null) {
+          const triggerFound = allOperandsForCheck.some(operand => 
+            Number.parseFloat(operand) === forcedNumber.secondForceTriggerNumber
+          );
+          if (triggerFound) {
+            forcedResult = forcedNumber.secondForceNumber;
+            isForced = true;
+          }
         }
         // Then check for primary forced number
-        else if (forcedNumber?.forcedNumber != null) {
+        if (!isForced && forcedNumber?.forcedNumber != null) {
           forcedResult = forcedNumber.forcedNumber;
           isForced = true;
         }
