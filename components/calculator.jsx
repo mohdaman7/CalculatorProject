@@ -45,7 +45,7 @@ const ModeToast = ({ show, isNormalMode }) => {
   if (!show) return null;
   
   return (
-    <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in-out">
+    <div className="fixed top-[calc(env(safe-area-inset-top,20px)+16px)] left-1/2 transform -translate-x-1/2 z-50 animate-fade-in-out">
       <div className="bg-[#1c1c1e] border border-[#3a3a3c] text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-xl">
         <span className="text-sm font-medium tracking-wide">Normal Calculator</span>
         {isNormalMode ? (
