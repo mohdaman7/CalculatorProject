@@ -221,16 +221,21 @@ export default function HomeWrapper() {
 
   const handleClearHistory = async () => {
     setHistory([])
+    setLastPincodeAddress(null)
     localStorage.removeItem("calculatorHistory")
+    localStorage.removeItem("lastPincodeAddress")
     
-    // Try to clear from backend
+    // Try to clear from backend (clear all, not just by deviceId)
     if (isAuthenticated) {
       try {
-        await apiService.clearHistory(getDeviceId())
+        await apiService.clearHistory()
       } catch (error) {
         console.log('Backend not available')
       }
     }
+    
+    // Close history panel after clearing
+    setShowHistory(false)
   }
 
   const handleSetForcedNumber = (forcedNumbers) => {
