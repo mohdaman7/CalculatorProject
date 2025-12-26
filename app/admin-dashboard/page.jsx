@@ -133,7 +133,7 @@ export default function AdminDashboard() {
     );
 
     return (
-        <div className="min-h-screen bg-black text-white font-sans selection:bg-amber-500/30">
+        <div className="min-h-[100dvh] w-full bg-black text-white font-sans selection:bg-amber-500/30 pb-20">
             <div className="max-w-6xl mx-auto p-4 md:p-8">
 
                 {/* Header */}
