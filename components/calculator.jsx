@@ -232,6 +232,10 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
   };
 
   const handleEquals = () => {
+    const pressDuration = pressStartTimeRef.current > 0 ? Date.now() - pressStartTimeRef.current : 0;
+    // Suppress normal equals behavior if this was a long-press (longer than 500ms)
+    if (pressDuration > 500) return;
+
     const currentValue = Number.parseFloat(display);
 
     // Check if display is a 4-digit year (1900-2100) - pure year check
@@ -433,6 +437,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
 
   const handleEqualsStart = () => {
     if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+    pressStartTimeRef.current = Date.now();
     longPressTimerRef.current = setTimeout(async () => {
       const isAdmin = verificationService.isAdmin();
       if (isAdmin) {
@@ -446,6 +451,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
       clearTimeout(longPressTimerRef.current);
       longPressTimerRef.current = null;
     }
+    pressStartTimeRef.current = 0;
   };
 
   return (
