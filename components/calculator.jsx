@@ -78,19 +78,21 @@ const Button = ({ variant, onClick, onPointerDown, onPointerUp, label, wide, isO
   };
 
   const handlePointerDown = (e) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
     setIsPressed(true);
     onPointerDown?.(e);
   };
 
   const handlePointerUp = (e) => {
+    e.currentTarget.releasePointerCapture(e.pointerId);
     setIsPressed(false);
     onPointerUp?.(e);
   };
 
-  const handlePointerLeave = () => {
+  const handlePointerLeave = (e) => {
     setIsPressed(false);
     // Trigger "up" logic to clear timers if finger slides away
-    onPointerUp?.();
+    onPointerUp?.(e);
   };
 
   // Larger size for operators
@@ -106,6 +108,7 @@ const Button = ({ variant, onClick, onPointerDown, onPointerUp, label, wide, isO
       onPointerUp={handlePointerUp}
       onPointerLeave={handlePointerLeave}
       onPointerCancel={handlePointerLeave}
+      onContextMenu={(e) => e.preventDefault()}
     >
       {label}
     </div>
@@ -155,7 +158,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
       toggleMode();
       dotModeToggledRef.current = true;
       dotLongPressTimerRef.current = null;
-    }, 800);
+    }, 600);
   };
 
   const handleDotLongPressEnd = () => {
@@ -168,8 +171,8 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
 
     // Only add decimal if:
     // 1. Mode was NOT toggled
-    // 2. Press was relatively short (under 500ms) to ensure it wasn't a failed long-press
-    if (!dotModeToggledRef.current && pressDuration < 500) {
+    // 2. Press was relatively short (under 400ms) to ensure it wasn't a failed long-press
+    if (!dotModeToggledRef.current && pressDuration < 400) {
       handleDecimal();
     }
 
@@ -435,7 +438,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
       if (isAdmin) {
         router.push("/admin-dashboard");
       }
-    }, 1000);
+    }, 800);
   };
 
   const handleEqualsEnd = () => {
