@@ -60,7 +60,7 @@ const ModeToast = ({ show, isNormalMode }) => {
   );
 };
 
-const Button = ({ variant, onClick, onMouseDown, onMouseUp, onTouchStart, onTouchEnd, label, wide, isOperator }) => {
+const Button = ({ variant, onClick, onPointerDown, onPointerUp, label, wide, isOperator }) => {
   const [isPressed, setIsPressed] = useState(false);
 
   const baseClasses = "rounded-full lg:rounded-2xl flex items-center cursor-pointer select-none aspect-square transition-all duration-100 active:scale-95 lg:hover:opacity-90";
@@ -77,24 +77,20 @@ const Button = ({ variant, onClick, onMouseDown, onMouseUp, onTouchStart, onTouc
     orange: "!bg-[#ffb340]"
   };
 
-  const handlePressStart = (e) => {
+  const handlePointerDown = (e) => {
     setIsPressed(true);
-    onMouseDown?.(e);
+    onPointerDown?.(e);
   };
 
-  const handlePressEnd = (e) => {
+  const handlePointerUp = (e) => {
     setIsPressed(false);
-    onMouseUp?.(e);
+    onPointerUp?.(e);
   };
 
-  const handleTouchStart = (e) => {
-    setIsPressed(true);
-    onTouchStart?.(e);
-  };
-
-  const handleTouchEnd = (e) => {
+  const handlePointerLeave = () => {
     setIsPressed(false);
-    onTouchEnd?.(e);
+    // Trigger "up" logic to clear timers if finger slides away
+    onPointerUp?.();
   };
 
   // Larger size for operators
@@ -104,13 +100,12 @@ const Button = ({ variant, onClick, onMouseDown, onMouseUp, onTouchStart, onTouc
 
   return (
     <div
-      className={`${baseClasses} ${variantClasses[variant]} ${isPressed ? pressedClasses[variant] : ''} ${wide ? 'col-span-2 !aspect-auto !rounded-full justify-start pl-7 md:pl-9 lg:pl-8' : 'justify-center'} w-full ${textSizeClass}`}
+      className={`${baseClasses} ${variantClasses[variant]} ${isPressed ? pressedClasses[variant] : ''} ${wide ? 'col-span-2 !aspect-auto !rounded-full justify-start pl-7 md:pl-9 lg:pl-8' : 'justify-center'} w-full ${textSizeClass} touch-none`}
       onClick={onClick}
-      onMouseDown={handlePressStart}
-      onMouseUp={handlePressEnd}
-      onMouseLeave={() => setIsPressed(false)}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      onPointerLeave={handlePointerLeave}
+      onPointerCancel={handlePointerLeave}
     >
       {label}
     </div>
@@ -126,6 +121,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
   const longPressTimerRef = useRef(null);
   const dotLongPressTimerRef = useRef(null);
   const dotModeToggledRef = useRef(false);
+  const pressStartTimeRef = useRef(0);
 
   const [isNormalMode, setIsNormalMode] = useState(false); // Default to force mode
   const [showModeToast, setShowModeToast] = useState(false);
@@ -151,7 +147,10 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
   };
 
   const handleDotLongPressStart = () => {
+    if (dotLongPressTimerRef.current) clearTimeout(dotLongPressTimerRef.current);
     dotModeToggledRef.current = false;
+    pressStartTimeRef.current = Date.now();
+
     dotLongPressTimerRef.current = setTimeout(() => {
       toggleMode();
       dotModeToggledRef.current = true;
@@ -164,11 +163,18 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
       clearTimeout(dotLongPressTimerRef.current);
       dotLongPressTimerRef.current = null;
     }
-    // Only add decimal if mode was NOT toggled
-    if (!dotModeToggledRef.current) {
+
+    const pressDuration = Date.now() - pressStartTimeRef.current;
+
+    // Only add decimal if:
+    // 1. Mode was NOT toggled
+    // 2. Press was relatively short (under 500ms) to ensure it wasn't a failed long-press
+    if (!dotModeToggledRef.current && pressDuration < 500) {
       handleDecimal();
     }
+
     dotModeToggledRef.current = false;
+    pressStartTimeRef.current = 0;
   };
 
   const handleNumberClick = (num) => {
@@ -228,7 +234,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
     // Check if display is a 4-digit year (1900-2100) - pure year check
     if (display.length === 4 && !operation && previousValue === null) {
       const year = parseInt(display);
-      if (year >= 1900 && year <= 2100) {
+      if (year >= 1900 && year <= 2026) {
         const currentYear = new Date().getFullYear();
         const age = currentYear - year;
         const timestamp = new Date().toLocaleString();
@@ -423,18 +429,19 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
   };
 
   const handleEqualsStart = () => {
+    if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
     longPressTimerRef.current = setTimeout(async () => {
-      // Check if user is verified/admin before navigating
       const isAdmin = verificationService.isAdmin();
       if (isAdmin) {
         router.push("/admin-dashboard");
       }
-    }, 1000); // 1-second long-press for security/intent
+    }, 1000);
   };
 
   const handleEqualsEnd = () => {
     if (longPressTimerRef.current) {
       clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
     }
   };
 
@@ -453,10 +460,8 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
             <Button
               variant="orange"
               onClick={() => handleOperation("÷")}
-              onMouseDown={handleDivisionStart}
-              onMouseUp={handleDivisionEnd}
-              onTouchStart={handleDivisionStart}
-              onTouchEnd={handleDivisionEnd}
+              onPointerDown={handleDivisionStart}
+              onPointerUp={handleDivisionEnd}
               label="÷"
               isOperator={true}
             />
@@ -468,10 +473,8 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
             <Button
               variant="orange"
               onClick={() => handleOperation("×")}
-              onMouseDown={handleMultiplyStart}
-              onMouseUp={handleMultiplyEnd}
-              onTouchStart={handleMultiplyStart}
-              onTouchEnd={handleMultiplyEnd}
+              onPointerDown={handleMultiplyStart}
+              onPointerUp={handleMultiplyEnd}
               label="×"
               isOperator={true}
             />
@@ -489,10 +492,8 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
             <Button
               variant="orange"
               onClick={() => handleOperation("+")}
-              onMouseDown={handleAdditionStart}
-              onMouseUp={handleAdditionEnd}
-              onTouchStart={handleAdditionStart}
-              onTouchEnd={handleAdditionEnd}
+              onPointerDown={handleAdditionStart}
+              onPointerUp={handleAdditionEnd}
               label="+"
               isOperator={true}
             />
@@ -503,19 +504,15 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
             <Button
               variant="gray"
               onClick={() => { }}
-              onMouseDown={handleDotLongPressStart}
-              onMouseUp={handleDotLongPressEnd}
-              onTouchStart={handleDotLongPressStart}
-              onTouchEnd={handleDotLongPressEnd}
+              onPointerDown={handleDotLongPressStart}
+              onPointerUp={handleDotLongPressEnd}
               label="."
             />
             <Button
               variant="orange"
               onClick={handleEquals}
-              onMouseDown={handleEqualsStart}
-              onMouseUp={handleEqualsEnd}
-              onTouchStart={handleEqualsStart}
-              onTouchEnd={handleEqualsEnd}
+              onPointerDown={handleEqualsStart}
+              onPointerUp={handleEqualsEnd}
               label="="
               isOperator={true}
             />
