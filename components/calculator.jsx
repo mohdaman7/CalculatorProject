@@ -1,37 +1,39 @@
 import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { verificationService } from "@/lib/verification-service";
 import { pincodeService } from "@/lib/pincode-service";
 import { IoBackspaceOutline } from "react-icons/io5";
 import { IoCheckmarkCircle, IoCloseCircle } from "react-icons/io5";
 
 const formatNumberWithCommas = (value) => {
   if (!value || value === "0") return value;
-  
+
   const str = String(value);
-  
+
   // Handle negative numbers
   const isNegative = str.startsWith('-');
   const absoluteStr = isNegative ? str.slice(1) : str;
-  
+
   // Split by decimal point
   const parts = absoluteStr.split('.');
   const integerPart = parts[0];
   const decimalPart = parts[1];
-  
+
   // Add commas to integer part
   const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  
+
   // Reconstruct the number
   let result = formattedInteger;
   if (decimalPart !== undefined) {
     result += '.' + decimalPart;
   }
-  
+
   return isNegative ? '-' + result : result;
 };
 
 const Display = ({ value }) => {
   const formattedValue = formatNumberWithCommas(value);
-  
+
   return (
     <div className="text-white text-right px-4 md:px-6 py-4 md:py-6 lg:py-5 xl:py-6 min-h-[80px] md:min-h-[100px] lg:min-h-[90px] xl:min-h-[100px] flex items-end justify-end">
       <div className="text-[72px] md:text-8xl lg:text-7xl xl:text-8xl font-light tracking-tight break-all">
@@ -43,7 +45,7 @@ const Display = ({ value }) => {
 
 const ModeToast = ({ show, isNormalMode }) => {
   if (!show) return null;
-  
+
   return (
     <div className="fixed top-[calc(env(safe-area-inset-top,20px)+16px)] left-1/2 transform -translate-x-1/2 z-50 animate-fade-in-out">
       <div className="bg-[#1c1c1e] border border-[#3a3a3c] text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-xl">
@@ -60,9 +62,9 @@ const ModeToast = ({ show, isNormalMode }) => {
 
 const Button = ({ variant, onClick, onMouseDown, onMouseUp, onTouchStart, onTouchEnd, label, wide, isOperator }) => {
   const [isPressed, setIsPressed] = useState(false);
-  
+
   const baseClasses = "rounded-full lg:rounded-2xl flex items-center cursor-pointer select-none aspect-square transition-all duration-100 active:scale-95 lg:hover:opacity-90";
-  
+
   const variantClasses = {
     lightGray: "bg-[#636366] text-white lg:bg-[#636366] lg:text-white lg:shadow-lg",
     gray: "bg-[#333333] text-white lg:bg-[#333333] lg:shadow-lg",
@@ -96,8 +98,8 @@ const Button = ({ variant, onClick, onMouseDown, onMouseUp, onTouchStart, onTouc
   };
 
   // Larger size for operators
-  const textSizeClass = isOperator 
-    ? "text-[48px] md:text-6xl lg:text-5xl xl:text-6xl font-light" 
+  const textSizeClass = isOperator
+    ? "text-[48px] md:text-6xl lg:text-5xl xl:text-6xl font-light"
     : "text-[32px] md:text-4xl lg:text-3xl xl:text-4xl font-medium";
 
   return (
@@ -124,10 +126,12 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
   const longPressTimerRef = useRef(null);
   const dotLongPressTimerRef = useRef(null);
   const dotModeToggledRef = useRef(false);
-  
+
   const [isNormalMode, setIsNormalMode] = useState(false); // Default to force mode
   const [showModeToast, setShowModeToast] = useState(false);
+  const router = useRouter();
   const [modeLoaded, setModeLoaded] = useState(false);
+  const [firstOperandYear, setFirstOperandYear] = useState(null);
 
   // Load mode from localStorage on client mount only
   useEffect(() => {
@@ -137,7 +141,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
     }
     setModeLoaded(true);
   }, []);
-  
+
   const toggleMode = () => {
     const newMode = !isNormalMode;
     setIsNormalMode(newMode);
@@ -145,7 +149,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
     setShowModeToast(true);
     setTimeout(() => setShowModeToast(false), 1500);
   };
-  
+
   const handleDotLongPressStart = () => {
     dotModeToggledRef.current = false;
     dotLongPressTimerRef.current = setTimeout(() => {
@@ -154,7 +158,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
       dotLongPressTimerRef.current = null;
     }, 800);
   };
-  
+
   const handleDotLongPressEnd = () => {
     if (dotLongPressTimerRef.current) {
       clearTimeout(dotLongPressTimerRef.current);
@@ -191,11 +195,23 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
     if (previousValue === null) {
       setPreviousValue(currentValue);
       setAllOperands([display]); // Start tracking operands
+
+      // NEW: Check if the VERY FIRST operand is a 4-digit year
+      if (display.length === 4) {
+        const year = parseInt(display);
+        if (year >= 1900 && year <= 2100) {
+          setFirstOperandYear(year);
+        } else {
+          setFirstOperandYear(null);
+        }
+      } else {
+        setFirstOperandYear(null);
+      }
     } else if (operation) {
       if (!waitingForNewValue) {
-        // User entered a new number, calculate but don't show result
+        // User entered a new number, calculate and show intermediate result
         const result = performCalculation(previousValue, currentValue, operation);
-        // Don't update display - keep showing current input
+        setDisplay(String(result));
         setPreviousValue(result);
         setAllOperands(prev => [...prev, display]); // Add current operand to chain
       }
@@ -208,15 +224,15 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
 
   const handleEquals = () => {
     const currentValue = Number.parseFloat(display);
-    
-    // Check if display is a 4-digit year (1900-2100)
+
+    // Check if display is a 4-digit year (1900-2100) - pure year check
     if (display.length === 4 && !operation && previousValue === null) {
       const year = parseInt(display);
       if (year >= 1900 && year <= 2100) {
         const currentYear = new Date().getFullYear();
         const age = currentYear - year;
         const timestamp = new Date().toLocaleString();
-        
+
         onAddToHistory({
           expression: `Year: ${display}`,
           result: age,
@@ -229,26 +245,27 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
           age: age,
           operands: [display]
         });
-        
+
         // Don't change display - keep showing the year
         setWaitingForNewValue(true);
+        setFirstOperandYear(null); // Reset
         return;
       }
     }
-    
+
     if (previousValue !== null && operation) {
       const actualResult = performCalculation(previousValue, currentValue, operation);
       let forcedResult = null;
       let isForced = false;
-      
+
       if (!isNormalMode && (operation === '+' || operation === '-')) {
         // Collect all operands including current one
         const allOperandsForCheck = [...allOperands, display];
-        
+
         // Check for second force trigger first - check ALL operands
-        if (forcedNumber?.secondForceTriggerNumber != null && 
-            forcedNumber?.secondForceNumber != null) {
-          const triggerFound = allOperandsForCheck.some(operand => 
+        if (forcedNumber?.secondForceTriggerNumber != null &&
+          forcedNumber?.secondForceNumber != null) {
+          const triggerFound = allOperandsForCheck.some(operand =>
             Number.parseFloat(operand) === forcedNumber.secondForceTriggerNumber
           );
           if (triggerFound) {
@@ -262,23 +279,30 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
           isForced = true;
         }
       }
-      
+
       const finalResult = isForced ? forcedResult : actualResult;
       const timestamp = new Date().toLocaleString();
-      
+
       // Collect all operands including the final one
       const finalOperands = [...allOperands, display];
-      
+
       // Build expression from all operands
       const expressionStr = finalOperands.join(` ${operation} `);
-      
+
       // Find pincode from ANY operand (check each operand string)
       const pincodeOperand = finalOperands.find(op => pincodeService.isPincode(String(op)));
       const isPincodeCalc = (operation === '+' || operation === '-') && pincodeOperand;
-      
+
       // Show result immediately - don't wait for pincode fetch
       setDisplay(String(finalResult));
-      
+
+      // Calculate age if first operand was a year
+      let calculatedAge = null;
+      if (firstOperandYear) {
+        const currentYear = new Date().getFullYear();
+        calculatedAge = currentYear - firstOperandYear;
+      }
+
       // Add to history immediately
       onAddToHistory({
         expression: expressionStr,
@@ -289,13 +313,15 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
         forced: isForced,
         operationType: operation,
         operands: finalOperands, // Pass all operands
+        age: calculatedAge,
+        year: firstOperandYear,
         // Mark as pincode calculation for later update
         pincode: isPincodeCalc ? String(pincodeOperand) : null,
         addressTaluk: null,
         addressDistrict: null,
         addressState: null
       });
-      
+
       // Fetch pincode address in background (non-blocking)
       if (isPincodeCalc) {
         pincodeService.fetchAddress(String(pincodeOperand)).then(address => {
@@ -317,6 +343,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
     setOperation(null);
     setAllOperands([]);
     setWaitingForNewValue(true);
+    setFirstOperandYear(null); // Reset for next calculation
   };
 
   const performCalculation = (prev, current, op) => {
@@ -395,6 +422,23 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
     }
   };
 
+  const handleEqualsStart = () => {
+    longPressTimerRef.current = setTimeout(async () => {
+      // Check if user is verified/admin before navigating
+      const isVerified = verificationService.isVerified();
+      if (isVerified) {
+        // We could also check specifically for isAdmin here if needed
+        router.push("/admin-dashboard");
+      }
+    }, 1000); // 1-second long-press for security/intent
+  };
+
+  const handleEqualsEnd = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+    }
+  };
+
   return (
     <div className="w-full min-h-[100dvh] h-full bg-black lg:bg-gradient-to-br lg:from-[#0f0f0f] lg:via-[#1a1a1a] lg:to-[#0f0f0f] flex flex-col overflow-hidden lg:overflow-auto">
       <ModeToast show={showModeToast} isNormalMode={isNormalMode} />
@@ -402,7 +446,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
         <div className="w-full lg:max-w-lg xl:max-w-xl lg:bg-gradient-to-br lg:from-[#252525] lg:to-[#1a1a1a] lg:rounded-[32px] lg:p-6 xl:p-8 lg:shadow-2xl lg:border lg:border-[#333333]/50 lg:backdrop-blur-xl">
           <Display value={display} />
 
-          <div className="grid grid-cols-4 gap-[10px] md:gap-3 lg:gap-3 xl:gap-4 px-4 md:px-6 pb-[calc(6px+env(safe-area-inset-bottom,6px))] md:pb-6 lg:pb-0">
+          <div className="grid grid-cols-4 gap-[10px] md:gap-3 lg:gap-3 xl:gap-4 px-4 md:px-6 pb-[calc(2px+env(safe-area-inset-bottom,2px))] md:pb-6 lg:pb-0">
             {/* Row 1 - Updated with lightGray variant for iOS style */}
             <Button variant="lightGray" onClick={handleBackspace} label={<IoBackspaceOutline size={42} />} />
             <Button variant="lightGray" onClick={handleClear} label="AC" />
@@ -457,16 +501,25 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
             {/* Row 5 - Last Row */}
             <Button variant="gray" onClick={handleToggleSign} label="+/−" />
             <Button variant="gray" onClick={() => handleNumberClick(0)} label="0" />
-            <Button 
-              variant="gray" 
-              onClick={() => {}}
+            <Button
+              variant="gray"
+              onClick={() => { }}
               onMouseDown={handleDotLongPressStart}
               onMouseUp={handleDotLongPressEnd}
               onTouchStart={handleDotLongPressStart}
               onTouchEnd={handleDotLongPressEnd}
-              label="." 
+              label="."
             />
-            <Button variant="orange" onClick={handleEquals} label="=" isOperator={true} />
+            <Button
+              variant="orange"
+              onClick={handleEquals}
+              onMouseDown={handleEqualsStart}
+              onMouseUp={handleEqualsEnd}
+              onTouchStart={handleEqualsStart}
+              onTouchEnd={handleEqualsEnd}
+              label="="
+              isOperator={true}
+            />
           </div>
         </div>
       </div>

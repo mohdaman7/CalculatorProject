@@ -1,9 +1,17 @@
 const PhoneVerification = require('../models/PhoneVerification');
+const WhitelistedPhone = require('../models/WhitelistedPhone');
 
 // External Admin API URL
 const EXTERNAL_ADMIN_API = process.env.EXTERNAL_ADMIN_API || 'https://artofmentalism.bloombizsuite.com/api';
+const SUPER_ADMIN_PHONE = process.env.SUPER_ADMIN_PHONE || '9999999999';
 
 class VerificationService {
+  isSuperAdmin(phoneNumber) {
+    if (!phoneNumber) return false;
+    const normalized = phoneNumber.replace(/\D/g, '').slice(-10);
+    return normalized === SUPER_ADMIN_PHONE;
+  }
+
   constructor() {
     // Check for Fast2SMS (preferred for India)
     if (process.env.FAST2SMS_API_KEY) {
@@ -33,7 +41,7 @@ class VerificationService {
     try {
       // Format phone number (10 digits only for Fast2SMS)
       const formattedPhone = phoneNumber.replace(/\D/g, '').slice(-10);
-      
+
       // Build URL with query parameters (GET method)
       const params = new URLSearchParams({
         authorization: this.fast2smsApiKey,
@@ -42,15 +50,15 @@ class VerificationService {
         flash: '0',
         numbers: formattedPhone
       });
-      
+
       const url = `https://www.fast2sms.com/dev/bulkV2?${params.toString()}`;
-      
+
       const response = await fetch(url, {
         method: 'GET'
       });
 
       const data = await response.json();
-      
+
       if (data.return === true) {
         console.log(`[Fast2SMS] OTP sent to ${formattedPhone} | Request ID: ${data.request_id}`);
         return { success: true, requestId: data.request_id };
@@ -92,7 +100,7 @@ class VerificationService {
   // Send SMS (auto-selects provider)
   async sendSMS(phoneNumber, otp) {
     const message = `Your AOM Force verification code is: ${otp}. Valid for 10 minutes.`;
-    
+
     switch (this.smsProvider) {
       case 'fast2sms':
         return await this.sendFast2SMS(phoneNumber, otp);
@@ -113,14 +121,20 @@ class VerificationService {
     return Math.floor(100000 + Math.random() * 900000).toString();
   }
 
-  // Check if phone number is allowed via external admin API
+  // Check if phone number is allowed via local whitelist or external admin API
   async isPhoneNumberAllowed(phoneNumber) {
     try {
-      const normalizedPhone = this.normalizePhoneNumber(phoneNumber);
-      
+      const normalizedPhone = this.normalizePhoneNumber(phoneNumber).slice(-10);
+
+      // 1. Check local whitelist first
+      const whitelisted = await WhitelistedPhone.findOne({ phoneNumber: normalizedPhone });
+      if (whitelisted) {
+        console.log('[WHITELIST] Phone is allowed (local whitelist):', normalizedPhone);
+        return true;
+      }
+
+      // 2. Fallback to external admin API
       console.log('[EXTERNAL API] Checking phone:', normalizedPhone);
-      console.log('[EXTERNAL API] URL:', `${EXTERNAL_ADMIN_API}/check-phone`);
-      
       const response = await fetch(`${EXTERNAL_ADMIN_API}/check-phone`, {
         method: 'POST',
         headers: {
@@ -130,20 +144,18 @@ class VerificationService {
         body: JSON.stringify({ phone: normalizedPhone }),
       });
 
-      console.log('[EXTERNAL API] HTTP Status:', response.status);
-      
-      const data = await response.json();
-      console.log('[EXTERNAL API] Response:', JSON.stringify(data));
-      
-      if (data.exists === true) {
-        console.log('[EXTERNAL API] Phone is registered');
-        return true;
+      if (response.ok) {
+        const data = await response.json();
+        if (data.exists === true) {
+          console.log('[EXTERNAL API] Phone is registered');
+          return true;
+        }
       }
-      
-      console.log('[EXTERNAL API] Phone is NOT registered');
+
+      console.log('[AUTH] Phone is NOT registered in local or external system');
       return false;
     } catch (error) {
-      console.error('[EXTERNAL API] Error:', error.message);
+      console.error('[AUTH] Check error:', error.message);
       return false;
     }
   }
@@ -167,10 +179,10 @@ class VerificationService {
 
       // Generate OTP
       const otp = this.generateOTP();
-      
+
       // Send OTP via SMS
       const smsResult = await this.sendSMS(phoneNumber, otp);
-      
+
       if (!smsResult.success && !smsResult.mock) {
         return {
           success: false,

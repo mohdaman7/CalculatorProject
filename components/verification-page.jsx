@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { auth, RecaptchaVerifier, signInWithPhoneNumber } from '@/firebase';
+import { verificationService } from '@/lib/verification-service';
 import { Phone, Shield, ArrowLeft, Loader2, CheckCircle2 } from 'lucide-react';
 
 const COUNTRY_CODES = [
@@ -35,7 +36,7 @@ const VerificationPage = ({ onVerificationComplete }) => {
     if (window.recaptchaVerifier) {
       try {
         window.recaptchaVerifier.clear();
-      } catch (e) {}
+      } catch (e) { }
       window.recaptchaVerifier = null;
     }
     const container = document.getElementById('recaptcha-container');
@@ -46,7 +47,7 @@ const VerificationPage = ({ onVerificationComplete }) => {
 
   const initializeRecaptcha = useCallback(async () => {
     if (typeof window === 'undefined') return null;
-    
+
     clearRecaptcha();
 
     await new Promise(resolve => setTimeout(resolve, 200));
@@ -63,7 +64,7 @@ const VerificationPage = ({ onVerificationComplete }) => {
           setRecaptchaReady(false);
         }
       });
-      
+
       await window.recaptchaVerifier.render();
       return window.recaptchaVerifier;
     } catch (err) {
@@ -74,7 +75,7 @@ const VerificationPage = ({ onVerificationComplete }) => {
 
   useEffect(() => {
     initializeRecaptcha();
-    
+
     return () => {
       clearRecaptcha();
     };
@@ -98,6 +99,14 @@ const VerificationPage = ({ onVerificationComplete }) => {
         return;
       }
 
+      // Check if phone is whitelisted before sending Firebase OTP
+      const isAllowed = await verificationService.isWhitelisted(phoneNumber);
+      if (!isAllowed) {
+        setError('This phone number is not registered. Please contact administrator.');
+        setLoading(false);
+        return;
+      }
+
       const formattedPhone = selectedCountry.code + phoneNumber;
 
       if (!window.recaptchaVerifier) {
@@ -107,7 +116,7 @@ const VerificationPage = ({ onVerificationComplete }) => {
       }
 
       const result = await signInWithPhoneNumber(auth, formattedPhone, window.recaptchaVerifier);
-      
+
       setConfirmationResult(result);
       setStep('otp');
       setOtp(['', '', '', '', '', '']);
@@ -115,9 +124,9 @@ const VerificationPage = ({ onVerificationComplete }) => {
       startCountdown(120);
     } catch (err) {
       console.error('Error requesting OTP:', err);
-      
+
       clearRecaptcha();
-      
+
       if (err.code === 'auth/invalid-phone-number') {
         setError('Invalid phone number format');
       } else if (err.code === 'auth/too-many-requests') {
@@ -147,7 +156,7 @@ const VerificationPage = ({ onVerificationComplete }) => {
 
   const handleOtpChange = (index, value) => {
     if (!/^\d*$/.test(value)) return;
-    
+
     const newOtp = [...otp];
     newOtp[index] = value.slice(-1);
     setOtp(newOtp);
@@ -212,7 +221,7 @@ const VerificationPage = ({ onVerificationComplete }) => {
       onVerificationComplete(userData, token);
     } catch (err) {
       console.error('Error verifying OTP:', err);
-      
+
       if (err.code === 'auth/invalid-verification-code') {
         setError('Invalid code. Please check and try again.');
       } else if (err.code === 'auth/code-expired') {
@@ -245,7 +254,7 @@ const VerificationPage = ({ onVerificationComplete }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-zinc-950 to-black flex flex-col items-center justify-center p-4">
-      
+
 
 
       {/* Main Card */}
@@ -295,9 +304,8 @@ const VerificationPage = ({ onVerificationComplete }) => {
                             setShowCountryPicker(false);
                             setPhoneNumber('');
                           }}
-                          className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-zinc-800 transition-colors ${
-                            selectedCountry.code === country.code ? 'bg-zinc-800' : ''
-                          }`}
+                          className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-zinc-800 transition-colors ${selectedCountry.code === country.code ? 'bg-zinc-800' : ''
+                            }`}
                         >
                           <span className="text-xl">{country.flag}</span>
                           <span className="text-white font-medium">{country.country}</span>
@@ -418,11 +426,10 @@ const VerificationPage = ({ onVerificationComplete }) => {
                       value={digit}
                       onChange={(e) => handleOtpChange(index, e.target.value)}
                       onKeyDown={(e) => handleOtpKeyDown(index, e)}
-                      className={`w-12 h-14 bg-zinc-800/50 border rounded-xl text-center text-2xl font-bold text-white focus:outline-none transition-all ${
-                        digit 
-                          ? 'border-amber-500/50 ring-2 ring-amber-500/20' 
-                          : 'border-zinc-700/50 focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/20'
-                      }`}
+                      className={`w-12 h-14 bg-zinc-800/50 border rounded-xl text-center text-2xl font-bold text-white focus:outline-none transition-all ${digit
+                        ? 'border-amber-500/50 ring-2 ring-amber-500/20'
+                        : 'border-zinc-700/50 focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/20'
+                        }`}
                       disabled={loading}
                     />
                   ))}
@@ -430,12 +437,10 @@ const VerificationPage = ({ onVerificationComplete }) => {
 
                 {/* Timer */}
                 <div className="flex justify-center">
-                  <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${
-                    expiresIn <= 30 ? 'bg-red-500/10 text-red-400' : 'bg-zinc-800/50 text-zinc-400'
-                  }`}>
-                    <div className={`w-2 h-2 rounded-full ${
-                      expiresIn <= 30 ? 'bg-red-500 animate-pulse' : 'bg-amber-500'
-                    }`}></div>
+                  <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${expiresIn <= 30 ? 'bg-red-500/10 text-red-400' : 'bg-zinc-800/50 text-zinc-400'
+                    }`}>
+                    <div className={`w-2 h-2 rounded-full ${expiresIn <= 30 ? 'bg-red-500 animate-pulse' : 'bg-amber-500'
+                      }`}></div>
                     <span className="text-sm font-medium">
                       {expiresIn > 0 ? `Expires in ${formatTime(expiresIn)}` : 'Code expired'}
                     </span>
@@ -488,7 +493,7 @@ const VerificationPage = ({ onVerificationComplete }) => {
           </div>
         )}
       </div>
-      
+
       {/* Bottom Badge */}
       <div className="mt-8 flex items-center gap-2 text-zinc-600 text-xs">
         <Shield className="w-3.5 h-3.5" />
