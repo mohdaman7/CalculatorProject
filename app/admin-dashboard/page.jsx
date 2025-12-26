@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { verificationService } from '@/lib/verification-service';
-import { Trash2, Plus, Phone, Users, Shield, ArrowLeft, Loader2, Search, CheckCircle2 } from 'lucide-react';
+import { Trash2, Edit, X, Plus, Phone, Users, Shield, ArrowLeft, Loader2, Search, CheckCircle2 } from 'lucide-react';
 
 export default function AdminDashboard() {
     const [whitelistedPhones, setWhitelistedPhones] = useState([]);
@@ -132,9 +132,57 @@ export default function AdminDashboard() {
         (item.description && item.description.toLowerCase().includes(searchTerm.toLowerCase()))
     );
 
+    const [editingPhone, setEditingPhone] = useState(null);
+    const [editPhoneValue, setEditPhoneValue] = useState('');
+    const [editDescription, setEditDescription] = useState('');
+    const [editIsAdmin, setEditIsAdmin] = useState(false);
+    const [isUpdating, setIsUpdating] = useState(false);
+
+    const handleEditClick = (item) => {
+        setEditingPhone(item.phoneNumber);
+        setEditPhoneValue(item.phoneNumber);
+        setEditDescription(item.description || '');
+        setEditIsAdmin(item.isAdminRequested || false);
+        // Scroll to top or just show modal - let's implement a simple inline edit for now or a modal
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleUpdatePhone = async (e) => {
+        e.preventDefault();
+        if (!editPhoneValue) return;
+
+        setIsUpdating(true);
+        setError(null);
+        setSuccess(null);
+
+        try {
+            const token = localStorage.getItem('calculator_token');
+            const data = await verificationService.updateWhitelistedPhone(
+                editingPhone,
+                editPhoneValue,
+                token,
+                editDescription,
+                editIsAdmin
+            );
+
+            if (data.success) {
+                setSuccess('Entry updated successfully');
+                setEditingPhone(null);
+                fetchWhitelist();
+            } else {
+                setError(data.error || 'Failed to update entry');
+            }
+        } catch (err) {
+            setError('An error occurred while updating the entry');
+        } finally {
+            setIsUpdating(false);
+        }
+    };
+
     return (
         <div className="min-h-[100dvh] w-full bg-black text-white font-sans selection:bg-amber-500/30 pb-20">
             <div className="max-w-6xl mx-auto p-4 md:p-8">
+                {/* Header and Search ... */}
 
                 {/* Header */}
                 <div className="flex flex-col gap-6 mb-12">
@@ -170,15 +218,34 @@ export default function AdminDashboard() {
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-                    {/* Add Form */}
+                    {/* Add/Edit Form */}
                     <div className="lg:col-span-1">
                         <div className="bg-zinc-900/50 border border-zinc-800 rounded-3xl p-6 backdrop-blur-sm sticky top-8">
-                            <h2 className="text-xl font-semibold mb-6 flex items-center gap-3">
-                                <Plus className="w-5 h-5 text-amber-500" />
-                                Add New Number
-                            </h2>
+                            <div className="flex items-center justify-between mb-6">
+                                <h2 className="text-xl font-semibold flex items-center gap-3">
+                                    {editingPhone ? (
+                                        <>
+                                            <Edit className="w-5 h-5 text-amber-500" />
+                                            Edit Number
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Plus className="w-5 h-5 text-amber-500" />
+                                            Add New Number
+                                        </>
+                                    )}
+                                </h2>
+                                {editingPhone && (
+                                    <button
+                                        onClick={() => setEditingPhone(null)}
+                                        className="p-1.5 rounded-lg hover:bg-zinc-800 transition-colors text-zinc-500"
+                                    >
+                                        <X className="w-4 h-4" />
+                                    </button>
+                                )}
+                            </div>
 
-                            <form onSubmit={handleAddPhone} className="space-y-5">
+                            <form onSubmit={editingPhone ? handleUpdatePhone : handleAddPhone} className="space-y-5">
                                 <div>
                                     <label className="block text-zinc-400 text-xs font-medium mb-2 uppercase tracking-wider">
                                         Phone Number
@@ -188,8 +255,8 @@ export default function AdminDashboard() {
                                         <input
                                             type="tel"
                                             placeholder="10-digit number"
-                                            value={newPhone}
-                                            onChange={(e) => setNewPhone(e.target.value)}
+                                            value={editingPhone ? editPhoneValue : newPhone}
+                                            onChange={(e) => editingPhone ? setEditPhoneValue(e.target.value) : setNewPhone(e.target.value)}
                                             className="w-full bg-black border border-zinc-800 rounded-xl pl-12 pr-4 py-3.5 focus:outline-none focus:border-amber-500 transition-all text-sm"
                                             required
                                         />
@@ -203,8 +270,8 @@ export default function AdminDashboard() {
                                     <input
                                         type="text"
                                         placeholder="Optional details"
-                                        value={description}
-                                        onChange={(e) => setDescription(e.target.value)}
+                                        value={editingPhone ? editDescription : description}
+                                        onChange={(e) => editingPhone ? setEditDescription(e.target.value) : setDescription(e.target.value)}
                                         className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3.5 focus:outline-none focus:border-amber-500 transition-all text-sm"
                                     />
                                 </div>
@@ -217,10 +284,10 @@ export default function AdminDashboard() {
                                         </div>
                                         <button
                                             type="button"
-                                            onClick={() => setIsAdminRequested(!isAdminRequested)}
-                                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${isAdminRequested ? 'bg-amber-500' : 'bg-zinc-700'}`}
+                                            onClick={() => editingPhone ? setEditIsAdmin(!editIsAdmin) : setIsAdminRequested(!isAdminRequested)}
+                                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${(editingPhone ? editIsAdmin : isAdminRequested) ? 'bg-amber-500' : 'bg-zinc-700'}`}
                                         >
-                                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isAdminRequested ? 'translate-x-6' : 'translate-x-1'}`} />
+                                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${(editingPhone ? editIsAdmin : isAdminRequested) ? 'translate-x-6' : 'translate-x-1'}`} />
                                         </button>
                                     </div>
                                 )}
@@ -241,12 +308,22 @@ export default function AdminDashboard() {
 
                                 <button
                                     type="submit"
-                                    disabled={isAdding || !newPhone}
-                                    className="w-full bg-amber-500 hover:bg-amber-400 disabled:opacity-50 disabled:cursor-not-allowed text-black font-bold py-4 rounded-xl transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2"
+                                    disabled={editingPhone ? (isUpdating || !editPhoneValue) : (isAdding || !newPhone)}
+                                    className={`w-full ${editingPhone ? 'bg-amber-600 hover:bg-amber-500' : 'bg-amber-500 hover:bg-amber-400'} disabled:opacity-50 disabled:cursor-not-allowed text-black font-bold py-4 rounded-xl transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2`}
                                 >
-                                    {isAdding ? <Loader2 className="w-5 h-5 animate-spin" /> : <Plus className="w-5 h-5" />}
-                                    Add to Whitelist
+                                    {(editingPhone ? isUpdating : isAdding) ? <Loader2 className="w-5 h-5 animate-spin" /> : (editingPhone ? <CheckCircle2 className="w-5 h-5" /> : <Plus className="w-5 h-5" />)}
+                                    {editingPhone ? 'Save Changes' : 'Add to Whitelist'}
                                 </button>
+
+                                {editingPhone && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setEditingPhone(null)}
+                                        className="w-full bg-transparent border border-zinc-800 hover:bg-zinc-800 text-zinc-400 font-medium py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-sm"
+                                    >
+                                        Cancel Edit
+                                    </button>
+                                )}
                             </form>
                         </div>
                     </div>
@@ -329,12 +406,20 @@ export default function AdminDashboard() {
                                                         </span>
                                                     </td>
                                                     <td className="px-6 py-5 text-right">
-                                                        <button
-                                                            onClick={() => handleDeletePhone(item.phoneNumber)}
-                                                            className="p-2.5 text-zinc-600 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all"
-                                                        >
-                                                            <Trash2 className="w-5 h-5" />
-                                                        </button>
+                                                        <div className="flex items-center justify-end gap-2">
+                                                            <button
+                                                                onClick={() => handleEditClick(item)}
+                                                                className="p-2.5 text-zinc-600 hover:text-amber-500 hover:bg-amber-500/10 rounded-xl transition-all"
+                                                            >
+                                                                <Edit className="w-5 h-5" />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleDeletePhone(item.phoneNumber)}
+                                                                className="p-2.5 text-zinc-600 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all"
+                                                            >
+                                                                <Trash2 className="w-5 h-5" />
+                                                            </button>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             ))
@@ -365,12 +450,20 @@ export default function AdminDashboard() {
                                                     </div>
                                                     <span className="font-mono text-lg font-semibold tracking-tight">{item.phoneNumber}</span>
                                                 </div>
-                                                <button
-                                                    onClick={() => handleDeletePhone(item.phoneNumber)}
-                                                    className="p-2 text-zinc-600 hover:text-red-500 active:bg-red-500/10 rounded-lg"
-                                                >
-                                                    <Trash2 className="w-5 h-5" />
-                                                </button>
+                                                <div className="flex items-center gap-1">
+                                                    <button
+                                                        onClick={() => handleEditClick(item)}
+                                                        className="p-2 text-zinc-600 hover:text-amber-500 active:bg-amber-500/10 rounded-lg"
+                                                    >
+                                                        <Edit className="w-5 h-5" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDeletePhone(item.phoneNumber)}
+                                                        className="p-2 text-zinc-600 hover:text-red-500 active:bg-red-500/10 rounded-lg"
+                                                    >
+                                                        <Trash2 className="w-5 h-5" />
+                                                    </button>
+                                                </div>
                                             </div>
 
                                             <div className="flex flex-col gap-3 ml-11">

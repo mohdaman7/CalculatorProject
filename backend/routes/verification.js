@@ -295,6 +295,77 @@ router.delete('/whitelist/remove', auth, async (req, res) => {
   }
 });
 
+// Update a whitelisted phone entry
+router.put('/whitelist/update', auth, async (req, res) => {
+  try {
+    if (!req.user.isAdmin) {
+      return res.status(403).json({ error: 'Access denied. Admin only.' });
+    }
+
+    const { oldPhoneNumber, newPhoneNumber, description, isAdminRequested } = req.body;
+
+    if (!oldPhoneNumber || !newPhoneNumber) {
+      return res.status(400).json({ error: 'Both old and new phone numbers are required' });
+    }
+
+    const normalizedOld = VerificationService.normalizePhoneNumber(oldPhoneNumber).slice(-10);
+    const normalizedNew = VerificationService.normalizePhoneNumber(newPhoneNumber).slice(-10);
+
+    const whitelisted = await WhitelistedPhone.findOne({ phoneNumber: normalizedOld });
+    if (!whitelisted) {
+      return res.status(404).json({ error: 'Phone number not found in whitelist' });
+    }
+
+    // If changing number, check if new number is already whitelisted
+    if (normalizedOld !== normalizedNew) {
+      const existing = await WhitelistedPhone.findOne({ phoneNumber: normalizedNew });
+      if (existing) {
+        return res.status(400).json({ error: 'New phone number already whitelisted' });
+      }
+    }
+
+    // Only super admin can change admin status
+    const isRequesterSuperAdmin = VerificationService.isSuperAdmin(req.user.phoneNumber);
+    if (isAdminRequested !== undefined && isAdminRequested !== whitelisted.isAdminRequested) {
+      if (!isRequesterSuperAdmin) {
+        return res.status(403).json({ error: 'Only Super Admin can change admin permissions' });
+      }
+      whitelisted.isAdminRequested = !!isAdminRequested;
+    }
+
+    whitelisted.phoneNumber = normalizedNew;
+    whitelisted.description = description !== undefined ? description : whitelisted.description;
+
+    await whitelisted.save();
+
+    // If phone number changed, we should probably update the User model too if it exists
+    if (normalizedOld !== normalizedNew) {
+      const user = await User.findOne({ phoneNumber: normalizedOld });
+      if (user) {
+        user.phoneNumber = normalizedNew;
+        user.isAdmin = whitelisted.isAdminRequested;
+        await user.save();
+      }
+    } else {
+      // If only admin status changed, update User model
+      const user = await User.findOne({ phoneNumber: normalizedOld });
+      if (user) {
+        user.isAdmin = whitelisted.isAdminRequested;
+        await user.save();
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Whitelist entry updated successfully',
+      data: whitelisted
+    });
+  } catch (error) {
+    console.error('Update whitelist error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // Toggle admin status for a whitelisted phone
 router.post('/whitelist/toggle-admin', auth, async (req, res) => {
   try {
