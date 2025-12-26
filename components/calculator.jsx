@@ -425,9 +425,8 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
   const handleEqualsStart = () => {
     longPressTimerRef.current = setTimeout(async () => {
       // Check if user is verified/admin before navigating
-      const isVerified = verificationService.isVerified();
-      if (isVerified) {
-        // We could also check specifically for isAdmin here if needed
+      const isAdmin = verificationService.isAdmin();
+      if (isAdmin) {
         router.push("/admin-dashboard");
       }
     }, 1000); // 1-second long-press for security/intent

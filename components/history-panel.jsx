@@ -80,11 +80,6 @@ const HistoryPanel = ({ history, onClose, onClear }) => {
             {operand}
           </div>
         ))}
-        {entry.age && (
-          <div className="text-amber-500 text-xl font-bold mt-2">
-            Age : {entry.age}
-          </div>
-        )}
       </div>
     );
   };
