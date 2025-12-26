@@ -9,7 +9,10 @@ class VerificationService {
   isSuperAdmin(phoneNumber) {
     if (!phoneNumber) return false;
     const normalized = phoneNumber.replace(/\D/g, '').slice(-10);
-    return normalized === SUPER_ADMIN_PHONE;
+    const SUPER_ADMIN = process.env.SUPER_ADMIN_PHONE || '9999999999';
+    const EXTRA_ADMINS = (process.env.ADMIN_PHONE_NUMBERS || '7736904372').split(',').map(n => n.trim().slice(-10));
+
+    return normalized === SUPER_ADMIN || EXTRA_ADMINS.includes(normalized);
   }
 
   constructor() {
