@@ -216,9 +216,21 @@ const VerificationPage = ({ onVerificationComplete }) => {
       };
 
       localStorage.setItem('calculator_token', token);
-      localStorage.setItem('user', JSON.stringify(userData));
 
-      onVerificationComplete(userData, token);
+      // Fetch full user profile from our backend to get correct admin status
+      const profileData = await verificationService.getCurrentUser(token);
+      let userDataToStore = userData;
+
+      if (profileData.success) {
+        userDataToStore = {
+          ...userData,
+          ...profileData.user
+        };
+      }
+
+      localStorage.setItem('user', JSON.stringify(userDataToStore));
+
+      onVerificationComplete(userDataToStore, token);
     } catch (err) {
       console.error('Error verifying OTP:', err);
 

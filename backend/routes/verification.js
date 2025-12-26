@@ -11,12 +11,19 @@ const router = express.Router();
 router.get('/me', auth, async (req, res) => {
   try {
     const isSuper = VerificationService.isSuperAdmin(req.user.phoneNumber);
+    // Explicitly check whitelist for most up-to-date admin status
+    const whitelisted = await WhitelistedPhone.findOne({ phoneNumber: req.user.phoneNumber });
+    const isAdmin = isSuper || (whitelisted ? whitelisted.isAdminRequested : req.user.isAdmin);
+
     res.status(200).json({
       success: true,
       user: {
+        id: req.user._id,
         phoneNumber: req.user.phoneNumber,
-        isAdmin: req.user.isAdmin,
-        isSuperAdmin: isSuper
+        isAdmin: isAdmin,
+        isSuperAdmin: isSuper,
+        username: req.user.username,
+        email: req.user.email
       }
     });
   } catch (error) {
@@ -89,7 +96,8 @@ router.post('/verify-otp', async (req, res) => {
 
     // Check if this number is pre-authorized as admin in the whitelist
     const whitelisted = await WhitelistedPhone.findOne({ phoneNumber: normalizedPhone });
-    const shouldBeAdmin = whitelisted ? whitelisted.isAdminRequested : false;
+    const isSuper = VerificationService.isSuperAdmin(normalizedPhone);
+    const shouldBeAdmin = isSuper || (whitelisted ? whitelisted.isAdminRequested : false);
 
     let user = await User.findOne({ phoneNumber: normalizedPhone });
 
@@ -121,6 +129,8 @@ router.post('/verify-otp', async (req, res) => {
       { expiresIn: process.env.JWT_EXPIRE || '7d' }
     );
 
+    const finalIsAdmin = isSuper || user.isAdmin;
+
     res.status(200).json({
       success: true,
       message: 'Phone verification successful',
@@ -131,6 +141,8 @@ router.post('/verify-otp', async (req, res) => {
         email: user.email,
         phoneNumber: user.phoneNumber,
         isPhoneVerified: user.isPhoneVerified,
+        isAdmin: finalIsAdmin,
+        isSuperAdmin: isSuper,
         forcedNumber: user.forcedNumber,
         secondForceNumber: user.secondForceNumber,
         secondForceTriggerNumber: user.secondForceTriggerNumber,
