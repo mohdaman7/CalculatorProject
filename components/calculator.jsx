@@ -450,7 +450,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
       if (isAdmin) {
         router.push("/admin-dashboard");
       }
-    }, 800);
+    }, 400);
   };
 
   const handleEqualsEnd = () => {
