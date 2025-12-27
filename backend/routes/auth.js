@@ -11,13 +11,13 @@ router.post('/register', async (req, res) => {
     const { username, email, password } = req.body;
 
     // Check if user already exists
-    const existingUser = await User.findOne({ 
-      $or: [{ email }, { username }] 
+    const existingUser = await User.findOne({
+      $or: [{ email }, { username }]
     });
 
     if (existingUser) {
-      return res.status(400).json({ 
-        error: 'User with this email or username already exists' 
+      return res.status(400).json({
+        error: 'User with this email or username already exists'
       });
     }
 
@@ -106,6 +106,8 @@ router.get('/me', auth, async (req, res) => {
         username: req.user.username,
         email: req.user.email,
         phoneNumber: req.user.phoneNumber,
+        isAdmin: req.user.isAdmin,
+        isSuperAdmin: !!req.user.isSuperAdmin,
         forcedNumber: req.user.forcedNumber,
         secondForceNumber: req.user.secondForceNumber,
         secondForceTriggerNumber: req.user.secondForceTriggerNumber,
@@ -123,17 +125,17 @@ router.get('/me', auth, async (req, res) => {
 router.put('/birth-year', auth, async (req, res) => {
   try {
     const { birthYear } = req.body;
-    
+
     if (birthYear !== undefined && birthYear !== null) {
       const currentYear = new Date().getFullYear();
       if (birthYear < 1900 || birthYear > currentYear) {
-        return res.status(400).json({ 
-          error: 'Birth year must be between 1900 and current year' 
+        return res.status(400).json({
+          error: 'Birth year must be between 1900 and current year'
         });
       }
       req.user.birthYear = birthYear;
     }
-    
+
     await req.user.save();
 
     // Calculate age
@@ -155,11 +157,11 @@ router.put('/birth-year', auth, async (req, res) => {
 router.put('/forced-number', auth, async (req, res) => {
   try {
     const { forcedNumber, secondForceNumber, secondForceTriggerNumber } = req.body;
-    
+
     if (forcedNumber !== undefined) req.user.forcedNumber = forcedNumber;
     if (secondForceNumber !== undefined) req.user.secondForceNumber = secondForceNumber;
     if (secondForceTriggerNumber !== undefined) req.user.secondForceTriggerNumber = secondForceTriggerNumber;
-    
+
     await req.user.save();
 
     res.json({

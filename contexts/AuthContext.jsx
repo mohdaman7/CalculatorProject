@@ -69,6 +69,7 @@ export function AuthProvider({ children }) {
               userData = {
                 ...userData,
                 isAdmin: backendUser.user.isAdmin || false,
+                isSuperAdmin: backendUser.user.isSuperAdmin || false,
                 forcedNumber: backendUser.user.forcedNumber || null,
                 secondForceNumber: backendUser.user.secondForceNumber || null,
                 secondForceTriggerNumber: backendUser.user.secondForceTriggerNumber || null,
