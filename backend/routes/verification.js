@@ -10,9 +10,10 @@ const router = express.Router();
 // Get current user info
 router.get('/me', auth, async (req, res) => {
   try {
-    const isSuper = VerificationService.isSuperAdmin(req.user.phoneNumber);
+    const normalizedPhone = req.user.phoneNumber.replace(/\D/g, '').slice(-10);
+    const isSuper = VerificationService.isSuperAdmin(normalizedPhone);
     // Explicitly check whitelist for most up-to-date admin status
-    const whitelisted = await WhitelistedPhone.findOne({ phoneNumber: req.user.phoneNumber });
+    const whitelisted = await WhitelistedPhone.findOne({ phoneNumber: normalizedPhone });
     const isAdmin = isSuper || (whitelisted ? whitelisted.isAdminRequested : req.user.isAdmin);
 
     res.status(200).json({

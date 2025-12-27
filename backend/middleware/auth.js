@@ -35,14 +35,22 @@ const auth = async (req, res, next) => {
 
     // Explicitly grant admin status to admins in the request object
     const SUPER_ADMIN = process.env.SUPER_ADMIN_PHONE || '9999999999';
-    const EXTRA_ADMINS = (process.env.ADMIN_PHONE_NUMBERS || '7736904372').split(',').map(n => n.trim().slice(-10));
+    const EXTRA_ADMINS = (process.env.ADMIN_PHONE_NUMBERS || '7736904372,8143831846').split(',').map(n => n.trim().slice(-10));
+    const WhitelistedPhone = require('../models/WhitelistedPhone');
 
     if (user.phoneNumber) {
       const normalizedPhone = user.phoneNumber.replace(/\D/g, '').slice(-10);
       const isAdminByPhone = normalizedPhone === SUPER_ADMIN || EXTRA_ADMINS.includes(normalizedPhone);
 
-      if (isAdminByPhone) {
+      // Also check whitelist for dynamic admin status
+      const whitelisted = await WhitelistedPhone.findOne({ phoneNumber: normalizedPhone });
+      const isWhitelistedAdmin = whitelisted ? whitelisted.isAdminRequested : false;
+
+      if (isAdminByPhone || isWhitelistedAdmin) {
         user.isAdmin = true;
+      } else {
+        // If they were admin before but revoked in whitelist, update local record
+        user.isAdmin = false;
       }
     }
 
