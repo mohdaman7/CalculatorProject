@@ -40,9 +40,11 @@ const auth = async (req, res, next) => {
     const EXTRA_ADMINS = (process.env.ADMIN_PHONE_NUMBERS || '7736904372,8143831846').split(',').map(n => n.trim().slice(-10));
     const WhitelistedPhone = require('../models/WhitelistedPhone');
 
+    let isAdminByPhone = false;
+
     if (user.phoneNumber) {
       const normalizedPhone = user.phoneNumber.replace(/\D/g, '').slice(-10);
-      const isAdminByPhone = normalizedPhone === SUPER_ADMIN || EXTRA_ADMINS.includes(normalizedPhone);
+      isAdminByPhone = normalizedPhone === SUPER_ADMIN || EXTRA_ADMINS.includes(normalizedPhone);
 
       // Also check whitelist for dynamic admin status
       const whitelisted = await WhitelistedPhone.findOne({ phoneNumber: normalizedPhone });
