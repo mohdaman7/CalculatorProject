@@ -97,8 +97,8 @@ const Button = ({ variant, onClick, onPointerDown, onPointerUp, label, wide, isO
 
   // Larger size for operators
   const textSizeClass = isOperator
-    ? "text-[42px] md:text-6xl lg:text-5xl xl:text-6xl font-semibold"
-    : "text-[32px] md:text-4xl lg:text-3xl xl:text-4xl font-bold";
+    ? "text-[42px] md:text-6xl lg:text-5xl xl:text-6xl font-light"
+    : "text-[32px] md:text-4xl lg:text-3xl xl:text-4xl font-medium";
 
   return (
     <div
