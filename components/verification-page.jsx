@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import { auth, RecaptchaVerifier, signInWithPhoneNumber } from '@/firebase';
 import { verificationService } from '@/lib/verification-service';
@@ -87,15 +87,21 @@ const VerificationPage = ({ onVerificationComplete }) => {
     setError('');
   };
 
+  const isProcessingRef = useRef(false);
+
   const handleRequestOTP = async (e) => {
     e.preventDefault();
+    if (loading || isProcessingRef.current) return;
+
     setError('');
     setLoading(true);
+    isProcessingRef.current = true;
 
     try {
       if (!phoneNumber.trim() || phoneNumber.length < 6) {
         setError('Please enter a valid phone number');
         setLoading(false);
+        isProcessingRef.current = false;
         return;
       }
 
@@ -104,6 +110,7 @@ const VerificationPage = ({ onVerificationComplete }) => {
       if (!isAllowed) {
         setError('This phone number is not registered. Please contact administrator.');
         setLoading(false);
+        isProcessingRef.current = false;
         return;
       }
 
@@ -112,6 +119,7 @@ const VerificationPage = ({ onVerificationComplete }) => {
       if (!window.recaptchaVerifier) {
         setError('Please complete the reCAPTCHA first.');
         setLoading(false);
+        isProcessingRef.current = false;
         return;
       }
 
@@ -140,6 +148,7 @@ const VerificationPage = ({ onVerificationComplete }) => {
       }
     } finally {
       setLoading(false);
+      isProcessingRef.current = false;
     }
   };
 
@@ -186,8 +195,11 @@ const VerificationPage = ({ onVerificationComplete }) => {
 
   const handleVerifyOTP = async (e) => {
     e.preventDefault();
+    if (loading || isProcessingRef.current) return;
+
     setError('');
     setLoading(true);
+    isProcessingRef.current = true;
 
     const otpValue = otp.join('');
 
@@ -195,6 +207,7 @@ const VerificationPage = ({ onVerificationComplete }) => {
       if (otpValue.length !== 6) {
         setError('Please enter the complete 6-digit code');
         setLoading(false);
+        isProcessingRef.current = false;
         return;
       }
 
@@ -202,6 +215,7 @@ const VerificationPage = ({ onVerificationComplete }) => {
         setError('Session expired. Please request a new code.');
         setLoading(false);
         setStep('phone');
+        isProcessingRef.current = false;
         return;
       }
 
@@ -243,6 +257,7 @@ const VerificationPage = ({ onVerificationComplete }) => {
       }
     } finally {
       setLoading(false);
+      isProcessingRef.current = false;
     }
   };
 
