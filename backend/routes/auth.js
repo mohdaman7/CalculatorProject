@@ -38,7 +38,6 @@ router.post('/register', async (req, res) => {
       user: {
         id: user._id,
         username: user.username,
-        email: user.email,
         forcedNumber: user.forcedNumber,
         secondForceNumber: user.secondForceNumber,
         secondForceTriggerNumber: user.secondForceTriggerNumber,
@@ -82,7 +81,6 @@ router.post('/login', async (req, res) => {
       user: {
         id: user._id,
         username: user.username,
-        email: user.email,
         forcedNumber: user.forcedNumber,
         secondForceNumber: user.secondForceNumber,
         secondForceTriggerNumber: user.secondForceTriggerNumber,
@@ -104,7 +102,6 @@ router.get('/me', auth, async (req, res) => {
         id: req.user._id,
         firebaseUid: req.user.firebaseUid,
         username: req.user.username,
-        email: req.user.email,
         phoneNumber: req.user.phoneNumber,
         isAdmin: req.user.isAdmin,
         isSuperAdmin: !!req.user.isSuperAdmin,

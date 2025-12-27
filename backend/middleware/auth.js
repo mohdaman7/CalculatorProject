@@ -16,13 +16,15 @@ const auth = async (req, res, next) => {
     let user = await User.findOne({ firebaseUid: decodedToken.uid });
 
     if (!user) {
-      // Create new user from Firebase auth
-      user = new User({
+      // Create new user from Firebase auth - avoid explicit nulls for unique/sparse fields
+      const userObj = {
         firebaseUid: decodedToken.uid,
-        phoneNumber: decodedToken.phone_number || null,
-        email: decodedToken.email || null,
         isPhoneVerified: !!decodedToken.phone_number
-      });
+      };
+
+      if (decodedToken.phone_number) userObj.phoneNumber = decodedToken.phone_number;
+
+      user = new User(userObj);
       await user.save();
     } else {
       // Update phone number if changed
@@ -65,13 +67,18 @@ const auth = async (req, res, next) => {
     console.error('Stack:', error.stack);
 
     if (error.code === 'auth/id-token-expired') {
-      return res.status(401).json({ error: 'Token expired', code: error.code });
+      return res.status(401).json({
+        error: 'Token expired. Please logout and login again.',
+        code: error.code,
+        message: error.message
+      });
     }
 
     res.status(401).json({
-      error: 'Invalid token',
+      error: `Invalid token: ${error.message} (Code: ${error.code || 'unknown'})`,
       message: error.message,
-      code: error.code || 'unknown'
+      code: error.code || 'unknown',
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 };
