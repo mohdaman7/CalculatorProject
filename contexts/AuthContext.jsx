@@ -64,7 +64,9 @@ export function AuthProvider({ children }) {
           };
 
           try {
+            console.log('Fetching profile for:', firebaseUser.phoneNumber);
             const backendUser = await apiService.getCurrentUser();
+            console.log('Backend profile received:', backendUser);
             if (backendUser && backendUser.user) {
               userData = {
                 ...userData,
@@ -76,10 +78,11 @@ export function AuthProvider({ children }) {
                 birthYear: backendUser.user.birthYear || null,
               };
               // CRITICAL: Update localStorage with full profile including isAdmin
+              console.log('Syncing profile to localStorage:', userData);
               localStorage.setItem('user', JSON.stringify(userData));
             }
           } catch (backendError) {
-            console.log('Backend not available, using local data');
+            console.error('Failed to sync backend profile:', backendError.message);
             // Load from localStorage as fallback
             const storedData = localStorage.getItem('userData');
             if (storedData) {

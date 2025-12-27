@@ -36,7 +36,7 @@ const Display = ({ value }) => {
 
   return (
     <div className="text-white text-right px-4 md:px-6 py-4 md:py-6 lg:py-5 xl:py-6 min-h-[80px] md:min-h-[100px] lg:min-h-[90px] xl:min-h-[100px] flex items-end justify-end">
-      <div className="text-[80px] md:text-9xl lg:text-8xl xl:text-9xl font-normal tracking-[-0.05em] break-all leading-tight">
+      <div className="text-[74px] md:text-9xl lg:text-8xl xl:text-9xl font-normal tracking-[-0.05em] break-all leading-tight">
         {formattedValue}
       </div>
     </div>
@@ -97,8 +97,8 @@ const Button = ({ variant, onClick, onPointerDown, onPointerUp, label, wide, isO
 
   // Larger size for operators
   const textSizeClass = isOperator
-    ? "text-[42px] md:text-6xl lg:text-5xl xl:text-6xl font-light"
-    : "text-[32px] md:text-4xl lg:text-3xl xl:text-4xl font-medium";
+    ? "text-[42px] md:text-6xl lg:text-5xl xl:text-6xl font-semibold"
+    : "text-[32px] md:text-4xl lg:text-3xl xl:text-4xl font-bold";
 
   return (
     <div

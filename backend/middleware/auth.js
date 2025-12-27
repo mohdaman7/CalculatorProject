@@ -54,17 +54,25 @@ const auth = async (req, res, next) => {
       }
     }
 
+    // Set isSuperAdmin on the user object for routes to use
+    user.isSuperAdmin = isAdminByPhone;
+
     req.user = user;
     req.firebaseUser = decodedToken;
     next();
   } catch (error) {
     console.error('Auth middleware error:', error.message);
+    console.error('Stack:', error.stack);
 
     if (error.code === 'auth/id-token-expired') {
-      return res.status(401).json({ error: 'Token expired. Please refresh.' });
+      return res.status(401).json({ error: 'Token expired', code: error.code });
     }
 
-    res.status(401).json({ error: 'Invalid token.' });
+    res.status(401).json({
+      error: 'Invalid token',
+      message: error.message,
+      code: error.code || 'unknown'
+    });
   }
 };
 
