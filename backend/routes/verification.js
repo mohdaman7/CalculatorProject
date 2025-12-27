@@ -163,6 +163,33 @@ router.post('/verify-otp', async (req, res) => {
   }
 });
 
+// Check if a phone has admin status (no auth required, for frontend fallback check)
+router.post('/check-admin-status', async (req, res) => {
+  try {
+    const { phoneNumber } = req.body;
+
+    if (!phoneNumber) {
+      return res.status(400).json({ error: 'Phone number is required' });
+    }
+
+    const normalizedPhone = VerificationService.normalizePhoneNumber(phoneNumber).slice(-10);
+    
+    // Check if it's a super admin
+    if (VerificationService.isSuperAdmin(normalizedPhone)) {
+      return res.status(200).json({ isAdmin: true, isSuperAdmin: true });
+    }
+    
+    // Check whitelist for admin status
+    const whitelisted = await WhitelistedPhone.findOne({ phoneNumber: normalizedPhone });
+    const isAdmin = whitelisted ? whitelisted.isAdminRequested : false;
+
+    res.status(200).json({ isAdmin, isSuperAdmin: false });
+  } catch (error) {
+    console.error('Check admin status error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // Check if phone is whitelisted (for frontend enforcement)
 router.post('/is-whitelisted', async (req, res) => {
   try {

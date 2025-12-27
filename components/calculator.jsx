@@ -439,7 +439,14 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
     if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
     pressStartTimeRef.current = Date.now();
     longPressTimerRef.current = setTimeout(async () => {
-      const isAdmin = verificationService.isAdmin();
+      // First try sync check for hardcoded admins
+      let isAdmin = verificationService.isAdmin();
+      
+      // If not found in sync check, try async check for dynamically granted admins
+      if (!isAdmin) {
+        isAdmin = await verificationService.isAdminAsync();
+      }
+      
       if (isAdmin) {
         router.push("/admin-dashboard");
       }

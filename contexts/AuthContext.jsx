@@ -92,6 +92,17 @@ export function AuthProvider({ children }) {
                 userData.secondForceNumber = parsed.secondForceNumber || null;
                 userData.secondForceTriggerNumber = parsed.secondForceTriggerNumber || null;
                 userData.birthYear = parsed.birthYear || null;
+                userData.isAdmin = parsed.isAdmin || false;
+                userData.isSuperAdmin = parsed.isSuperAdmin || false;
+              } catch (e) { }
+            }
+            // Also try to preserve isAdmin from 'user' localStorage
+            const storedUser = localStorage.getItem('user');
+            if (storedUser) {
+              try {
+                const parsed = JSON.parse(storedUser);
+                if (parsed.isAdmin) userData.isAdmin = true;
+                if (parsed.isSuperAdmin) userData.isSuperAdmin = true;
               } catch (e) { }
             }
           }
