@@ -36,7 +36,7 @@ const Display = ({ value }) => {
 
   return (
     <div className="text-white text-right px-4 md:px-6 py-4 md:py-6 lg:py-5 xl:py-6 min-h-[80px] md:min-h-[100px] lg:min-h-[90px] xl:min-h-[100px] flex items-end justify-end">
-      <div className="text-[72px] md:text-8xl lg:text-7xl xl:text-8xl font-medium tracking-tight break-all leading-tight">
+      <div className="text-[80px] md:text-9xl lg:text-8xl xl:text-9xl font-normal tracking-[-0.05em] break-all leading-tight">
         {formattedValue}
       </div>
     </div>

@@ -11,9 +11,9 @@ const defaultContextValue = {
   user: null,
   loading: false,
   error: null,
-  logout: () => {},
-  updateForcedNumber: async () => {},
-  updateBirthYear: async () => {},
+  logout: () => { },
+  updateForcedNumber: async () => { },
+  updateBirthYear: async () => { },
   isAuthenticated: false
 };
 
@@ -42,7 +42,7 @@ export function AuthProvider({ children }) {
         try {
           // Get Firebase ID token
           const token = await firebaseUser.getIdToken();
-          
+
           // Save token for API calls
           apiService.saveToken(token);
           localStorage.setItem('calculator_token', token);
@@ -68,11 +68,14 @@ export function AuthProvider({ children }) {
             if (backendUser && backendUser.user) {
               userData = {
                 ...userData,
+                isAdmin: backendUser.user.isAdmin || false,
                 forcedNumber: backendUser.user.forcedNumber || null,
                 secondForceNumber: backendUser.user.secondForceNumber || null,
                 secondForceTriggerNumber: backendUser.user.secondForceTriggerNumber || null,
                 birthYear: backendUser.user.birthYear || null,
               };
+              // CRITICAL: Update localStorage with full profile including isAdmin
+              localStorage.setItem('user', JSON.stringify(userData));
             }
           } catch (backendError) {
             console.log('Backend not available, using local data');
@@ -85,7 +88,7 @@ export function AuthProvider({ children }) {
                 userData.secondForceNumber = parsed.secondForceNumber || null;
                 userData.secondForceTriggerNumber = parsed.secondForceTriggerNumber || null;
                 userData.birthYear = parsed.birthYear || null;
-              } catch (e) {}
+              } catch (e) { }
             }
           }
 
@@ -124,15 +127,15 @@ export function AuthProvider({ children }) {
   const updateForcedNumber = async (forcedNumbers) => {
     try {
       setError(null);
-      
+
       // Update local state immediately
-      setUser(prev => ({ 
-        ...prev, 
+      setUser(prev => ({
+        ...prev,
         forcedNumber: forcedNumbers.forcedNumber,
         secondForceNumber: forcedNumbers.secondForceNumber,
         secondForceTriggerNumber: forcedNumbers.secondForceTriggerNumber
       }));
-      
+
       // Persist to localStorage
       const storedData = localStorage.getItem('userData');
       const userData = storedData ? JSON.parse(storedData) : {};
@@ -140,14 +143,14 @@ export function AuthProvider({ children }) {
       userData.secondForceNumber = forcedNumbers.secondForceNumber;
       userData.secondForceTriggerNumber = forcedNumbers.secondForceTriggerNumber;
       localStorage.setItem('userData', JSON.stringify(userData));
-      
+
       // Try to save to backend
       try {
         await apiService.updateForcedNumber(forcedNumbers);
       } catch (backendError) {
         console.log('Backend not available, saved locally');
       }
-      
+
       return forcedNumbers;
     } catch (error) {
       setError(error.message);
@@ -158,26 +161,26 @@ export function AuthProvider({ children }) {
   const updateBirthYear = async (birthYear) => {
     try {
       setError(null);
-      
+
       // Update local state immediately
-      setUser(prev => ({ 
-        ...prev, 
+      setUser(prev => ({
+        ...prev,
         birthYear: birthYear
       }));
-      
+
       // Persist to localStorage
       const storedData = localStorage.getItem('userData');
       const userData = storedData ? JSON.parse(storedData) : {};
       userData.birthYear = birthYear;
       localStorage.setItem('userData', JSON.stringify(userData));
-      
+
       // Try to save to backend
       try {
         await apiService.updateBirthYear(birthYear);
       } catch (backendError) {
         console.log('Backend not available, saved locally');
       }
-      
+
       return { birthYear };
     } catch (error) {
       setError(error.message);
