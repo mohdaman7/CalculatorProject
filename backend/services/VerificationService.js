@@ -124,7 +124,7 @@ class VerificationService {
   }
 
   // Check if phone number is allowed via external admin API
-  async isPhoneNumberAllowed(phoneNumber) {
+  async isPhoneNumberAllowed(phoneNumber, countryCode = '+91') {
     try {
       const normalizedPhone = this.normalizePhoneNumber(phoneNumber).slice(-10);
 
@@ -135,14 +135,14 @@ class VerificationService {
       }
 
       // Check external admin API
-      console.log('[EXTERNAL API] Checking phone:', normalizedPhone);
+      console.log('[EXTERNAL API] Checking phone:', normalizedPhone, 'countryCode:', countryCode);
       const response = await fetch(`${EXTERNAL_ADMIN_API}/phone-numbers/verify`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        body: JSON.stringify({ phoneNumber: normalizedPhone }),
+        body: JSON.stringify({ phoneNumber: normalizedPhone, countryCode }),
       });
 
       const data = await response.json();

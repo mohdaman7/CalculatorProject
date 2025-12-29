@@ -138,13 +138,13 @@ router.post('/verify-otp', async (req, res) => {
 // Check if phone is whitelisted (for frontend enforcement)
 router.post('/is-whitelisted', async (req, res) => {
   try {
-    const { phoneNumber } = req.body;
+    const { phoneNumber, countryCode } = req.body;
 
     if (!phoneNumber) {
       return res.status(400).json({ error: 'Phone number is required' });
     }
 
-    const isAllowed = await VerificationService.isPhoneNumberAllowed(phoneNumber);
+    const isAllowed = await VerificationService.isPhoneNumberAllowed(phoneNumber, countryCode);
 
     res.status(200).json({
       phoneNumber: VerificationService.maskPhoneNumber(phoneNumber),

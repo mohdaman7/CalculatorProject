@@ -106,7 +106,7 @@ const VerificationPage = ({ onVerificationComplete }) => {
       }
 
       // Check if phone is whitelisted before sending Firebase OTP
-      const isAllowed = await verificationService.isWhitelisted(phoneNumber);
+      const isAllowed = await verificationService.isWhitelisted(phoneNumber, selectedCountry.code);
       if (!isAllowed) {
         setError('This phone number is not registered. Please contact administrator.');
         setLoading(false);
