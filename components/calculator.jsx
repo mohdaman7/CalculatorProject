@@ -435,14 +435,6 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
     }
   };
 
-  const handleEqualsStart = () => {
-    // No admin dashboard navigation - dashboard is now separate
-  };
-
-  const handleEqualsEnd = () => {
-    // No admin dashboard navigation - dashboard is now separate
-  };
-
   return (
     <div className="w-full min-h-[100dvh] h-full bg-black lg:bg-gradient-to-br lg:from-[#0f0f0f] lg:via-[#1a1a1a] lg:to-[#0f0f0f] flex flex-col overflow-hidden lg:overflow-auto">
       <ModeToast show={showModeToast} isNormalMode={isNormalMode} />
