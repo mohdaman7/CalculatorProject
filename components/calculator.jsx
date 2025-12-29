@@ -436,29 +436,11 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
   };
 
   const handleEqualsStart = () => {
-    if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
-    pressStartTimeRef.current = Date.now();
-    longPressTimerRef.current = setTimeout(async () => {
-      // First try sync check for hardcoded admins
-      let isAdmin = verificationService.isAdmin();
-      
-      // If not found in sync check, try async check for dynamically granted admins
-      if (!isAdmin) {
-        isAdmin = await verificationService.isAdminAsync();
-      }
-      
-      if (isAdmin) {
-        router.push("/admin-dashboard");
-      }
-    }, 400);
+    // No admin dashboard navigation - dashboard is now separate
   };
 
   const handleEqualsEnd = () => {
-    if (longPressTimerRef.current) {
-      clearTimeout(longPressTimerRef.current);
-      longPressTimerRef.current = null;
-    }
-    pressStartTimeRef.current = 0;
+    // No admin dashboard navigation - dashboard is now separate
   };
 
   return (

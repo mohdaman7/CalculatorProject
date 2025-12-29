@@ -103,8 +103,6 @@ router.get('/me', auth, async (req, res) => {
         firebaseUid: req.user.firebaseUid,
         username: req.user.username,
         phoneNumber: req.user.phoneNumber,
-        isAdmin: req.user.isAdmin,
-        isSuperAdmin: !!req.user.isSuperAdmin,
         forcedNumber: req.user.forcedNumber,
         secondForceNumber: req.user.secondForceNumber,
         secondForceTriggerNumber: req.user.secondForceTriggerNumber,

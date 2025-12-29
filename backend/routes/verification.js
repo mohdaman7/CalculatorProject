@@ -1,7 +1,6 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const WhitelistedPhone = require('../models/WhitelistedPhone');
 const VerificationService = require('../services/VerificationService');
 const auth = require('../middleware/auth');
 
@@ -11,25 +10,12 @@ const router = express.Router();
 router.get('/me', auth, async (req, res) => {
   try {
     const userPhone = req.user.phoneNumber;
-    const normalizedPhone = userPhone ? userPhone.replace(/\D/g, '').slice(-10) : null;
-
-    let isSuper = false;
-    let isAdmin = req.user.isAdmin || false;
-
-    if (normalizedPhone) {
-      isSuper = VerificationService.isSuperAdmin(normalizedPhone);
-      // Explicitly check whitelist for most up-to-date admin status
-      const whitelisted = await WhitelistedPhone.findOne({ phoneNumber: normalizedPhone });
-      isAdmin = isSuper || (whitelisted ? whitelisted.isAdminRequested : isAdmin);
-    }
 
     res.status(200).json({
       success: true,
       user: {
         id: req.user._id,
         phoneNumber: userPhone,
-        isAdmin: isAdmin,
-        isSuperAdmin: isSuper,
         username: req.user.username
       }
     });
@@ -101,11 +87,6 @@ router.post('/verify-otp', async (req, res) => {
     // Check if user exists
     const normalizedPhone = VerificationService.normalizePhoneNumber(phoneNumber);
 
-    // Check if this number is pre-authorized as admin in the whitelist
-    const whitelisted = await WhitelistedPhone.findOne({ phoneNumber: normalizedPhone });
-    const isSuper = VerificationService.isSuperAdmin(normalizedPhone);
-    const shouldBeAdmin = isSuper || (whitelisted ? whitelisted.isAdminRequested : false);
-
     let user = await User.findOne({ phoneNumber: normalizedPhone });
 
     if (!user) {
@@ -114,18 +95,13 @@ router.post('/verify-otp', async (req, res) => {
         username: `user_${normalizedPhone}`,
         email: `${normalizedPhone}@calculator.local`,
         phoneNumber: normalizedPhone,
-        isPhoneVerified: true,
-        isAdmin: shouldBeAdmin
+        isPhoneVerified: true
       });
 
       await user.save();
     } else {
       // Update existing user
       user.isPhoneVerified = true;
-      // Also update admin status if requested in whitelist
-      if (shouldBeAdmin) {
-        user.isAdmin = true;
-      }
       await user.save();
     }
 
@@ -135,8 +111,6 @@ router.post('/verify-otp', async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRE || '7d' }
     );
-
-    const finalIsAdmin = isSuper || user.isAdmin;
 
     res.status(200).json({
       success: true,
@@ -148,8 +122,6 @@ router.post('/verify-otp', async (req, res) => {
         email: user.email,
         phoneNumber: user.phoneNumber,
         isPhoneVerified: user.isPhoneVerified,
-        isAdmin: finalIsAdmin,
-        isSuperAdmin: isSuper,
         forcedNumber: user.forcedNumber,
         secondForceNumber: user.secondForceNumber,
         secondForceTriggerNumber: user.secondForceTriggerNumber,
@@ -160,33 +132,6 @@ router.post('/verify-otp', async (req, res) => {
   } catch (error) {
     console.error('Verify OTP error:', error);
     res.status(500).json({ error: 'Server error during OTP verification' });
-  }
-});
-
-// Check if a phone has admin status (no auth required, for frontend fallback check)
-router.post('/check-admin-status', async (req, res) => {
-  try {
-    const { phoneNumber } = req.body;
-
-    if (!phoneNumber) {
-      return res.status(400).json({ error: 'Phone number is required' });
-    }
-
-    const normalizedPhone = VerificationService.normalizePhoneNumber(phoneNumber).slice(-10);
-    
-    // Check if it's a super admin
-    if (VerificationService.isSuperAdmin(normalizedPhone)) {
-      return res.status(200).json({ isAdmin: true, isSuperAdmin: true });
-    }
-    
-    // Check whitelist for admin status
-    const whitelisted = await WhitelistedPhone.findOne({ phoneNumber: normalizedPhone });
-    const isAdmin = whitelisted ? whitelisted.isAdminRequested : false;
-
-    res.status(200).json({ isAdmin, isSuperAdmin: false });
-  } catch (error) {
-    console.error('Check admin status error:', error);
-    res.status(500).json({ error: 'Server error' });
   }
 });
 
@@ -228,221 +173,6 @@ router.post('/check-verification', async (req, res) => {
     });
   } catch (error) {
     console.error('Check verification error:', error);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
-
-// Whitelist management (Admin only)
-
-// Get all whitelisted phones
-router.get('/whitelist', auth, async (req, res) => {
-  try {
-    if (!req.user.isAdmin) {
-      return res.status(403).json({ error: 'Access denied. Admin only.' });
-    }
-
-    const whitelistedPhones = await WhitelistedPhone.find().populate('addedBy', 'username');
-    res.status(200).json({
-      success: true,
-      count: whitelistedPhones.length,
-      phones: whitelistedPhones
-    });
-  } catch (error) {
-    console.error('Get whitelist error:', error);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
-
-// Add a phone to whitelist
-router.post('/whitelist/add', auth, async (req, res) => {
-  try {
-    if (!req.user.isAdmin) {
-      return res.status(403).json({ error: 'Access denied. Admin only.' });
-    }
-
-    const { phoneNumber, description, isAdminRequested } = req.body;
-
-    if (!phoneNumber) {
-      return res.status(400).json({ error: 'Phone number is required' });
-    }
-
-    const normalizedPhone = VerificationService.normalizePhoneNumber(phoneNumber).slice(-10);
-
-    // Only super admin can set isAdminRequested
-    const isRequesterSuperAdmin = VerificationService.isSuperAdmin(req.user.phoneNumber);
-    const finalIsAdminRequested = isRequesterSuperAdmin ? !!isAdminRequested : false;
-
-    // Check if already exists
-    const existing = await WhitelistedPhone.findOne({ phoneNumber: normalizedPhone });
-    if (existing) {
-      return res.status(400).json({ error: 'Phone number already whitelisted' });
-    }
-
-    const whiteListEntry = new WhitelistedPhone({
-      phoneNumber: normalizedPhone,
-      description,
-      isAdminRequested: finalIsAdminRequested,
-      addedBy: req.user._id
-    });
-
-    await whiteListEntry.save();
-
-    res.status(201).json({
-      success: true,
-      message: 'Phone number added to whitelist',
-      data: whiteListEntry
-    });
-  } catch (error) {
-    console.error('Add whitelist error:', error);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
-
-// Remove a phone from whitelist
-router.delete('/whitelist/remove', auth, async (req, res) => {
-  try {
-    if (!req.user.isAdmin) {
-      return res.status(403).json({ error: 'Access denied. Admin only.' });
-    }
-
-    const { phoneNumber } = req.body;
-
-    if (!phoneNumber) {
-      return res.status(400).json({ error: 'Phone number is required' });
-    }
-
-    const normalizedPhone = VerificationService.normalizePhoneNumber(phoneNumber).slice(-10);
-
-    const result = await WhitelistedPhone.findOneAndDelete({ phoneNumber: normalizedPhone });
-
-    if (!result) {
-      return res.status(404).json({ error: 'Phone number not found in whitelist' });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: 'Phone number removed from whitelist'
-    });
-  } catch (error) {
-    console.error('Remove whitelist error:', error);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
-
-// Update a whitelisted phone entry
-router.put('/whitelist/update', auth, async (req, res) => {
-  try {
-    if (!req.user.isAdmin) {
-      return res.status(403).json({ error: 'Access denied. Admin only.' });
-    }
-
-    const { oldPhoneNumber, newPhoneNumber, description, isAdminRequested } = req.body;
-
-    if (!oldPhoneNumber || !newPhoneNumber) {
-      return res.status(400).json({ error: 'Both old and new phone numbers are required' });
-    }
-
-    const normalizedOld = VerificationService.normalizePhoneNumber(oldPhoneNumber).slice(-10);
-    const normalizedNew = VerificationService.normalizePhoneNumber(newPhoneNumber).slice(-10);
-
-    const whitelisted = await WhitelistedPhone.findOne({ phoneNumber: normalizedOld });
-    if (!whitelisted) {
-      return res.status(404).json({ error: 'Phone number not found in whitelist' });
-    }
-
-    // If changing number, check if new number is already whitelisted
-    if (normalizedOld !== normalizedNew) {
-      const existing = await WhitelistedPhone.findOne({ phoneNumber: normalizedNew });
-      if (existing) {
-        return res.status(400).json({ error: 'New phone number already whitelisted' });
-      }
-    }
-
-    // Only super admin can change admin status
-    const isRequesterSuperAdmin = VerificationService.isSuperAdmin(req.user.phoneNumber);
-    if (isAdminRequested !== undefined && isAdminRequested !== whitelisted.isAdminRequested) {
-      if (!isRequesterSuperAdmin) {
-        return res.status(403).json({ error: 'Only Super Admin can change admin permissions' });
-      }
-      whitelisted.isAdminRequested = !!isAdminRequested;
-    }
-
-    whitelisted.phoneNumber = normalizedNew;
-    whitelisted.description = description !== undefined ? description : whitelisted.description;
-
-    await whitelisted.save();
-
-    // If phone number changed, we should probably update the User model too if it exists
-    if (normalizedOld !== normalizedNew) {
-      const user = await User.findOne({ phoneNumber: normalizedOld });
-      if (user) {
-        user.phoneNumber = normalizedNew;
-        user.isAdmin = whitelisted.isAdminRequested;
-        await user.save();
-      }
-    } else {
-      // If only admin status changed, update User model
-      const user = await User.findOne({ phoneNumber: normalizedOld });
-      if (user) {
-        user.isAdmin = whitelisted.isAdminRequested;
-        await user.save();
-      }
-    }
-
-    res.status(200).json({
-      success: true,
-      message: 'Whitelist entry updated successfully',
-      data: whitelisted
-    });
-  } catch (error) {
-    console.error('Update whitelist error:', error);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
-
-// Toggle admin status for a whitelisted phone
-router.post('/whitelist/toggle-admin', auth, async (req, res) => {
-  try {
-    if (!req.user.isAdmin) {
-      return res.status(403).json({ error: 'Access denied. Admin only.' });
-    }
-
-    // Only super admin can toggle roles
-    if (!VerificationService.isSuperAdmin(req.user.phoneNumber)) {
-      return res.status(403).json({ error: 'Access denied. Only Super Admin can manage roles.' });
-    }
-
-    const { phoneNumber, isAdminRequested } = req.body;
-
-    if (!phoneNumber) {
-      return res.status(400).json({ error: 'Phone number is required' });
-    }
-
-    const normalizedPhone = VerificationService.normalizePhoneNumber(phoneNumber).slice(-10);
-
-    const whitelistEntry = await WhitelistedPhone.findOneAndUpdate(
-      { phoneNumber: normalizedPhone },
-      { isAdminRequested: !!isAdminRequested },
-      { new: true }
-    );
-
-    if (!whitelistEntry) {
-      return res.status(404).json({ error: 'Phone number not found in whitelist' });
-    }
-
-    // Also update the User model if the user already exists
-    await User.findOneAndUpdate(
-      { phoneNumber: { $regex: normalizedPhone + '$' } },
-      { isAdmin: !!isAdminRequested }
-    );
-
-    res.status(200).json({
-      success: true,
-      message: `Admin status ${isAdminRequested ? 'granted' : 'revoked'}`,
-      data: whitelistEntry
-    });
-  } catch (error) {
-    console.error('Toggle admin error:', error);
     res.status(500).json({ error: 'Server error' });
   }
 });

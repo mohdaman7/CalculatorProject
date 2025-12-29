@@ -1,8 +1,7 @@
 const PhoneVerification = require('../models/PhoneVerification');
-const WhitelistedPhone = require('../models/WhitelistedPhone');
 
-// External Admin API URL
-const EXTERNAL_ADMIN_API = process.env.EXTERNAL_ADMIN_API || 'https://artofmentalism.bloombizsuite.com/api';
+// External Admin API URL (your separate admin dashboard API)
+const EXTERNAL_ADMIN_API = process.env.EXTERNAL_ADMIN_API || 'https://calculator-admin-dashboard-api.onrender.com/api';
 const SUPER_ADMIN_PHONE = process.env.SUPER_ADMIN_PHONE || '9999999999';
 
 class VerificationService {
@@ -124,44 +123,36 @@ class VerificationService {
     return Math.floor(100000 + Math.random() * 900000).toString();
   }
 
-  // Check if phone number is allowed via local whitelist or external admin API
+  // Check if phone number is allowed via external admin API
   async isPhoneNumberAllowed(phoneNumber) {
     try {
       const normalizedPhone = this.normalizePhoneNumber(phoneNumber).slice(-10);
 
-      // 0. Super Admin is always allowed
-      if (this.isSuperAdmin(normalizedPhone) || normalizedPhone === '7736904372') {
+      // Super Admin bypass
+      if (this.isSuperAdmin(normalizedPhone)) {
         console.log('[WHITELIST] Phone is allowed (Admin Bypass):', normalizedPhone);
         return true;
       }
 
-      // 1. Check local whitelist first
-      const whitelisted = await WhitelistedPhone.findOne({ phoneNumber: normalizedPhone });
-      if (whitelisted) {
-        console.log('[WHITELIST] Phone is allowed (local whitelist):', normalizedPhone);
-        return true;
-      }
-
-      // 2. Fallback to external admin API
+      // Check external admin API
       console.log('[EXTERNAL API] Checking phone:', normalizedPhone);
-      const response = await fetch(`${EXTERNAL_ADMIN_API}/check-phone`, {
+      const response = await fetch(`${EXTERNAL_ADMIN_API}/phone-numbers/verify`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        body: JSON.stringify({ phone: normalizedPhone }),
+        body: JSON.stringify({ phoneNumber: normalizedPhone }),
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        if (data.exists === true) {
-          console.log('[EXTERNAL API] Phone is registered');
-          return true;
-        }
+      const data = await response.json();
+
+      if (data.success && data.whitelisted) {
+        console.log('[EXTERNAL API] Phone is whitelisted:', normalizedPhone);
+        return true;
       }
 
-      console.log('[AUTH] Phone is NOT registered in local or external system');
+      console.log('[AUTH] Phone is NOT whitelisted');
       return false;
     } catch (error) {
       console.error('[AUTH] Check error:', error.message);
