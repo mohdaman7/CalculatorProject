@@ -501,8 +501,6 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
             <Button
               variant="orange"
               onClick={handleEquals}
-              onPointerDown={handleEqualsStart}
-              onPointerUp={handleEqualsEnd}
               label="="
               isOperator={true}
             />
