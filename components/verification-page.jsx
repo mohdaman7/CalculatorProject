@@ -125,6 +125,8 @@ const VerificationPage = ({ onVerificationComplete }) => {
         return;
       }
 
+      await initializeRecaptcha();
+
       const formattedPhone = selectedCountry.code + phoneNumber;
 
       if (!window.recaptchaVerifier) {
