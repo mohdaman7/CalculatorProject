@@ -1,2 +1,5 @@
 echo "backend/.env" >> .gitignore
 echo ".env" >> .gitignore
+
+
+config/firebase-admin.json
