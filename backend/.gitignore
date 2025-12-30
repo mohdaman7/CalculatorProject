@@ -1,5 +1,5 @@
 echo "backend/.env" >> .gitignore
 echo ".env" >> .gitignore
 
-
+# Firebase Admin SDK 
 config/firebase-admin.json
