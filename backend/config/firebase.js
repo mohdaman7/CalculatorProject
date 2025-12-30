@@ -1,10 +1,11 @@
 const admin = require('firebase-admin');
+const path = require('path');
 
-// Initialize Firebase Admin
-// You can use service account or just project ID for ID token verification
 if (!admin.apps.length) {
   admin.initializeApp({
-    projectId: process.env.FIREBASE_PROJECT_ID || 'calculator-49f7a'
+    credential: admin.credential.cert(
+      require(path.join(__dirname, 'firebase-admin.json'))
+    )
   });
 }
 
