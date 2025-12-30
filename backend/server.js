@@ -13,7 +13,7 @@ const verificationRoutes = require('./routes/verification');
 connectDB();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5002;
 
 // Security middleware
 app.use(helmet());
