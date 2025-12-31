@@ -7,6 +7,7 @@ import { verificationService } from "@/lib/verification-service";
 import { Phone, Shield, ArrowLeft, Loader2, CheckCircle2 } from "lucide-react";
 
 const COUNTRY_CODES = [
+  // ---- Existing ----
   { code: "+91", country: "India", flag: "🇮🇳", maxLength: 10 },
   { code: "+1", country: "USA / Canada", flag: "🇺🇸", maxLength: 10 },
   { code: "+44", country: "UK", flag: "🇬🇧", maxLength: 10 },
@@ -28,8 +29,50 @@ const COUNTRY_CODES = [
   { code: "+880", country: "Bangladesh", flag: "🇧🇩", maxLength: 10 },
   { code: "+977", country: "Nepal", flag: "🇳🇵", maxLength: 10 },
   { code: "+7", country: "Russia", flag: "🇷🇺", maxLength: 10 },
-  { code: "+27", country: "South Africa", flag: "🇿🇦", maxLength: 9 }
+  { code: "+27", country: "South Africa", flag: "🇿🇦", maxLength: 9 },
+
+  // ---- Middle East ----
+  { code: "+974", country: "Qatar", flag: "🇶🇦", maxLength: 8 },
+  { code: "+968", country: "Oman", flag: "🇴🇲", maxLength: 8 },
+  { code: "+973", country: "Bahrain", flag: "🇧🇭", maxLength: 8 },
+  { code: "+965", country: "Kuwait", flag: "🇰🇼", maxLength: 8 },
+  { code: "+962", country: "Jordan", flag: "🇯🇴", maxLength: 9 },
+  { code: "+961", country: "Lebanon", flag: "🇱🇧", maxLength: 8 },
+
+  // ---- Europe ----
+  { code: "+31", country: "Netherlands", flag: "🇳🇱", maxLength: 9 },
+  { code: "+32", country: "Belgium", flag: "🇧🇪", maxLength: 9 },
+  { code: "+41", country: "Switzerland", flag: "🇨🇭", maxLength: 9 },
+  { code: "+43", country: "Austria", flag: "🇦🇹", maxLength: 10 },
+  { code: "+46", country: "Sweden", flag: "🇸🇪", maxLength: 10 },
+  { code: "+45", country: "Denmark", flag: "🇩🇰", maxLength: 8 },
+  { code: "+47", country: "Norway", flag: "🇳🇴", maxLength: 8 },
+  { code: "+48", country: "Poland", flag: "🇵🇱", maxLength: 9 },
+  { code: "+351", country: "Portugal", flag: "🇵🇹", maxLength: 9 },
+  { code: "+30", country: "Greece", flag: "🇬🇷", maxLength: 10 },
+
+  // ---- Asia ----
+  { code: "+66", country: "Thailand", flag: "🇹🇭", maxLength: 9 },
+  { code: "+84", country: "Vietnam", flag: "🇻🇳", maxLength: 10 },
+  { code: "+92", country: "Pakistan", flag: "🇵🇰", maxLength: 10 },
+  { code: "+98", country: "Iran", flag: "🇮🇷", maxLength: 10 },
+  { code: "+852", country: "Hong Kong", flag: "🇭🇰", maxLength: 8 },
+  { code: "+886", country: "Taiwan", flag: "🇹🇼", maxLength: 9 },
+
+  // ---- Americas ----
+  { code: "+55", country: "Brazil", flag: "🇧🇷", maxLength: 11 },
+  { code: "+52", country: "Mexico", flag: "🇲🇽", maxLength: 10 },
+  { code: "+54", country: "Argentina", flag: "🇦🇷", maxLength: 10 },
+  { code: "+56", country: "Chile", flag: "🇨🇱", maxLength: 9 },
+  { code: "+57", country: "Colombia", flag: "🇨🇴", maxLength: 10 },
+
+  // ---- Africa ----
+  { code: "+234", country: "Nigeria", flag: "🇳🇬", maxLength: 10 },
+  { code: "+20", country: "Egypt", flag: "🇪🇬", maxLength: 10 },
+  { code: "+212", country: "Morocco", flag: "🇲🇦", maxLength: 9 },
+  { code: "+254", country: "Kenya", flag: "🇰🇪", maxLength: 9 }
 ];
+
 
 
 const VerificationPage = ({ onVerificationComplete }) => {
