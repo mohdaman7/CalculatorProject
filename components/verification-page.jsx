@@ -8,16 +8,29 @@ import { Phone, Shield, ArrowLeft, Loader2, CheckCircle2 } from "lucide-react";
 
 const COUNTRY_CODES = [
   { code: "+91", country: "India", flag: "🇮🇳", maxLength: 10 },
-  { code: "+1", country: "USA", flag: "🇺🇸", maxLength: 10 },
+  { code: "+1", country: "USA / Canada", flag: "🇺🇸", maxLength: 10 },
   { code: "+44", country: "UK", flag: "🇬🇧", maxLength: 10 },
   { code: "+971", country: "UAE", flag: "🇦🇪", maxLength: 9 },
   { code: "+966", country: "Saudi Arabia", flag: "🇸🇦", maxLength: 9 },
   { code: "+65", country: "Singapore", flag: "🇸🇬", maxLength: 8 },
+  { code: "+60", country: "Malaysia", flag: "🇲🇾", maxLength: 10 },
+  { code: "+62", country: "Indonesia", flag: "🇮🇩", maxLength: 11 },
+  { code: "+63", country: "Philippines", flag: "🇵🇭", maxLength: 10 },
   { code: "+61", country: "Australia", flag: "🇦🇺", maxLength: 9 },
   { code: "+49", country: "Germany", flag: "🇩🇪", maxLength: 11 },
   { code: "+33", country: "France", flag: "🇫🇷", maxLength: 9 },
+  { code: "+39", country: "Italy", flag: "🇮🇹", maxLength: 10 },
+  { code: "+34", country: "Spain", flag: "🇪🇸", maxLength: 9 },
   { code: "+81", country: "Japan", flag: "🇯🇵", maxLength: 10 },
+  { code: "+82", country: "South Korea", flag: "🇰🇷", maxLength: 10 },
+  { code: "+86", country: "China", flag: "🇨🇳", maxLength: 11 },
+  { code: "+94", country: "Sri Lanka", flag: "🇱🇰", maxLength: 9 },
+  { code: "+880", country: "Bangladesh", flag: "🇧🇩", maxLength: 10 },
+  { code: "+977", country: "Nepal", flag: "🇳🇵", maxLength: 10 },
+  { code: "+7", country: "Russia", flag: "🇷🇺", maxLength: 10 },
+  { code: "+27", country: "South Africa", flag: "🇿🇦", maxLength: 9 }
 ];
+
 
 const VerificationPage = ({ onVerificationComplete }) => {
   const [step, setStep] = useState("phone");
