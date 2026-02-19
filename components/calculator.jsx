@@ -505,28 +505,84 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
 
     const tokens = parsed.tokens;
 
-    // Determine if we should clear or append. 
-    // If the first token is an operator and we have a valid number on display, we append.
-    const isFirstTokenOp = ['+', '-', '×', '÷', '%'].includes(tokens[0]);
-    const hasCurrentValue = display !== "0" && !isNaN(parseFloat(display));
+    // Simulation variables to avoid stale state in loop
+    let localDisplay = display;
+    let localPreviousValue = previousValue;
+    let localOperation = operation;
+    let localAllOperands = [...allOperands];
+    let localWaitingForNewValue = waitingForNewValue;
+    let localFirstOperandYear = firstOperandYear;
 
-    if (!(isFirstTokenOp && hasCurrentValue)) {
-      handleClear();
+    // Decide if we're starting a fresh calculation or appending
+    const isFirstTokenOp = ['+', '-', '×', '÷', '%'].includes(tokens[0]);
+    const canAppend = localDisplay !== "0" && !isNaN(parseFloat(localDisplay));
+
+    if (!(isFirstTokenOp && canAppend)) {
+      localDisplay = "0";
+      localPreviousValue = null;
+      localOperation = null;
+      localAllOperands = [];
+      localWaitingForNewValue = false;
+      localFirstOperandYear = null;
     }
 
+    // Process tokens synchronously
     tokens.forEach((tok) => {
       const isOp = ['+', '-', '×', '÷', '%'].includes(tok);
+
       if (isOp) {
-        handleOperation(tok);
+        // Equivalent to handleOperation logic
+        const currentValue = Number.parseFloat(localDisplay);
+        if (localPreviousValue === null) {
+          localPreviousValue = currentValue;
+          localAllOperands = [localDisplay];
+        } else if (localOperation && !localWaitingForNewValue) {
+          const result = performCalculation(localPreviousValue, currentValue, localOperation);
+          localDisplay = String(result);
+          localPreviousValue = result;
+          localAllOperands.push(String(currentValue));
+        }
+        localOperation = tok;
+        localWaitingForNewValue = true;
       } else if (tok === '=') {
-        handleEquals();
+        // Special case: we don't fully replay handleEquals here because it has history
+        // logic that depends on current React state/props. 
+        // Instead, we just trigger a final calculation if needed.
+        if (localPreviousValue !== null && localOperation) {
+          const currentValue = Number.parseFloat(localDisplay);
+          const result = performCalculation(localPreviousValue, currentValue, localOperation);
+          localDisplay = String(result);
+          localPreviousValue = null;
+          localOperation = null;
+          localAllOperands = [];
+          localWaitingForNewValue = true;
+        }
       } else {
-        handleNumberClick(tok);
+        // Equivalent to handleNumberClick logic
+        if (localWaitingForNewValue) {
+          localDisplay = String(tok);
+          localWaitingForNewValue = false;
+        } else {
+          localDisplay = localDisplay === "0" ? String(tok) : localDisplay + String(tok);
+        }
       }
     });
 
+    // Bulk commit to React state
+    setDisplay(localDisplay);
+    setPreviousValue(localPreviousValue);
+    setOperation(localOperation);
+    setAllOperands(localAllOperands);
+    setWaitingForNewValue(localWaitingForNewValue);
+    setFirstOperandYear(localFirstOperandYear);
+
     resetTranscript();
-  }, [display, handleClear, handleOperation, handleNumberClick, handleEquals, resetTranscript]);
+
+    // If '=' was in tokens, specifically fire handleEquals to save to history
+    if (tokens.includes('=')) {
+      setTimeout(() => handleEquals(), 0);
+    }
+  }, [display, previousValue, operation, allOperands, waitingForNewValue, firstOperandYear, handleEquals, performCalculation, resetTranscript]);
 
   useEffect(() => {
     if (!listening && transcript) {
