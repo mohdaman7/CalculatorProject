@@ -20,7 +20,7 @@ const parseVoiceMath = (transcript) => {
   if (!transcript) return null;
   const t = transcript.toLowerCase().trim();
 
-  // Operator keyword patterns — ordered longest-match first to avoid partial hits
+  // Operator keyword patterns
   const opPatterns = [
     { regex: /\b(divided by|divide by)\b|[\/÷]/, op: '÷' },
     { regex: /\b(multiplied by|multiply by|times|into)\b|[*×xX]/, op: '×' },
@@ -29,14 +29,8 @@ const parseVoiceMath = (transcript) => {
     { regex: /\b(equals|is|total|result)\b|[=]/, op: '=' },
   ];
 
-  // Split transcript on any operator keyword, symbol, or equals, capturing the delimiter
+  // Split regex for operators
   const splitRegex = /\b(?:divided by|divide by|multiplied by|multiply by|times|into|added to|plus|add|subtracted from|subtract|minus|less|equals|is|total|result)\b|[\/÷*×xX+−-]/gi;
-
-  // AGGRESSIVE WORD-TO-DIGIT CONVERSION for single words or cases with no operators
-  const convertedT = wordsToNumbers(t, { fuzzy: true });
-  if (typeof convertedT === 'number') {
-    return { tokens: [String(convertedT)] };
-  }
 
   // Find all operator matches with positions
   const opMatches = [];
@@ -46,29 +40,33 @@ const parseVoiceMath = (transcript) => {
     opMatches.push({ start: m.index, end: m.index + m[0].length, text: m[0].trim() });
   }
 
-  if (opMatches.length === 0) {
-    // No operator found — try to extract a single number (fallback)
-    const numMatch = t.match(/[\d]+(?:\.[\d]+)?/)?.[0];
-    if (numMatch) return { tokens: [numMatch] };
+  // Helper to convert segments strictly
+  const convertSegment = (segment) => {
+    if (!segment) return null;
+    // Try literal words to numbers (NO FUZZY)
+    const conv = wordsToNumbers(segment);
+    if (typeof conv === 'number') return String(conv);
+
+    // Try to extract digits
+    const digits = segment.replace(/[^0-9.]/g, '');
+    if (digits && !isNaN(parseFloat(digits))) return digits;
+
     return null;
+  };
+
+  if (opMatches.length === 0) {
+    const num = convertSegment(t);
+    return num ? { tokens: [num] } : null;
   }
 
-  // Build tokens array
   const tokens = [];
   let lastEnd = 0;
 
   for (const opM of opMatches) {
-    // Text before this operator
     const segment = t.slice(lastEnd, opM.start).trim();
-    if (segment) {
-      const conv = wordsToNumbers(segment, { fuzzy: true });
-      const num = typeof conv === 'number'
-        ? String(conv)
-        : segment.match(/[\d]+(?:\.[\d]+)?/)?.[0];
-      if (num) tokens.push(num);
-    }
+    const num = convertSegment(segment);
+    if (num) tokens.push(num);
 
-    // Map operator keyword to symbol
     let opSymbol = null;
     for (const { regex: opR, op } of opPatterns) {
       if (opR.test(opM.text)) { opSymbol = op; break; }
@@ -77,21 +75,12 @@ const parseVoiceMath = (transcript) => {
     lastEnd = opM.end;
   }
 
-  // Last number segment after final operator
   const tail = t.slice(lastEnd).trim();
-  if (tail) {
-    const conv = wordsToNumbers(tail, { fuzzy: true });
-    const num = typeof conv === 'number'
-      ? String(conv)
-      : tail.match(/[\d]+(?:\.[\d]+)?/)?.[0];
-    if (num) tokens.push(num);
-  }
+  const tailNum = convertSegment(tail);
+  if (tailNum) tokens.push(tailNum);
 
-  // Filter out any undefined or NaN tokens
-  const cleanTokens = tokens.filter(tok => tok != null && tok !== "NaN");
-
-  if (cleanTokens.length === 0) return null;
-  return { tokens: cleanTokens };
+  const cleanTokens = tokens.filter(tok => tok != null);
+  return cleanTokens.length > 0 ? { tokens: cleanTokens } : null;
 };
 
 const formatNumberWithCommas = (value) => {
@@ -505,7 +494,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
 
     const tokens = parsed.tokens;
 
-    // Simulation variables to avoid stale state in loop
+    // Simulation variables
     let localDisplay = display;
     let localPreviousValue = previousValue;
     let localOperation = operation;
@@ -513,11 +502,11 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
     let localWaitingForNewValue = waitingForNewValue;
     let localFirstOperandYear = firstOperandYear;
 
-    // Decide if we're starting a fresh calculation or appending
     const isFirstTokenOp = ['+', '-', '×', '÷', '%'].includes(tokens[0]);
     const canAppend = localDisplay !== "0" && !isNaN(parseFloat(localDisplay));
 
     if (!(isFirstTokenOp && canAppend)) {
+      // Clear all state for a fresh start unless we are appending
       localDisplay = "0";
       localPreviousValue = null;
       localOperation = null;
@@ -526,12 +515,10 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
       localFirstOperandYear = null;
     }
 
-    // Process tokens synchronously
     tokens.forEach((tok) => {
       const isOp = ['+', '-', '×', '÷', '%'].includes(tok);
 
       if (isOp) {
-        // Equivalent to handleOperation logic
         const currentValue = Number.parseFloat(localDisplay);
         if (localPreviousValue === null) {
           localPreviousValue = currentValue;
@@ -545,9 +532,6 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
         localOperation = tok;
         localWaitingForNewValue = true;
       } else if (tok === '=') {
-        // Special case: we don't fully replay handleEquals here because it has history
-        // logic that depends on current React state/props. 
-        // Instead, we just trigger a final calculation if needed.
         if (localPreviousValue !== null && localOperation) {
           const currentValue = Number.parseFloat(localDisplay);
           const result = performCalculation(localPreviousValue, currentValue, localOperation);
@@ -558,7 +542,6 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
           localWaitingForNewValue = true;
         }
       } else {
-        // Equivalent to handleNumberClick logic
         if (localWaitingForNewValue) {
           localDisplay = String(tok);
           localWaitingForNewValue = false;
@@ -568,7 +551,12 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
       }
     });
 
-    // Bulk commit to React state
+    // FINALIZATION: If we didn't end with '=', we keep the tokens as the display
+    // for a "literal" match, but we must ensure the NEXT action works.
+    // If the last token wasn't '=', the user might expect to see the expression.
+    // However, to keep the calculator working, we commit the STATE.
+    // We update the React state to the simulated final state.
+
     setDisplay(localDisplay);
     setPreviousValue(localPreviousValue);
     setOperation(localOperation);
@@ -578,7 +566,6 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
 
     resetTranscript();
 
-    // If '=' was in tokens, specifically fire handleEquals to save to history
     if (tokens.includes('=')) {
       setTimeout(() => handleEquals(), 0);
     }
@@ -729,21 +716,10 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
         const parsed = parseVoiceMath(transcript);
         if (parsed && parsed.tokens) {
           const expression = parsed.tokens.join(' ');
-          // Safety: Don't show NaN
-          if (!expression.includes("NaN")) {
-            setDisplay(expression);
-          }
+          setDisplay(expression);
 
           if (parsed.tokens.includes('=')) {
-            // Stop recording; commitment happens in the !listening effect
             stopRecording();
-          }
-        } else {
-          // Fallback for partials
-          const conv = wordsToNumbers(transcript, { fuzzy: true });
-          const displayVal = (typeof conv === 'number') ? String(conv) : transcript;
-          if (displayVal !== "NaN" && displayVal.trim() !== "") {
-            setDisplay(displayVal.toLowerCase());
           }
         }
       }
