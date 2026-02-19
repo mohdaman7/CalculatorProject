@@ -27,6 +27,20 @@ body {
   width: 100%;
   overscroll-behavior: none;
   -webkit-overflow-scrolling: touch;
+  /* Prevent system context menus and selection for a native feel */
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+/* Ensure buttons don't show selection or highlights */
+button,
+[role="button"],
+.cursor-pointer {
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  touch-action: manipulation;
 }
 
 /* Animations */

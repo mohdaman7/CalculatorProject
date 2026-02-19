@@ -79,8 +79,14 @@ const Button = ({ variant, onClick, onPointerDown, onPointerUp, label, wide, isO
   };
 
   const handlePointerDown = (e) => {
-    e.currentTarget.setPointerCapture(e.pointerId);
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch (err) { /* ignore capture errors */ }
     setIsPressed(true);
+    // Add a light haptic feedback on touch start
+    if (typeof window !== 'undefined' && window.navigator && window.navigator.vibrate) {
+      window.navigator.vibrate(10);
+    }
     onPointerDown?.(e);
   };
 
@@ -157,7 +163,8 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
   const voiceHoldTimerRef = useRef(null);
   const voiceLockedRef = useRef(false);   // true while recording is locked
   const justLockedRef = useRef(false);    // suppresses the onClick after hold fires
-  const holdStartTimeRef = useRef(0);
+  // holdStartTimeRef is used for +/- long press ONLY for voice
+  const voiceHoldStartTimeRef = useRef(0);
 
   // Load mode from localStorage on client mount only
   useEffect(() => {
@@ -188,6 +195,11 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
       recognitionRef.current = null;
     }
     setIsRecording(false);
+
+    // Light haptic for recording stop
+    if (typeof window !== 'undefined' && window.navigator && window.navigator.vibrate) {
+      window.navigator.vibrate(15);
+    }
   }, []);
 
 
@@ -195,45 +207,90 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) return;
 
-    /** Parse spoken math via words-to-numbers, e.g. "twenty five plus three" */
+    /**
+     * Robust multi-number, multi-operation voice math parser.
+     * Tokenizes the transcript into [number, operator, number, operator, number, ...]
+     * Examples:
+     *   "twenty five plus three" → tokens: [25, '+', 3]
+     *   "one hundred minus forty plus six" → tokens: [100, '-', 40, '+', 6]
+     *   "twelve times five" → tokens: [12, '×', 5]
+     */
     const parseVoiceMath = (transcript) => {
       const t = transcript.toLowerCase().trim();
 
-      const opMap = [
-        { pattern: /\b(plus|add|added to|and)\b/, op: '+' },
-        { pattern: /\b(minus|subtract|subtracted|less)\b/, op: '-' },
-        { pattern: /\b(times|multiplied by|multiply|into|x)\b/, op: '×' },
-        { pattern: /\b(divided by|divide by|over|by)\b/, op: '÷' },
+      // Operator keyword patterns — ordered longest-match first to avoid partial hits
+      const opPatterns = [
+        { regex: /\b(divided by|divide by)\b/, op: '÷' },
+        { regex: /\b(multiplied by|multiply by|times|into)\b/, op: '×' },
+        { regex: /\b(added to|plus|add)\b/, op: '+' },
+        { regex: /\b(subtracted from|subtract|minus|less)\b/, op: '-' },
+        // Digit-style operators in transcript
+        { regex: /\s[xX]\s/, op: '×' },
       ];
 
-      for (const { pattern, op } of opMap) {
-        const match = t.match(pattern);
-        if (match) {
-          const idx = t.indexOf(match[0]);
-          const leftRaw = t.slice(0, idx).trim();
-          const rightRaw = t.slice(idx + match[0].length).trim();
+      // Split transcript on any operator keyword, capturing the delimiter
+      // Build a combined regex to split:
+      const splitRegex = /\b(?:divided by|divide by|multiplied by|multiply by|times|into|added to|plus|add|subtracted from|subtract|minus|less)\b|\s[xX]\s/gi;
 
-          const leftConverted = wordsToNumbers(leftRaw, { fuzzy: true });
-          const rightConverted = wordsToNumbers(rightRaw, { fuzzy: true });
-
-          const left = typeof leftConverted === 'number'
-            ? String(leftConverted)
-            : String(leftRaw).match(/[\d.]+/)?.[0];
-          const right = typeof rightConverted === 'number'
-            ? String(rightConverted)
-            : String(rightRaw).match(/[\d.]+/)?.[0];
-
-          if (left && right) return { first: left, op, second: right };
-        }
+      // Find all operator matches with positions
+      const opMatches = [];
+      let m;
+      const regex = new RegExp(splitRegex.source, 'gi');
+      while ((m = regex.exec(t)) !== null) {
+        opMatches.push({ start: m.index, end: m.index + m[0].length, text: m[0].trim() });
       }
 
-      // Single number
-      const converted = wordsToNumbers(t, { fuzzy: true });
-      const num = typeof converted === 'number'
-        ? String(converted)
-        : String(t).match(/[\d.]+/)?.[0];
-      if (num) return { first: num, op: null, second: null };
-      return null;
+      if (opMatches.length === 0) {
+        // No operator found — try to extract a single number
+        const converted = wordsToNumbers(t, { fuzzy: true });
+        const num = typeof converted === 'number'
+          ? String(converted)
+          : t.match(/[\d]+(?:\.[\d]+)?/)?.[0];
+        if (num) return { tokens: [num] };
+        return null;
+      }
+
+      // Build tokens array
+      const tokens = [];
+      let lastEnd = 0;
+
+      for (const opM of opMatches) {
+        // Text before this operator
+        const segment = t.slice(lastEnd, opM.start).trim();
+        if (segment) {
+          const conv = wordsToNumbers(segment, { fuzzy: true });
+          const num = typeof conv === 'number'
+            ? String(conv)
+            : segment.match(/[\d]+(?:\.[\d]+)?/)?.[0];
+          if (num) tokens.push(num);
+        }
+
+        // Map operator keyword to symbol
+        let opSymbol = null;
+        for (const { regex: opR, op } of opPatterns) {
+          if (opR.test(opM.text)) { opSymbol = op; break; }
+        }
+        if (opSymbol) tokens.push(opSymbol);
+        lastEnd = opM.end;
+      }
+
+      // Last number segment after final operator
+      const tail = t.slice(lastEnd).trim();
+      if (tail) {
+        const conv = wordsToNumbers(tail, { fuzzy: true });
+        const num = typeof conv === 'number'
+          ? String(conv)
+          : tail.match(/[\d]+(?:\.[\d]+)?/)?.[0];
+        if (num) tokens.push(num);
+      }
+
+      // Validate: must start/end with number and alternate [num, op, num, op, num, ...]
+      if (tokens.length < 3) {
+        // Maybe single number with no valid op
+        if (tokens.length === 1) return { tokens };
+        return null;
+      }
+      return { tokens };
     };
 
     const createAndStart = () => {
@@ -251,17 +308,70 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
             const transcript = results[i][0].transcript.trim();
             if (!transcript) continue;
             const parsed = parseVoiceMath(transcript);
-            if (parsed) {
-              if (parsed.op && parsed.second) {
-                setDisplay(parsed.first);
-                setPreviousValue(parseFloat(parsed.first));
-                setOperation(parsed.op);
-                setAllOperands([parsed.first]);
-                setWaitingForNewValue(false);
-                setTimeout(() => setDisplay(parsed.second), 50);
-              } else {
-                setDisplay(parsed.first);
-                setWaitingForNewValue(false);
+            if (!parsed || !parsed.tokens || parsed.tokens.length === 0) continue;
+
+            const tokens = parsed.tokens;
+
+            if (tokens.length === 1) {
+              // Single number
+              setDisplay(tokens[0]);
+              setWaitingForNewValue(false);
+            } else {
+              // Multi-token: [num, op, num, op, num, ...]
+              // Reset calculator state, then feed tokens one by one:
+              // First number → set display
+              // Then for each (op, num) pair → call handleOperation then set display
+              const firstNum = tokens[0];
+              setDisplay(firstNum);
+              setPreviousValue(null);
+              setOperation(null);
+              setAllOperands([]);
+              setWaitingForNewValue(false);
+
+              // Process subsequent (operator, number) pairs
+              let currentPrev = parseFloat(firstNum);
+              let currentOp = null;
+
+              for (let j = 1; j < tokens.length; j++) {
+                const tok = tokens[j];
+                const isOp = ['+', '-', '×', '÷'].includes(tok);
+
+                if (isOp) {
+                  currentOp = tok;
+                } else {
+                  // It's a number — apply pending operation
+                  if (currentOp === null) {
+                    // No operation yet, just set display
+                    setDisplay(tok);
+                    setPreviousValue(null);
+                    setAllOperands([firstNum]);
+                    setWaitingForNewValue(false);
+                  } else if (j === tokens.length - 1) {
+                    // This is the LAST number: set state so user sees full expression on display
+                    // but leave it pending (not auto-calculated) — mirrors manual calculator flow
+                    const captured = currentOp;
+                    const capturedPrev = currentPrev;
+                    const capturedNum = tok;
+                    // Chain: intermediate results for all but last pair
+                    setPreviousValue(capturedPrev);
+                    setOperation(captured);
+                    setAllOperands(prev => {
+                      const existing = prev.length ? prev : [firstNum];
+                      return existing;
+                    });
+                    setDisplay(capturedNum);
+                    setWaitingForNewValue(false);
+                  } else {
+                    // Intermediate: compute result and continue
+                    let result = currentPrev;
+                    if (currentOp === '+') result = currentPrev + parseFloat(tok);
+                    else if (currentOp === '-') result = currentPrev - parseFloat(tok);
+                    else if (currentOp === '×') result = currentPrev * parseFloat(tok);
+                    else if (currentOp === '÷') result = currentPrev / parseFloat(tok);
+                    currentPrev = result;
+                    currentOp = null;
+                  }
+                }
               }
             }
           }
@@ -295,6 +405,12 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
 
     voiceLockedRef.current = true;
     setIsRecording(true);
+
+    // Stronger haptic for recording start
+    if (typeof window !== 'undefined' && window.navigator && window.navigator.vibrate) {
+      window.navigator.vibrate([20, 10, 20]);
+    }
+
     createAndStart();
 
     // Hard 30-second auto-stop
@@ -311,44 +427,47 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
     };
   }, [stopRecording]);
 
-  // PointerDown on = : start 800ms hold timer to lock recording
-  const handleEqualsPointerDown = () => {
-    holdStartTimeRef.current = Date.now();
+  // ─── Voice trigger moved to +/- button ───
+  // PointerDown on +/- : start 800ms hold timer to lock recording
+  const handleToggleSignPointerDown = () => {
+    voiceHoldStartTimeRef.current = Date.now();
     justLockedRef.current = false;
-    if (voiceLockedRef.current) return; // already recording, ignore
+    if (voiceLockedRef.current) return; // already recording — let click handle stop
 
     voiceHoldTimerRef.current = setTimeout(() => {
       voiceHoldTimerRef.current = null;
-      justLockedRef.current = true;   // tell onClick to ignore next click
+      justLockedRef.current = true;   // suppress the onClick toggle-sign after hold fires
       startRecording();
     }, 800);
   };
 
-  // PointerUp on = : only cancel hold timer if it hasn't fired yet
-  const handleEqualsPointerUp = () => {
+  // PointerUp on +/- : cancel hold timer if not fired yet
+  const handleToggleSignPointerUp = () => {
     if (voiceHoldTimerRef.current) {
       clearTimeout(voiceHoldTimerRef.current);
       voiceHoldTimerRef.current = null;
     }
-    // NOTE: do NOT call stopRecording here — locking is intentional
+    // Do NOT stop recording here — locking is intentional
   };
 
-  // Click on = :
-  //  • justLockedRef=true  → hold just fired, skip this click entirely
-  //  • isRecording=true    → user deliberately tapped to STOP
-  //  • otherwise           → normal equals
-  const handleEqualsClick = () => {
-    // Suppress the click that comes right after a hold fires
+  // Click on +/- :
+  //  • justLockedRef=true  → hold just fired, skip (recording just started)
+  //  • isRecording=true    → deliberate tap to STOP recording
+  //  • otherwise           → normal toggle sign
+  const handleToggleSignClick = () => {
     if (justLockedRef.current) {
       justLockedRef.current = false;
       return;
     }
     if (voiceLockedRef.current) {
-      // Recording is locked — deliberate tap to stop
       stopRecording();
       return;
     }
-    // Normal short tap → run equals
+    handleToggleSign();
+  };
+
+  // = button is now pure equals — no voice logic
+  const handleEqualsClick = () => {
     handleEquals();
   };
 
@@ -435,10 +554,6 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
   };
 
   const handleEquals = () => {
-    const pressDuration = pressStartTimeRef.current > 0 ? Date.now() - pressStartTimeRef.current : 0;
-    // Suppress normal equals behavior if this was a long-press (longer than 500ms)
-    if (pressDuration > 500) return;
-
     const currentValue = Number.parseFloat(display);
 
     // Check if display is a 4-digit year (1900-2100) - pure year check
@@ -692,7 +807,14 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
             />
 
             {/* Row 5 - Last Row */}
-            <Button variant="gray" onClick={handleToggleSign} label="+/−" />
+            <Button
+              variant="gray"
+              onClick={handleToggleSignClick}
+              onPointerDown={handleToggleSignPointerDown}
+              onPointerUp={handleToggleSignPointerUp}
+              label="+/−"
+              isRecording={isRecording}
+            />
             <Button variant="gray" onClick={() => handleNumberClick(0)} label="0" />
             <Button
               variant="gray"
@@ -704,11 +826,8 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
             <Button
               variant="orange"
               onClick={handleEqualsClick}
-              onPointerDown={handleEqualsPointerDown}
-              onPointerUp={handleEqualsPointerUp}
               label="="
               isOperator={true}
-              isRecording={isRecording}
             />
           </div>
         </div>
