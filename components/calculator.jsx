@@ -5,6 +5,94 @@ import { pincodeService } from "@/lib/pincode-service";
 import { IoBackspaceOutline } from "react-icons/io5";
 import { IoCheckmarkCircle, IoCloseCircle } from "react-icons/io5";
 import wordsToNumbers from "words-to-numbers";
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+import 'regenerator-runtime/runtime';
+
+/**
+ * Robust multi-number, multi-operation voice math parser.
+ * Tokenizes the transcript into [number, operator, number, operator, number, ...]
+ * Examples:
+ *   "twenty five plus three" → tokens: [25, '+', 3]
+ *   "one hundred minus forty plus six" → tokens: [100, '-', 40, '+', 6]
+ *   "twelve times five" → tokens: [12, '×', 5]
+ */
+const parseVoiceMath = (transcript) => {
+  const t = transcript.toLowerCase().trim();
+
+  // Operator keyword patterns — ordered longest-match first to avoid partial hits
+  const opPatterns = [
+    { regex: /\b(divided by|divide by)\b/, op: '÷' },
+    { regex: /\b(multiplied by|multiply by|times|into)\b/, op: '×' },
+    { regex: /\b(added to|plus|add)\b/, op: '+' },
+    { regex: /\b(subtracted from|subtract|minus|less)\b/, op: '-' },
+    // Digit-style operators in transcript
+    { regex: /\s[xX]\s/, op: '×' },
+  ];
+
+  // Split transcript on any operator keyword, capturing the delimiter
+  // Build a combined regex to split:
+  const splitRegex = /\b(?:divided by|divide by|multiplied by|multiply by|times|into|added to|plus|add|subtracted from|subtract|minus|less)\b|\s[xX]\s/gi;
+
+  // Find all operator matches with positions
+  const opMatches = [];
+  let m;
+  const regex = new RegExp(splitRegex.source, 'gi');
+  while ((m = regex.exec(t)) !== null) {
+    opMatches.push({ start: m.index, end: m.index + m[0].length, text: m[0].trim() });
+  }
+
+  if (opMatches.length === 0) {
+    // No operator found — try to extract a single number
+    const converted = wordsToNumbers(t, { fuzzy: true });
+    const num = typeof converted === 'number'
+      ? String(converted)
+      : t.match(/[\d]+(?:\.[\d]+)?/)?.[0];
+    if (num) return { tokens: [num] };
+    return null;
+  }
+
+  // Build tokens array
+  const tokens = [];
+  let lastEnd = 0;
+
+  for (const opM of opMatches) {
+    // Text before this operator
+    const segment = t.slice(lastEnd, opM.start).trim();
+    if (segment) {
+      const conv = wordsToNumbers(segment, { fuzzy: true });
+      const num = typeof conv === 'number'
+        ? String(conv)
+        : segment.match(/[\d]+(?:\.[\d]+)?/)?.[0];
+      if (num) tokens.push(num);
+    }
+
+    // Map operator keyword to symbol
+    let opSymbol = null;
+    for (const { regex: opR, op } of opPatterns) {
+      if (opR.test(opM.text)) { opSymbol = op; break; }
+    }
+    if (opSymbol) tokens.push(opSymbol);
+    lastEnd = opM.end;
+  }
+
+  // Last number segment after final operator
+  const tail = t.slice(lastEnd).trim();
+  if (tail) {
+    const conv = wordsToNumbers(tail, { fuzzy: true });
+    const num = typeof conv === 'number'
+      ? String(conv)
+      : tail.match(/[\d]+(?:\.[\d]+)?/)?.[0];
+    if (num) tokens.push(num);
+  }
+
+  // Validate: must start/end with number and alternate [num, op, num, op, num, ...]
+  if (tokens.length < 3) {
+    // Maybe single number with no valid op
+    if (tokens.length === 1) return { tokens };
+    return null;
+  }
+  return { tokens };
+};
 
 const formatNumberWithCommas = (value) => {
   if (!value || value === "0") return value;
@@ -156,15 +244,25 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
   const [modeLoaded, setModeLoaded] = useState(false);
   const [firstOperandYear, setFirstOperandYear] = useState(null);
 
-  // ── Voice Recording ──
-  const [isRecording, setIsRecording] = useState(false);
-  const recognitionRef = useRef(null);
+  // ── Voice Recording with react-speech-recognition ──
+  const {
+    transcript,
+    listening,
+    resetTranscript,
+    browserSupportsSpeechRecognition
+  } = useSpeechRecognition();
+
+  const [isRecording, setIsRecording] = useState(listening);
   const autoStopTimerRef = useRef(null);
   const voiceHoldTimerRef = useRef(null);
   const voiceLockedRef = useRef(false);   // true while recording is locked
   const justLockedRef = useRef(false);    // suppresses the onClick after hold fires
   // holdStartTimeRef is used for +/- long press ONLY for voice
   const voiceHoldStartTimeRef = useRef(0);
+
+  useEffect(() => {
+    setIsRecording(listening);
+  }, [listening]);
 
   // Load mode from localStorage on client mount only
   useEffect(() => {
@@ -185,16 +283,12 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
 
   // ── Voice helpers ──
   const stopRecording = useCallback(() => {
-    voiceLockedRef.current = false;   // unlock first so onend doesn't restart
+    voiceLockedRef.current = false;
     if (autoStopTimerRef.current) {
       clearTimeout(autoStopTimerRef.current);
       autoStopTimerRef.current = null;
     }
-    if (recognitionRef.current) {
-      try { recognitionRef.current.stop(); } catch (_) { }
-      recognitionRef.current = null;
-    }
-    setIsRecording(false);
+    SpeechRecognition.stopListening();
 
     // Light haptic for recording stop
     if (typeof window !== 'undefined' && window.navigator && window.navigator.vibrate) {
@@ -202,222 +296,95 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
     }
   }, []);
 
+  const handleVoiceCommand = useCallback((text) => {
+    if (!text) return;
+    const parsed = parseVoiceMath(text);
+    if (!parsed || !parsed.tokens || parsed.tokens.length === 0) return;
 
-  const startRecording = useCallback(() => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) return;
+    const tokens = parsed.tokens;
 
-    /**
-     * Robust multi-number, multi-operation voice math parser.
-     * Tokenizes the transcript into [number, operator, number, operator, number, ...]
-     * Examples:
-     *   "twenty five plus three" → tokens: [25, '+', 3]
-     *   "one hundred minus forty plus six" → tokens: [100, '-', 40, '+', 6]
-     *   "twelve times five" → tokens: [12, '×', 5]
-     */
-    const parseVoiceMath = (transcript) => {
-      const t = transcript.toLowerCase().trim();
+    if (tokens.length === 1) {
+      // Single number
+      setDisplay(tokens[0]);
+      setWaitingForNewValue(false);
+    } else {
+      // Multi-token: [num, op, num, op, num, ...]
+      const firstNum = tokens[0];
+      setDisplay(firstNum);
+      setPreviousValue(null);
+      setOperation(null);
+      setAllOperands([]);
+      setWaitingForNewValue(false);
 
-      // Operator keyword patterns — ordered longest-match first to avoid partial hits
-      const opPatterns = [
-        { regex: /\b(divided by|divide by)\b/, op: '÷' },
-        { regex: /\b(multiplied by|multiply by|times|into)\b/, op: '×' },
-        { regex: /\b(added to|plus|add)\b/, op: '+' },
-        { regex: /\b(subtracted from|subtract|minus|less)\b/, op: '-' },
-        // Digit-style operators in transcript
-        { regex: /\s[xX]\s/, op: '×' },
-      ];
+      let currentPrev = parseFloat(firstNum);
+      let currentOp = null;
 
-      // Split transcript on any operator keyword, capturing the delimiter
-      // Build a combined regex to split:
-      const splitRegex = /\b(?:divided by|divide by|multiplied by|multiply by|times|into|added to|plus|add|subtracted from|subtract|minus|less)\b|\s[xX]\s/gi;
+      for (let j = 1; j < tokens.length; j++) {
+        const tok = tokens[j];
+        const isOp = ['+', '-', '×', '÷'].includes(tok);
 
-      // Find all operator matches with positions
-      const opMatches = [];
-      let m;
-      const regex = new RegExp(splitRegex.source, 'gi');
-      while ((m = regex.exec(t)) !== null) {
-        opMatches.push({ start: m.index, end: m.index + m[0].length, text: m[0].trim() });
-      }
-
-      if (opMatches.length === 0) {
-        // No operator found — try to extract a single number
-        const converted = wordsToNumbers(t, { fuzzy: true });
-        const num = typeof converted === 'number'
-          ? String(converted)
-          : t.match(/[\d]+(?:\.[\d]+)?/)?.[0];
-        if (num) return { tokens: [num] };
-        return null;
-      }
-
-      // Build tokens array
-      const tokens = [];
-      let lastEnd = 0;
-
-      for (const opM of opMatches) {
-        // Text before this operator
-        const segment = t.slice(lastEnd, opM.start).trim();
-        if (segment) {
-          const conv = wordsToNumbers(segment, { fuzzy: true });
-          const num = typeof conv === 'number'
-            ? String(conv)
-            : segment.match(/[\d]+(?:\.[\d]+)?/)?.[0];
-          if (num) tokens.push(num);
-        }
-
-        // Map operator keyword to symbol
-        let opSymbol = null;
-        for (const { regex: opR, op } of opPatterns) {
-          if (opR.test(opM.text)) { opSymbol = op; break; }
-        }
-        if (opSymbol) tokens.push(opSymbol);
-        lastEnd = opM.end;
-      }
-
-      // Last number segment after final operator
-      const tail = t.slice(lastEnd).trim();
-      if (tail) {
-        const conv = wordsToNumbers(tail, { fuzzy: true });
-        const num = typeof conv === 'number'
-          ? String(conv)
-          : tail.match(/[\d]+(?:\.[\d]+)?/)?.[0];
-        if (num) tokens.push(num);
-      }
-
-      // Validate: must start/end with number and alternate [num, op, num, op, num, ...]
-      if (tokens.length < 3) {
-        // Maybe single number with no valid op
-        if (tokens.length === 1) return { tokens };
-        return null;
-      }
-      return { tokens };
-    };
-
-    const createAndStart = () => {
-      const recognition = new SpeechRecognition();
-      recognition.lang = 'en-IN';          // better for Indian-English accent
-      recognition.continuous = true;        // keep listening without cutting off
-      recognition.interimResults = false;   // only fire on confident results
-      recognition.maxAlternatives = 1;
-
-      recognition.onresult = (event) => {
-        // Pick the latest final result
-        const results = event.results;
-        for (let i = event.resultIndex; i < results.length; i++) {
-          if (results[i].isFinal) {
-            const transcript = results[i][0].transcript.trim();
-            if (!transcript) continue;
-            const parsed = parseVoiceMath(transcript);
-            if (!parsed || !parsed.tokens || parsed.tokens.length === 0) continue;
-
-            const tokens = parsed.tokens;
-
-            if (tokens.length === 1) {
-              // Single number
-              setDisplay(tokens[0]);
-              setWaitingForNewValue(false);
-            } else {
-              // Multi-token: [num, op, num, op, num, ...]
-              // Reset calculator state, then feed tokens one by one:
-              // First number → set display
-              // Then for each (op, num) pair → call handleOperation then set display
-              const firstNum = tokens[0];
-              setDisplay(firstNum);
-              setPreviousValue(null);
-              setOperation(null);
-              setAllOperands([]);
-              setWaitingForNewValue(false);
-
-              // Process subsequent (operator, number) pairs
-              let currentPrev = parseFloat(firstNum);
-              let currentOp = null;
-
-              for (let j = 1; j < tokens.length; j++) {
-                const tok = tokens[j];
-                const isOp = ['+', '-', '×', '÷'].includes(tok);
-
-                if (isOp) {
-                  currentOp = tok;
-                } else {
-                  // It's a number — apply pending operation
-                  if (currentOp === null) {
-                    // No operation yet, just set display
-                    setDisplay(tok);
-                    setPreviousValue(null);
-                    setAllOperands([firstNum]);
-                    setWaitingForNewValue(false);
-                  } else if (j === tokens.length - 1) {
-                    // This is the LAST number: set state so user sees full expression on display
-                    // but leave it pending (not auto-calculated) — mirrors manual calculator flow
-                    const captured = currentOp;
-                    const capturedPrev = currentPrev;
-                    const capturedNum = tok;
-                    // Chain: intermediate results for all but last pair
-                    setPreviousValue(capturedPrev);
-                    setOperation(captured);
-                    setAllOperands(prev => {
-                      const existing = prev.length ? prev : [firstNum];
-                      return existing;
-                    });
-                    setDisplay(capturedNum);
-                    setWaitingForNewValue(false);
-                  } else {
-                    // Intermediate: compute result and continue
-                    let result = currentPrev;
-                    if (currentOp === '+') result = currentPrev + parseFloat(tok);
-                    else if (currentOp === '-') result = currentPrev - parseFloat(tok);
-                    else if (currentOp === '×') result = currentPrev * parseFloat(tok);
-                    else if (currentOp === '÷') result = currentPrev / parseFloat(tok);
-                    currentPrev = result;
-                    currentOp = null;
-                  }
-                }
-              }
-            }
+        if (isOp) {
+          currentOp = tok;
+        } else {
+          if (currentOp === null) {
+            setDisplay(tok);
+            setPreviousValue(null);
+            setAllOperands([firstNum]);
+            setWaitingForNewValue(false);
+          } else if (j === tokens.length - 1) {
+            const captured = currentOp;
+            const capturedPrev = currentPrev;
+            const capturedNum = tok;
+            setPreviousValue(capturedPrev);
+            setOperation(captured);
+            setAllOperands(prev => {
+              const existing = prev.length ? prev : [firstNum];
+              return existing;
+            });
+            setDisplay(capturedNum);
+            setWaitingForNewValue(false);
+          } else {
+            let result = currentPrev;
+            if (currentOp === '+') result = currentPrev + parseFloat(tok);
+            else if (currentOp === '-') result = currentPrev - parseFloat(tok);
+            else if (currentOp === '×') result = currentPrev * parseFloat(tok);
+            else if (currentOp === '÷') result = currentPrev / parseFloat(tok);
+            currentPrev = result;
+            currentOp = null;
           }
         }
-      };
-
-      // Auto-restart when browser cuts off (keeps it "locked on")
-      recognition.onend = () => {
-        if (voiceLockedRef.current) {
-          // Still locked → restart immediately
-          try { createAndStart(); } catch (_) { }
-        } else {
-          setIsRecording(false);
-        }
-      };
-
-      recognition.onerror = (e) => {
-        // 'no-speech' is normal; keep going if still locked
-        if (e.error === 'no-speech' && voiceLockedRef.current) return;
-        if (e.error === 'aborted') return;  // we triggered stop ourselves
-        stopRecording();
-      };
-
-      try {
-        recognition.start();
-        recognitionRef.current = recognition;
-      } catch (_) {
-        setIsRecording(false);
       }
-    };
+    }
+    resetTranscript();
+  }, [resetTranscript]);
 
+  useEffect(() => {
+    if (!listening && transcript) {
+      handleVoiceCommand(transcript);
+    }
+  }, [listening, transcript, handleVoiceCommand]);
+
+  const startRecording = useCallback(() => {
+    if (!browserSupportsSpeechRecognition) return;
+
+    resetTranscript();
     voiceLockedRef.current = true;
-    setIsRecording(true);
+
+    SpeechRecognition.startListening({
+      continuous: true,
+      language: 'en-IN'
+    });
 
     // Stronger haptic for recording start
     if (typeof window !== 'undefined' && window.navigator && window.navigator.vibrate) {
       window.navigator.vibrate([20, 10, 20]);
     }
 
-    createAndStart();
-
     // Hard 30-second auto-stop
     autoStopTimerRef.current = setTimeout(() => {
       stopRecording();
     }, 30000);
-  }, [stopRecording]);
+  }, [browserSupportsSpeechRecognition, resetTranscript, stopRecording]);
 
   // Cleanup on unmount
   useEffect(() => {
