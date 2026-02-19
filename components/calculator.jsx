@@ -269,6 +269,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
 
   const handleToggleSign = useCallback(() => {
     const currentValue = Number.parseFloat(display);
+    if (isNaN(currentValue)) return; // Safety check
     setDisplay(String(currentValue * -1));
   }, [display]);
 
@@ -284,13 +285,14 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
   const handleOperation = useCallback((op) => {
     let currentValue = Number.parseFloat(display);
 
-    // If we have a literal expression on display (from voice), evaluate it first
-    if (display.includes(' ') && !isNaN(currentValue)) {
-      // The internal state (previousValue, operation) is already updated by handleVoiceCommand
-      // So we just use the existing logic but ensure currentValue is correct if display was literal
-      // Actually, if display is literal, our internal previousValue is already the result.
-      // We just need to ensure we don't overwrite it with the first part of the literal.
-      if (previousValue !== null && !waitingForNewValue) {
+    // If we have a literal expression on display (from voice), extract the last number
+    if (display.includes(' ')) {
+      const parts = display.trim().split(' ');
+      const lastPart = parts[parts.length - 1];
+      const lastNum = Number.parseFloat(lastPart);
+      if (!isNaN(lastNum)) {
+        currentValue = lastNum;
+      } else if (previousValue !== null) {
         currentValue = previousValue;
       }
     }
@@ -314,7 +316,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
         const result = performCalculation(previousValue, currentValue, operation);
         setDisplay(String(result));
         setPreviousValue(result);
-        setAllOperands(prev => [...prev, display]);
+        setAllOperands(prev => [...prev, String(currentValue)]);
       }
     }
 
@@ -325,11 +327,9 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
   const handleEquals = useCallback(() => {
     let currentValue = Number.parseFloat(display);
 
-    // If we have a literal expression on display (from voice), evaluate it
-    // The internal state (previousValue, operation) is already partially set,
-    // but the 'display' currently holds the full text. We need the LAST number for calculation.
-    if (display.includes(' ') && !isNaN(currentValue)) {
-      const parts = display.split(' ');
+    // If we have a literal expression on display (from voice), extract the last number
+    if (display.includes(' ')) {
+      const parts = display.trim().split(' ');
       const lastPart = parts[parts.length - 1];
       const lastNum = Number.parseFloat(lastPart);
       if (!isNaN(lastNum)) {
@@ -654,11 +654,12 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
       voiceHoldTimerRef.current = null;
     }
 
-    // If it was a short press (< 1000ms) and NOT locked
-    if (duration < 1000 && !justLockedRef.current) {
+    // SHORT PRESS LOGIC (< 1s)
+    // Only toggle sign if we are NOT in a locked recording session
+    if (duration < 1000 && !justLockedRef.current && !voiceLockedRef.current) {
       stopRecording();
       handleToggleSign();
-      ignoreNextClickRef.current = true; // prevent handleToggleSignClick from running again
+      ignoreNextClickRef.current = true;
     }
   };
 
