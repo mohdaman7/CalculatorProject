@@ -1,9 +1,10 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { verificationService } from "@/lib/verification-service";
 import { pincodeService } from "@/lib/pincode-service";
 import { IoBackspaceOutline } from "react-icons/io5";
 import { IoCheckmarkCircle, IoCloseCircle } from "react-icons/io5";
+import wordsToNumbers from "words-to-numbers";
 
 const formatNumberWithCommas = (value) => {
   if (!value || value === "0") return value;
@@ -60,7 +61,7 @@ const ModeToast = ({ show, isNormalMode }) => {
   );
 };
 
-const Button = ({ variant, onClick, onPointerDown, onPointerUp, label, wide, isOperator }) => {
+const Button = ({ variant, onClick, onPointerDown, onPointerUp, label, wide, isOperator, isRecording }) => {
   const [isPressed, setIsPressed] = useState(false);
 
   const baseClasses = "rounded-full lg:rounded-2xl flex items-center cursor-pointer select-none aspect-square transition-all duration-100 active:scale-95 lg:hover:opacity-90";
@@ -102,7 +103,7 @@ const Button = ({ variant, onClick, onPointerDown, onPointerUp, label, wide, isO
 
   return (
     <div
-      className={`${baseClasses} ${variantClasses[variant]} ${isPressed ? pressedClasses[variant] : ''} ${wide ? 'col-span-2 !aspect-auto !rounded-full justify-start pl-7 md:pl-9 lg:pl-8' : 'justify-center'} w-full ${textSizeClass} touch-none`}
+      className={`${baseClasses} ${variantClasses[variant]} ${isPressed ? pressedClasses[variant] : ''} ${wide ? 'col-span-2 !aspect-auto !rounded-full justify-start pl-7 md:pl-9 lg:pl-8' : 'justify-center'} w-full ${textSizeClass} touch-none relative`}
       onClick={onClick}
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
@@ -111,6 +112,23 @@ const Button = ({ variant, onClick, onPointerDown, onPointerUp, label, wide, isO
       onContextMenu={(e) => e.preventDefault()}
     >
       {label}
+      {isRecording && (
+        <span
+          style={{
+            position: 'absolute',
+            top: '10%',
+            right: '10%',
+            width: '10px',
+            height: '10px',
+            borderRadius: '50%',
+            backgroundColor: '#00e676',
+            boxShadow: '0 0 0 0 rgba(0, 230, 118, 0.7)',
+            animation: 'voiceRecordPulse 1.2s ease-in-out infinite',
+            display: 'block',
+            zIndex: 10,
+          }}
+        />
+      )}
     </div>
   );
 };
@@ -132,6 +150,15 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
   const [modeLoaded, setModeLoaded] = useState(false);
   const [firstOperandYear, setFirstOperandYear] = useState(null);
 
+  // ── Voice Recording ──
+  const [isRecording, setIsRecording] = useState(false);
+  const recognitionRef = useRef(null);
+  const autoStopTimerRef = useRef(null);
+  const voiceHoldTimerRef = useRef(null);
+  const voiceLockedRef = useRef(false);   // true while recording is locked
+  const justLockedRef = useRef(false);    // suppresses the onClick after hold fires
+  const holdStartTimeRef = useRef(0);
+
   // Load mode from localStorage on client mount only
   useEffect(() => {
     const savedMode = localStorage.getItem("calculatorMode");
@@ -147,6 +174,182 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
     localStorage.setItem("calculatorMode", newMode ? "normal" : "force");
     setShowModeToast(true);
     setTimeout(() => setShowModeToast(false), 1500);
+  };
+
+  // ── Voice helpers ──
+  const stopRecording = useCallback(() => {
+    voiceLockedRef.current = false;   // unlock first so onend doesn't restart
+    if (autoStopTimerRef.current) {
+      clearTimeout(autoStopTimerRef.current);
+      autoStopTimerRef.current = null;
+    }
+    if (recognitionRef.current) {
+      try { recognitionRef.current.stop(); } catch (_) { }
+      recognitionRef.current = null;
+    }
+    setIsRecording(false);
+  }, []);
+
+
+  const startRecording = useCallback(() => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
+
+    /** Parse spoken math via words-to-numbers, e.g. "twenty five plus three" */
+    const parseVoiceMath = (transcript) => {
+      const t = transcript.toLowerCase().trim();
+
+      const opMap = [
+        { pattern: /\b(plus|add|added to|and)\b/, op: '+' },
+        { pattern: /\b(minus|subtract|subtracted|less)\b/, op: '-' },
+        { pattern: /\b(times|multiplied by|multiply|into|x)\b/, op: '×' },
+        { pattern: /\b(divided by|divide by|over|by)\b/, op: '÷' },
+      ];
+
+      for (const { pattern, op } of opMap) {
+        const match = t.match(pattern);
+        if (match) {
+          const idx = t.indexOf(match[0]);
+          const leftRaw = t.slice(0, idx).trim();
+          const rightRaw = t.slice(idx + match[0].length).trim();
+
+          const leftConverted = wordsToNumbers(leftRaw, { fuzzy: true });
+          const rightConverted = wordsToNumbers(rightRaw, { fuzzy: true });
+
+          const left = typeof leftConverted === 'number'
+            ? String(leftConverted)
+            : String(leftRaw).match(/[\d.]+/)?.[0];
+          const right = typeof rightConverted === 'number'
+            ? String(rightConverted)
+            : String(rightRaw).match(/[\d.]+/)?.[0];
+
+          if (left && right) return { first: left, op, second: right };
+        }
+      }
+
+      // Single number
+      const converted = wordsToNumbers(t, { fuzzy: true });
+      const num = typeof converted === 'number'
+        ? String(converted)
+        : String(t).match(/[\d.]+/)?.[0];
+      if (num) return { first: num, op: null, second: null };
+      return null;
+    };
+
+    const createAndStart = () => {
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'en-IN';          // better for Indian-English accent
+      recognition.continuous = true;        // keep listening without cutting off
+      recognition.interimResults = false;   // only fire on confident results
+      recognition.maxAlternatives = 1;
+
+      recognition.onresult = (event) => {
+        // Pick the latest final result
+        const results = event.results;
+        for (let i = event.resultIndex; i < results.length; i++) {
+          if (results[i].isFinal) {
+            const transcript = results[i][0].transcript.trim();
+            if (!transcript) continue;
+            const parsed = parseVoiceMath(transcript);
+            if (parsed) {
+              if (parsed.op && parsed.second) {
+                setDisplay(parsed.first);
+                setPreviousValue(parseFloat(parsed.first));
+                setOperation(parsed.op);
+                setAllOperands([parsed.first]);
+                setWaitingForNewValue(false);
+                setTimeout(() => setDisplay(parsed.second), 50);
+              } else {
+                setDisplay(parsed.first);
+                setWaitingForNewValue(false);
+              }
+            }
+          }
+        }
+      };
+
+      // Auto-restart when browser cuts off (keeps it "locked on")
+      recognition.onend = () => {
+        if (voiceLockedRef.current) {
+          // Still locked → restart immediately
+          try { createAndStart(); } catch (_) { }
+        } else {
+          setIsRecording(false);
+        }
+      };
+
+      recognition.onerror = (e) => {
+        // 'no-speech' is normal; keep going if still locked
+        if (e.error === 'no-speech' && voiceLockedRef.current) return;
+        if (e.error === 'aborted') return;  // we triggered stop ourselves
+        stopRecording();
+      };
+
+      try {
+        recognition.start();
+        recognitionRef.current = recognition;
+      } catch (_) {
+        setIsRecording(false);
+      }
+    };
+
+    voiceLockedRef.current = true;
+    setIsRecording(true);
+    createAndStart();
+
+    // Hard 30-second auto-stop
+    autoStopTimerRef.current = setTimeout(() => {
+      stopRecording();
+    }, 30000);
+  }, [stopRecording]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      stopRecording();
+      if (voiceHoldTimerRef.current) clearTimeout(voiceHoldTimerRef.current);
+    };
+  }, [stopRecording]);
+
+  // PointerDown on = : start 800ms hold timer to lock recording
+  const handleEqualsPointerDown = () => {
+    holdStartTimeRef.current = Date.now();
+    justLockedRef.current = false;
+    if (voiceLockedRef.current) return; // already recording, ignore
+
+    voiceHoldTimerRef.current = setTimeout(() => {
+      voiceHoldTimerRef.current = null;
+      justLockedRef.current = true;   // tell onClick to ignore next click
+      startRecording();
+    }, 800);
+  };
+
+  // PointerUp on = : only cancel hold timer if it hasn't fired yet
+  const handleEqualsPointerUp = () => {
+    if (voiceHoldTimerRef.current) {
+      clearTimeout(voiceHoldTimerRef.current);
+      voiceHoldTimerRef.current = null;
+    }
+    // NOTE: do NOT call stopRecording here — locking is intentional
+  };
+
+  // Click on = :
+  //  • justLockedRef=true  → hold just fired, skip this click entirely
+  //  • isRecording=true    → user deliberately tapped to STOP
+  //  • otherwise           → normal equals
+  const handleEqualsClick = () => {
+    // Suppress the click that comes right after a hold fires
+    if (justLockedRef.current) {
+      justLockedRef.current = false;
+      return;
+    }
+    if (voiceLockedRef.current) {
+      // Recording is locked — deliberate tap to stop
+      stopRecording();
+      return;
+    }
+    // Normal short tap → run equals
+    handleEquals();
   };
 
   const handleDotLongPressStart = () => {
@@ -500,9 +703,12 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
             />
             <Button
               variant="orange"
-              onClick={handleEquals}
+              onClick={handleEqualsClick}
+              onPointerDown={handleEqualsPointerDown}
+              onPointerUp={handleEqualsPointerUp}
               label="="
               isOperator={true}
+              isRecording={isRecording}
             />
           </div>
         </div>
