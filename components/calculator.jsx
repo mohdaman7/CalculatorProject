@@ -21,17 +21,14 @@ const parseVoiceMath = (transcript) => {
 
   // Operator keyword patterns — ordered longest-match first to avoid partial hits
   const opPatterns = [
-    { regex: /\b(divided by|divide by)\b/, op: '÷' },
-    { regex: /\b(multiplied by|multiply by|times|into)\b/, op: '×' },
-    { regex: /\b(added to|plus|add)\b/, op: '+' },
-    { regex: /\b(subtracted from|subtract|minus|less)\b/, op: '-' },
-    // Digit-style operators in transcript
-    { regex: /\s[xX]\s/, op: '×' },
+    { regex: /\b(divided by|divide by)\b|[\/÷]/, op: '÷' },
+    { regex: /\b(multiplied by|multiply by|times|into)\b|[*×xX]/, op: '×' },
+    { regex: /\b(added to|plus|add)\b|[+]/, op: '+' },
+    { regex: /\b(subtracted from|subtract|minus|less)\b|[-−]/, op: '-' },
   ];
 
-  // Split transcript on any operator keyword, capturing the delimiter
-  // Build a combined regex to split:
-  const splitRegex = /\b(?:divided by|divide by|multiplied by|multiply by|times|into|added to|plus|add|subtracted from|subtract|minus|less)\b|\s[xX]\s/gi;
+  // Split transcript on any operator keyword or symbol, capturing the delimiter
+  const splitRegex = /\b(?:divided by|divide by|multiplied by|multiply by|times|into|added to|plus|add|subtracted from|subtract|minus|less)\b|[\/÷*×xX+−-]/gi;
 
   // Find all operator matches with positions
   const opMatches = [];
@@ -262,7 +259,11 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
 
   useEffect(() => {
     setIsRecording(listening);
-  }, [listening]);
+    // While listening, show the transcript directly for live feedback
+    if (listening && transcript) {
+      setDisplay(transcript);
+    }
+  }, [listening, transcript]);
 
   // Load mode from localStorage on client mount only
   useEffect(() => {
@@ -372,7 +373,8 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
 
     SpeechRecognition.startListening({
       continuous: true,
-      language: 'en-IN'
+      language: 'en-IN',
+      interimResults: true
     });
 
     // Stronger haptic for recording start
