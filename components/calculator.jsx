@@ -129,6 +129,15 @@ const Display = ({ value }) => {
   );
 };
 
+const VoiceStatus = ({ status }) => {
+  if (!status) return null;
+  return (
+    <div className="absolute top-2 left-4 text-xs font-semibold uppercase tracking-widest text-green-500 animate-pulse bg-black/50 px-2 py-1 rounded border border-green-500/30">
+      {status}
+    </div>
+  );
+};
+
 const ModeToast = ({ show, isNormalMode }) => {
   if (!show) return null;
 
@@ -246,9 +255,11 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
     transcript,
     listening,
     resetTranscript,
-    browserSupportsSpeechRecognition
+    browserSupportsSpeechRecognition,
+    isMicrophoneAvailable
   } = useSpeechRecognition();
 
+  const [voiceStatus, setVoiceStatus] = useState("");
   const [isRecording, setIsRecording] = useState(listening);
   const autoStopTimerRef = useRef(null);
   const voiceHoldTimerRef = useRef(null);
@@ -256,14 +267,25 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
   const justLockedRef = useRef(false);    // suppresses the onClick after hold fires
   // holdStartTimeRef is used for +/- long press ONLY for voice
   const voiceHoldStartTimeRef = useRef(0);
+  const ignoreNextClickRef = useRef(false);
 
   useEffect(() => {
     setIsRecording(listening);
-    // While listening, show the transcript directly for live feedback
-    if (listening && transcript) {
-      setDisplay(transcript);
+    if (listening) {
+      if (!isMicrophoneAvailable) {
+        setVoiceStatus("Mic not available");
+        setDisplay("Mic Error");
+      } else if (!transcript) {
+        setVoiceStatus("Listening...");
+        setDisplay("..."); // Show activity
+      } else {
+        setVoiceStatus("Processing...");
+        setDisplay(transcript);
+      }
+    } else {
+      setVoiceStatus("");
     }
-  }, [listening, transcript]);
+  }, [listening, transcript, isMicrophoneAvailable]);
 
   // Load mode from localStorage on client mount only
   useEffect(() => {
@@ -365,8 +387,12 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
     }
   }, [listening, transcript, handleVoiceCommand]);
 
+
   const startRecording = useCallback(() => {
-    if (!browserSupportsSpeechRecognition) return;
+    if (!browserSupportsSpeechRecognition) {
+      setDisplay("Not Supported");
+      return;
+    }
 
     resetTranscript();
     voiceLockedRef.current = true;
@@ -401,29 +427,41 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
   const handleToggleSignPointerDown = () => {
     voiceHoldStartTimeRef.current = Date.now();
     justLockedRef.current = false;
+    ignoreNextClickRef.current = false;
+
     if (voiceLockedRef.current) return; // already recording — let click handle stop
+
+    // CRITICAL: Start recording IMMEDIATELY on user gesture for iOS/Mobile
+    startRecording();
 
     voiceHoldTimerRef.current = setTimeout(() => {
       voiceHoldTimerRef.current = null;
-      justLockedRef.current = true;   // suppress the onClick toggle-sign after hold fires
-      startRecording();
+      justLockedRef.current = true;   // lock it for long press
     }, 800);
   };
 
-  // PointerUp on +/- : cancel hold timer if not fired yet
+  // PointerUp on +/- : 
   const handleToggleSignPointerUp = () => {
+    const duration = Date.now() - voiceHoldStartTimeRef.current;
+
     if (voiceHoldTimerRef.current) {
       clearTimeout(voiceHoldTimerRef.current);
       voiceHoldTimerRef.current = null;
     }
-    // Do NOT stop recording here — locking is intentional
+
+    // If it was a short press (< 800ms) and we just started it
+    if (duration < 800 && !justLockedRef.current) {
+      stopRecording();
+      handleToggleSign();
+      ignoreNextClickRef.current = true; // prevent handleToggleSignClick from running again
+    }
   };
 
-  // Click on +/- :
-  //  • justLockedRef=true  → hold just fired, skip (recording just started)
-  //  • isRecording=true    → deliberate tap to STOP recording
-  //  • otherwise           → normal toggle sign
   const handleToggleSignClick = () => {
+    if (ignoreNextClickRef.current) {
+      ignoreNextClickRef.current = false;
+      return;
+    }
     if (justLockedRef.current) {
       justLockedRef.current = false;
       return;
@@ -726,7 +764,8 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
     <div className="w-full min-h-[100dvh] h-full bg-black lg:bg-gradient-to-br lg:from-[#0f0f0f] lg:via-[#1a1a1a] lg:to-[#0f0f0f] flex flex-col overflow-hidden lg:overflow-auto">
       <ModeToast show={showModeToast} isNormalMode={isNormalMode} />
       <div className="flex-1 flex items-end md:items-center lg:items-center justify-center lg:p-6 xl:p-8">
-        <div className="w-full lg:max-w-lg xl:max-w-xl lg:bg-gradient-to-br lg:from-[#252525] lg:to-[#1a1a1a] lg:rounded-[32px] lg:p-6 xl:p-8 lg:shadow-2xl lg:border lg:border-[#333333]/50 lg:backdrop-blur-xl">
+        <div className="w-full lg:max-w-lg xl:max-w-xl lg:bg-gradient-to-br lg:from-[#252525] lg:to-[#1a1a1a] lg:rounded-[32px] lg:p-6 xl:p-8 lg:shadow-2xl lg:border lg:border-[#333333]/50 lg:backdrop-blur-xl relative">
+          <VoiceStatus status={voiceStatus} />
           <Display value={display} />
 
           <div className="grid grid-cols-4 gap-[10px] md:gap-3 lg:gap-3 xl:gap-4 px-4 md:px-6 pb-[calc(2px+env(safe-area-inset-bottom,2px))] md:pb-6 lg:pb-0">
