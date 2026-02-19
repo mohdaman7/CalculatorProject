@@ -122,12 +122,7 @@ const Display = ({ value }) => {
 };
 
 const VoiceStatus = ({ status }) => {
-  if (!status || status === "Processing...") return null; // Removed "Processing..." per user request
-  return (
-    <div className="absolute top-2 left-4 text-xs font-semibold uppercase tracking-widest text-green-500 animate-pulse bg-black/50 px-2 py-1 rounded border border-green-500/30">
-      {status}
-    </div>
-  );
+  return null; // Removed all status text per user request
 };
 
 const ModeToast = ({ show, isNormalMode }) => {
@@ -287,7 +282,18 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
   }, [display, waitingForNewValue]);
 
   const handleOperation = useCallback((op) => {
-    const currentValue = Number.parseFloat(display);
+    let currentValue = Number.parseFloat(display);
+
+    // If we have a literal expression on display (from voice), evaluate it first
+    if (display.includes(' ') && !isNaN(currentValue)) {
+      // The internal state (previousValue, operation) is already updated by handleVoiceCommand
+      // So we just use the existing logic but ensure currentValue is correct if display was literal
+      // Actually, if display is literal, our internal previousValue is already the result.
+      // We just need to ensure we don't overwrite it with the first part of the literal.
+      if (previousValue !== null && !waitingForNewValue) {
+        currentValue = previousValue;
+      }
+    }
 
     if (previousValue === null) {
       setPreviousValue(currentValue);
@@ -317,7 +323,19 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
   }, [display, previousValue, operation, waitingForNewValue, performCalculation]);
 
   const handleEquals = useCallback(() => {
-    const currentValue = Number.parseFloat(display);
+    let currentValue = Number.parseFloat(display);
+
+    // If we have a literal expression on display (from voice), evaluate it
+    // The internal state (previousValue, operation) is already partially set,
+    // but the 'display' currently holds the full text. We need the LAST number for calculation.
+    if (display.includes(' ') && !isNaN(currentValue)) {
+      const parts = display.split(' ');
+      const lastPart = parts[parts.length - 1];
+      const lastNum = Number.parseFloat(lastPart);
+      if (!isNaN(lastNum)) {
+        currentValue = lastNum;
+      }
+    }
 
     if (display.length === 4 && !operation && previousValue === null) {
       const year = parseInt(display);
@@ -351,7 +369,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
       let isForced = false;
 
       if (!isNormalMode && (operation === '+' || operation === '-')) {
-        const allOperandsForCheck = [...allOperands, display];
+        const allOperandsForCheck = [...allOperands, String(currentValue)];
 
         if (forcedNumber?.secondForceTriggerNumber != null &&
           forcedNumber?.secondForceNumber != null) {
@@ -371,7 +389,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
 
       const finalResult = isForced ? forcedResult : actualResult;
       const timestamp = new Date().toLocaleString();
-      const finalOperands = [...allOperands, display];
+      const finalOperands = [...allOperands, String(currentValue)];
       const expressionStr = finalOperands.join(` ${operation} `);
       const pincodeOperand = finalOperands.find(op => pincodeService.isPincode(String(op)));
       const isPincodeCalc = (operation === '+' || operation === '-') && pincodeOperand;
@@ -506,7 +524,6 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
     const canAppend = localDisplay !== "0" && !isNaN(parseFloat(localDisplay));
 
     if (!(isFirstTokenOp && canAppend)) {
-      // Clear all state for a fresh start unless we are appending
       localDisplay = "0";
       localPreviousValue = null;
       localOperation = null;
@@ -551,13 +568,14 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
       }
     });
 
-    // FINALIZATION: If we didn't end with '=', we keep the tokens as the display
-    // for a "literal" match, but we must ensure the NEXT action works.
-    // If the last token wasn't '=', the user might expect to see the expression.
-    // However, to keep the calculator working, we commit the STATE.
-    // We update the React state to the simulated final state.
+    const hasEquals = tokens.includes('=');
+    if (!hasEquals) {
+      // PERSIST LITERAL EXPRESSION: Show tokens literally on display
+      setDisplay(tokens.join(' '));
+    } else {
+      setDisplay(localDisplay);
+    }
 
-    setDisplay(localDisplay);
     setPreviousValue(localPreviousValue);
     setOperation(localOperation);
     setAllOperands(localAllOperands);
@@ -566,7 +584,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
 
     resetTranscript();
 
-    if (tokens.includes('=')) {
+    if (hasEquals) {
       setTimeout(() => handleEquals(), 0);
     }
   }, [display, previousValue, operation, allOperands, waitingForNewValue, firstOperandYear, handleEquals, performCalculation, resetTranscript]);
@@ -702,31 +720,23 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
     setIsRecording(listening);
     if (listening) {
       if (!isMicrophoneAvailable) {
-        setVoiceStatus("Mic not available");
         setDisplay("Mic Error");
-      } else if (!transcript) {
-        setVoiceStatus("Listening...");
-        // ONLY show "..." if the current display is "0" or already showing an error/status
-        const isDefault = ["0", "Mic Error", "Not Supported", "...", ""].includes(display);
-        if (isDefault) {
-          setDisplay("...");
-        }
-      } else {
-        setVoiceStatus("");
+      } else if (transcript) {
         const parsed = parseVoiceMath(transcript);
         if (parsed && parsed.tokens) {
           const expression = parsed.tokens.join(' ');
-          setDisplay(expression);
+          // Safety: Don't show NaN or empty noise
+          if (expression && !expression.includes("NaN")) {
+            setDisplay(expression);
+          }
 
           if (parsed.tokens.includes('=')) {
             stopRecording();
           }
         }
       }
-    } else {
-      setVoiceStatus("");
     }
-  }, [listening, transcript, isMicrophoneAvailable, stopRecording, display]);
+  }, [listening, transcript, isMicrophoneAvailable, stopRecording]);
 
   const handleAdditionStart = () => {
     if (isNormalMode) return;
