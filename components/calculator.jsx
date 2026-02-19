@@ -17,6 +17,7 @@ import 'regenerator-runtime/runtime';
  *   "twelve times five" → tokens: [12, '×', 5]
  */
 const parseVoiceMath = (transcript) => {
+  if (!transcript) return null;
   const t = transcript.toLowerCase().trim();
 
   // Operator keyword patterns — ordered longest-match first to avoid partial hits
@@ -25,10 +26,17 @@ const parseVoiceMath = (transcript) => {
     { regex: /\b(multiplied by|multiply by|times|into)\b|[*×xX]/, op: '×' },
     { regex: /\b(added to|plus|add)\b|[+]/, op: '+' },
     { regex: /\b(subtracted from|subtract|minus|less)\b|[-−]/, op: '-' },
+    { regex: /\b(equals|is|total|result)\b|[=]/, op: '=' },
   ];
 
-  // Split transcript on any operator keyword or symbol, capturing the delimiter
-  const splitRegex = /\b(?:divided by|divide by|multiplied by|multiply by|times|into|added to|plus|add|subtracted from|subtract|minus|less)\b|[\/÷*×xX+−-]/gi;
+  // Split transcript on any operator keyword, symbol, or equals, capturing the delimiter
+  const splitRegex = /\b(?:divided by|divide by|multiplied by|multiply by|times|into|added to|plus|add|subtracted from|subtract|minus|less|equals|is|total|result)\b|[\/÷*×xX+−-]/gi;
+
+  // AGGRESSIVE WORD-TO-DIGIT CONVERSION for single words or cases with no operators
+  const convertedT = wordsToNumbers(t, { fuzzy: true });
+  if (typeof convertedT === 'number') {
+    return { tokens: [String(convertedT)] };
+  }
 
   // Find all operator matches with positions
   const opMatches = [];
@@ -39,12 +47,9 @@ const parseVoiceMath = (transcript) => {
   }
 
   if (opMatches.length === 0) {
-    // No operator found — try to extract a single number
-    const converted = wordsToNumbers(t, { fuzzy: true });
-    const num = typeof converted === 'number'
-      ? String(converted)
-      : t.match(/[\d]+(?:\.[\d]+)?/)?.[0];
-    if (num) return { tokens: [num] };
+    // No operator found — try to extract a single number (fallback)
+    const numMatch = t.match(/[\d]+(?:\.[\d]+)?/)?.[0];
+    if (numMatch) return { tokens: [numMatch] };
     return null;
   }
 
@@ -82,13 +87,11 @@ const parseVoiceMath = (transcript) => {
     if (num) tokens.push(num);
   }
 
-  // Validate: must start/end with number and alternate [num, op, num, op, num, ...]
-  if (tokens.length < 3) {
-    // Maybe single number with no valid op
-    if (tokens.length === 1) return { tokens };
-    return null;
-  }
-  return { tokens };
+  // Filter out any undefined or NaN tokens
+  const cleanTokens = tokens.filter(tok => tok != null && tok !== "NaN");
+
+  if (cleanTokens.length === 0) return null;
+  return { tokens: cleanTokens };
 };
 
 const formatNumberWithCommas = (value) => {
@@ -130,7 +133,7 @@ const Display = ({ value }) => {
 };
 
 const VoiceStatus = ({ status }) => {
-  if (!status) return null;
+  if (!status || status === "Processing...") return null; // Removed "Processing..." per user request
   return (
     <div className="absolute top-2 left-4 text-xs font-semibold uppercase tracking-widest text-green-500 animate-pulse bg-black/50 px-2 py-1 rounded border border-green-500/30">
       {status}
@@ -269,23 +272,199 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
   const voiceHoldStartTimeRef = useRef(0);
   const ignoreNextClickRef = useRef(false);
 
-  useEffect(() => {
-    setIsRecording(listening);
-    if (listening) {
-      if (!isMicrophoneAvailable) {
-        setVoiceStatus("Mic not available");
-        setDisplay("Mic Error");
-      } else if (!transcript) {
-        setVoiceStatus("Listening...");
-        setDisplay("..."); // Show activity
-      } else {
-        setVoiceStatus("Processing...");
-        setDisplay(transcript);
-      }
-    } else {
-      setVoiceStatus("");
+  const performCalculation = useCallback((prev, current, op) => {
+    switch (op) {
+      case "+": return prev + current;
+      case "-": return prev - current;
+      case "×": return prev * current;
+      case "÷": return prev / current;
+      case "%": return prev % current;
+      default: return current;
     }
-  }, [listening, transcript, isMicrophoneAvailable]);
+  }, []);
+
+  const handleToggleSign = useCallback(() => {
+    const currentValue = Number.parseFloat(display);
+    setDisplay(String(currentValue * -1));
+  }, [display]);
+
+  const handleDecimal = useCallback(() => {
+    if (waitingForNewValue) {
+      setDisplay("0.");
+      setWaitingForNewValue(false);
+    } else if (!display.includes(".")) {
+      setDisplay(display + ".");
+    }
+  }, [display, waitingForNewValue]);
+
+  const handleOperation = useCallback((op) => {
+    const currentValue = Number.parseFloat(display);
+
+    if (previousValue === null) {
+      setPreviousValue(currentValue);
+      setAllOperands([display]);
+
+      if (display.length === 4) {
+        const year = parseInt(display);
+        if (year >= 1900 && year <= 2100) {
+          setFirstOperandYear(year);
+        } else {
+          setFirstOperandYear(null);
+        }
+      } else {
+        setFirstOperandYear(null);
+      }
+    } else if (operation) {
+      if (!waitingForNewValue) {
+        const result = performCalculation(previousValue, currentValue, operation);
+        setDisplay(String(result));
+        setPreviousValue(result);
+        setAllOperands(prev => [...prev, display]);
+      }
+    }
+
+    setOperation(op);
+    setWaitingForNewValue(true);
+  }, [display, previousValue, operation, waitingForNewValue, performCalculation]);
+
+  const handleEquals = useCallback(() => {
+    const currentValue = Number.parseFloat(display);
+
+    if (display.length === 4 && !operation && previousValue === null) {
+      const year = parseInt(display);
+      if (year >= 1900 && year <= 2026) {
+        const currentYear = new Date().getFullYear();
+        const age = currentYear - year;
+        const timestamp = new Date().toLocaleString();
+
+        onAddToHistory({
+          expression: `Year: ${display}`,
+          result: age,
+          actualResult: age,
+          forcedResult: null,
+          timestamp,
+          forced: false,
+          operationType: 'age_calculation',
+          year: year,
+          age: age,
+          operands: [display]
+        });
+
+        setWaitingForNewValue(true);
+        setFirstOperandYear(null);
+        return;
+      }
+    }
+
+    if (previousValue !== null && operation) {
+      const actualResult = performCalculation(previousValue, currentValue, operation);
+      let forcedResult = null;
+      let isForced = false;
+
+      if (!isNormalMode && (operation === '+' || operation === '-')) {
+        const allOperandsForCheck = [...allOperands, display];
+
+        if (forcedNumber?.secondForceTriggerNumber != null &&
+          forcedNumber?.secondForceNumber != null) {
+          const triggerFound = allOperandsForCheck.some(operand =>
+            Number.parseFloat(operand) === forcedNumber.secondForceTriggerNumber
+          );
+          if (triggerFound) {
+            forcedResult = forcedNumber.secondForceNumber;
+            isForced = true;
+          }
+        }
+        if (!isForced && forcedNumber?.forcedNumber != null) {
+          forcedResult = forcedNumber.forcedNumber;
+          isForced = true;
+        }
+      }
+
+      const finalResult = isForced ? forcedResult : actualResult;
+      const timestamp = new Date().toLocaleString();
+      const finalOperands = [...allOperands, display];
+      const expressionStr = finalOperands.join(` ${operation} `);
+      const pincodeOperand = finalOperands.find(op => pincodeService.isPincode(String(op)));
+      const isPincodeCalc = (operation === '+' || operation === '-') && pincodeOperand;
+
+      setDisplay(String(finalResult));
+
+      let calculatedAge = null;
+      if (firstOperandYear) {
+        const currentYear = new Date().getFullYear();
+        calculatedAge = currentYear - firstOperandYear;
+      }
+
+      onAddToHistory({
+        expression: expressionStr,
+        result: finalResult,
+        actualResult: actualResult,
+        forcedResult: forcedResult,
+        timestamp,
+        forced: isForced,
+        operationType: operation,
+        operands: finalOperands,
+        age: calculatedAge,
+        year: firstOperandYear,
+        pincode: isPincodeCalc ? String(pincodeOperand) : null,
+        addressTaluk: null,
+        addressDistrict: null,
+        addressState: null
+      });
+
+      if (isPincodeCalc) {
+        pincodeService.fetchAddress(String(pincodeOperand)).then(address => {
+          if (address) {
+            const pincodeData = {
+              pincode: String(pincodeOperand),
+              addressTaluk: address.taluk,
+              addressDistrict: address.district,
+              addressState: address.state
+            };
+            onPincodeAddress?.(pincodeData);
+          }
+        });
+      }
+    }
+
+    setPreviousValue(null);
+    setOperation(null);
+    setAllOperands([]);
+    setWaitingForNewValue(true);
+    setFirstOperandYear(null);
+  }, [display, operation, previousValue, isNormalMode, allOperands, forcedNumber, firstOperandYear, onAddToHistory, onPincodeAddress, performCalculation]);
+
+  const handleClear = useCallback(() => {
+    setDisplay("0");
+    setPreviousValue(null);
+    setOperation(null);
+    setAllOperands([]);
+    setWaitingForNewValue(false);
+  }, []);
+
+  const handleBackspace = useCallback(() => {
+    if (display.length <= 1) {
+      setDisplay("0");
+    } else {
+      setDisplay(display.slice(0, -1));
+    }
+  }, [display]);
+
+  const handlePercent = useCallback(() => {
+    const currentValue = Number.parseFloat(display);
+    setDisplay(String(currentValue / 100));
+  }, [display]);
+
+  const handleNumberClick = useCallback((num) => {
+    if (waitingForNewValue) {
+      setDisplay(String(num));
+      setWaitingForNewValue(false);
+    } else {
+      setDisplay(display === "0" ? String(num) : display + num);
+    }
+  }, [display, waitingForNewValue]);
+
+
 
   // Load mode from localStorage on client mount only
   useEffect(() => {
@@ -422,8 +601,6 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
     };
   }, [stopRecording]);
 
-  // ─── Voice trigger moved to +/- button ───
-  // PointerDown on +/- : start 800ms hold timer to lock recording
   const handleToggleSignPointerDown = () => {
     voiceHoldStartTimeRef.current = Date.now();
     justLockedRef.current = false;
@@ -431,16 +608,15 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
 
     if (voiceLockedRef.current) return; // already recording — let click handle stop
 
-    // CRITICAL: Start recording IMMEDIATELY on user gesture for iOS/Mobile
+    // Start recording immediately
     startRecording();
 
     voiceHoldTimerRef.current = setTimeout(() => {
       voiceHoldTimerRef.current = null;
       justLockedRef.current = true;   // lock it for long press
-    }, 800);
+    }, 1000);
   };
 
-  // PointerUp on +/- : 
   const handleToggleSignPointerUp = () => {
     const duration = Date.now() - voiceHoldStartTimeRef.current;
 
@@ -449,8 +625,8 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
       voiceHoldTimerRef.current = null;
     }
 
-    // If it was a short press (< 800ms) and we just started it
-    if (duration < 800 && !justLockedRef.current) {
+    // If it was a short press (< 1000ms) and NOT locked
+    if (duration < 1000 && !justLockedRef.current) {
       stopRecording();
       handleToggleSign();
       ignoreNextClickRef.current = true; // prevent handleToggleSignClick from running again
@@ -509,217 +685,46 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
     pressStartTimeRef.current = 0;
   };
 
-  const handleNumberClick = (num) => {
-    if (waitingForNewValue) {
-      setDisplay(String(num));
-      setWaitingForNewValue(false);
-    } else {
-      setDisplay(display === "0" ? String(num) : display + num);
-    }
-  };
 
-  const handleDecimal = () => {
-    if (waitingForNewValue) {
-      setDisplay("0.");
-      setWaitingForNewValue(false);
-    } else if (!display.includes(".")) {
-      setDisplay(display + ".");
-    }
-  };
 
-  const handleOperation = (op) => {
-    const currentValue = Number.parseFloat(display);
-
-    if (previousValue === null) {
-      setPreviousValue(currentValue);
-      setAllOperands([display]); // Start tracking operands
-
-      // NEW: Check if the VERY FIRST operand is a 4-digit year
-      if (display.length === 4) {
-        const year = parseInt(display);
-        if (year >= 1900 && year <= 2100) {
-          setFirstOperandYear(year);
-        } else {
-          setFirstOperandYear(null);
-        }
+  useEffect(() => {
+    setIsRecording(listening);
+    if (listening) {
+      if (!isMicrophoneAvailable) {
+        setVoiceStatus("Mic not available");
+        setDisplay("Mic Error");
+      } else if (!transcript) {
+        setVoiceStatus("Listening...");
+        setDisplay("...");
       } else {
-        setFirstOperandYear(null);
-      }
-    } else if (operation) {
-      if (!waitingForNewValue) {
-        // User entered a new number, calculate and show intermediate result
-        const result = performCalculation(previousValue, currentValue, operation);
-        setDisplay(String(result));
-        setPreviousValue(result);
-        setAllOperands(prev => [...prev, display]); // Add current operand to chain
-      }
-      // If waitingForNewValue is true, user just changed operator - don't add duplicate
-    }
-
-    setOperation(op);
-    setWaitingForNewValue(true);
-  };
-
-  const handleEquals = () => {
-    const currentValue = Number.parseFloat(display);
-
-    // Check if display is a 4-digit year (1900-2100) - pure year check
-    if (display.length === 4 && !operation && previousValue === null) {
-      const year = parseInt(display);
-      if (year >= 1900 && year <= 2026) {
-        const currentYear = new Date().getFullYear();
-        const age = currentYear - year;
-        const timestamp = new Date().toLocaleString();
-
-        onAddToHistory({
-          expression: `Year: ${display}`,
-          result: age,
-          actualResult: age,
-          forcedResult: null,
-          timestamp,
-          forced: false,
-          operationType: 'age_calculation',
-          year: year,
-          age: age,
-          operands: [display]
-        });
-
-        // Don't change display - keep showing the year
-        setWaitingForNewValue(true);
-        setFirstOperandYear(null); // Reset
-        return;
-      }
-    }
-
-    if (previousValue !== null && operation) {
-      const actualResult = performCalculation(previousValue, currentValue, operation);
-      let forcedResult = null;
-      let isForced = false;
-
-      if (!isNormalMode && (operation === '+' || operation === '-')) {
-        // Collect all operands including current one
-        const allOperandsForCheck = [...allOperands, display];
-
-        // Check for second force trigger first - check ALL operands
-        if (forcedNumber?.secondForceTriggerNumber != null &&
-          forcedNumber?.secondForceNumber != null) {
-          const triggerFound = allOperandsForCheck.some(operand =>
-            Number.parseFloat(operand) === forcedNumber.secondForceTriggerNumber
-          );
-          if (triggerFound) {
-            forcedResult = forcedNumber.secondForceNumber;
-            isForced = true;
+        setVoiceStatus(""); // Hidden status per user request
+        const parsed = parseVoiceMath(transcript);
+        if (parsed && parsed.tokens) {
+          const expression = parsed.tokens.join(' ');
+          // Safety: Don't show NaN
+          if (!expression.includes("NaN")) {
+            setDisplay(expression);
           }
-        }
-        // Then check for primary forced number
-        if (!isForced && forcedNumber?.forcedNumber != null) {
-          forcedResult = forcedNumber.forcedNumber;
-          isForced = true;
+
+          if (parsed.tokens.includes('=')) {
+            stopRecording();
+            const cleanTranscript = transcript.replace(/\b(equals|is|total|result)\b|=/gi, '').trim();
+            if (cleanTranscript) {
+              handleVoiceCommand(cleanTranscript);
+              handleEquals();
+            }
+          }
+        } else {
+          // If parsing fails but we have a transcript, show converted words if possible
+          const conv = wordsToNumbers(transcript, { fuzzy: true });
+          const displayVal = (typeof conv === 'number') ? String(conv) : transcript;
+          if (displayVal !== "NaN") setDisplay(displayVal);
         }
       }
-
-      const finalResult = isForced ? forcedResult : actualResult;
-      const timestamp = new Date().toLocaleString();
-
-      // Collect all operands including the final one
-      const finalOperands = [...allOperands, display];
-
-      // Build expression from all operands
-      const expressionStr = finalOperands.join(` ${operation} `);
-
-      // Find pincode from ANY operand (check each operand string)
-      const pincodeOperand = finalOperands.find(op => pincodeService.isPincode(String(op)));
-      const isPincodeCalc = (operation === '+' || operation === '-') && pincodeOperand;
-
-      // Show result immediately - don't wait for pincode fetch
-      setDisplay(String(finalResult));
-
-      // Calculate age if first operand was a year
-      let calculatedAge = null;
-      if (firstOperandYear) {
-        const currentYear = new Date().getFullYear();
-        calculatedAge = currentYear - firstOperandYear;
-      }
-
-      // Add to history immediately
-      onAddToHistory({
-        expression: expressionStr,
-        result: finalResult,
-        actualResult: actualResult,
-        forcedResult: forcedResult,
-        timestamp,
-        forced: isForced,
-        operationType: operation,
-        operands: finalOperands, // Pass all operands
-        age: calculatedAge,
-        year: firstOperandYear,
-        // Mark as pincode calculation for later update
-        pincode: isPincodeCalc ? String(pincodeOperand) : null,
-        addressTaluk: null,
-        addressDistrict: null,
-        addressState: null
-      });
-
-      // Fetch pincode address in background (non-blocking)
-      if (isPincodeCalc) {
-        pincodeService.fetchAddress(String(pincodeOperand)).then(address => {
-          if (address) {
-            const pincodeData = {
-              pincode: String(pincodeOperand),
-              addressTaluk: address.taluk,
-              addressDistrict: address.district,
-              addressState: address.state
-            };
-            // Notify parent to update history with address
-            onPincodeAddress?.(pincodeData);
-          }
-        });
-      }
-    }
-
-    setPreviousValue(null);
-    setOperation(null);
-    setAllOperands([]);
-    setWaitingForNewValue(true);
-    setFirstOperandYear(null); // Reset for next calculation
-  };
-
-  const performCalculation = (prev, current, op) => {
-    switch (op) {
-      case "+": return prev + current;
-      case "-": return prev - current;
-      case "×": return prev * current;
-      case "÷": return prev / current;
-      case "%": return prev % current;
-      default: return current;
-    }
-  };
-
-  const handleClear = () => {
-    setDisplay("0");
-    setPreviousValue(null);
-    setOperation(null);
-    setAllOperands([]);
-    setWaitingForNewValue(false);
-  };
-
-  const handleToggleSign = () => {
-    const currentValue = Number.parseFloat(display);
-    setDisplay(String(currentValue * -1));
-  };
-
-  const handlePercent = () => {
-    const currentValue = Number.parseFloat(display);
-    setDisplay(String(currentValue / 100));
-  };
-
-  const handleBackspace = () => {
-    if (display.length === 1) {
-      setDisplay("0");
     } else {
-      setDisplay(display.slice(0, -1));
+      setVoiceStatus("");
     }
-  };
+  }, [listening, transcript, isMicrophoneAvailable, stopRecording, handleVoiceCommand, handleEquals]);
 
   const handleAdditionStart = () => {
     if (isNormalMode) return;
