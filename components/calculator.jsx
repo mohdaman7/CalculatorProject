@@ -505,60 +505,28 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
 
     const tokens = parsed.tokens;
 
-    if (tokens.length === 1) {
-      // Single number
-      setDisplay(tokens[0]);
-      setWaitingForNewValue(false);
-    } else {
-      // Multi-token: [num, op, num, op, num, ...]
-      const firstNum = tokens[0];
-      setDisplay(firstNum);
-      setPreviousValue(null);
-      setOperation(null);
-      setAllOperands([]);
-      setWaitingForNewValue(false);
+    // Determine if we should clear or append. 
+    // If the first token is an operator and we have a valid number on display, we append.
+    const isFirstTokenOp = ['+', '-', '×', '÷', '%'].includes(tokens[0]);
+    const hasCurrentValue = display !== "0" && !isNaN(parseFloat(display));
 
-      let currentPrev = parseFloat(firstNum);
-      let currentOp = null;
-
-      for (let j = 1; j < tokens.length; j++) {
-        const tok = tokens[j];
-        const isOp = ['+', '-', '×', '÷'].includes(tok);
-
-        if (isOp) {
-          currentOp = tok;
-        } else {
-          if (currentOp === null) {
-            setDisplay(tok);
-            setPreviousValue(null);
-            setAllOperands([firstNum]);
-            setWaitingForNewValue(false);
-          } else if (j === tokens.length - 1) {
-            const captured = currentOp;
-            const capturedPrev = currentPrev;
-            const capturedNum = tok;
-            setPreviousValue(capturedPrev);
-            setOperation(captured);
-            setAllOperands(prev => {
-              const existing = prev.length ? prev : [firstNum];
-              return existing;
-            });
-            setDisplay(capturedNum);
-            setWaitingForNewValue(false);
-          } else {
-            let result = currentPrev;
-            if (currentOp === '+') result = currentPrev + parseFloat(tok);
-            else if (currentOp === '-') result = currentPrev - parseFloat(tok);
-            else if (currentOp === '×') result = currentPrev * parseFloat(tok);
-            else if (currentOp === '÷') result = currentPrev / parseFloat(tok);
-            currentPrev = result;
-            currentOp = null;
-          }
-        }
-      }
+    if (!(isFirstTokenOp && hasCurrentValue)) {
+      handleClear();
     }
+
+    tokens.forEach((tok) => {
+      const isOp = ['+', '-', '×', '÷', '%'].includes(tok);
+      if (isOp) {
+        handleOperation(tok);
+      } else if (tok === '=') {
+        handleEquals();
+      } else {
+        handleNumberClick(tok);
+      }
+    });
+
     resetTranscript();
-  }, [resetTranscript]);
+  }, [display, handleClear, handleOperation, handleNumberClick, handleEquals, resetTranscript]);
 
   useEffect(() => {
     if (!listening && transcript) {
@@ -695,9 +663,13 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
         setDisplay("Mic Error");
       } else if (!transcript) {
         setVoiceStatus("Listening...");
-        setDisplay("...");
+        // ONLY show "..." if the current display is "0" or already showing an error/status
+        const isDefault = ["0", "Mic Error", "Not Supported", "...", ""].includes(display);
+        if (isDefault) {
+          setDisplay("...");
+        }
       } else {
-        setVoiceStatus(""); // Hidden status per user request
+        setVoiceStatus("");
         const parsed = parseVoiceMath(transcript);
         if (parsed && parsed.tokens) {
           const expression = parsed.tokens.join(' ');
@@ -707,24 +679,22 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
           }
 
           if (parsed.tokens.includes('=')) {
+            // Stop recording; commitment happens in the !listening effect
             stopRecording();
-            const cleanTranscript = transcript.replace(/\b(equals|is|total|result)\b|=/gi, '').trim();
-            if (cleanTranscript) {
-              handleVoiceCommand(cleanTranscript);
-              handleEquals();
-            }
           }
         } else {
-          // If parsing fails but we have a transcript, show converted words if possible
+          // Fallback for partials
           const conv = wordsToNumbers(transcript, { fuzzy: true });
           const displayVal = (typeof conv === 'number') ? String(conv) : transcript;
-          if (displayVal !== "NaN") setDisplay(displayVal);
+          if (displayVal !== "NaN" && displayVal.trim() !== "") {
+            setDisplay(displayVal.toLowerCase());
+          }
         }
       }
     } else {
       setVoiceStatus("");
     }
-  }, [listening, transcript, isMicrophoneAvailable, stopRecording, handleVoiceCommand, handleEquals]);
+  }, [listening, transcript, isMicrophoneAvailable, stopRecording, display]);
 
   const handleAdditionStart = () => {
     if (isNormalMode) return;
