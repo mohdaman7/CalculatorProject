@@ -442,10 +442,12 @@ const VerificationPage = ({ onVerificationComplete }) => {
 
   const getMaskedPhone = () => {
     if (!phoneNumber) return "";
+    const length = phoneNumber.length;
+    if (length <= 4) return selectedCountry.code + " " + phoneNumber;
     return (
       selectedCountry.code +
       " " +
-      "•".repeat(phoneNumber.length - 4) +
+      "•".repeat(length - 4) +
       phoneNumber.slice(-4)
     );
   };
@@ -581,7 +583,7 @@ const VerificationPage = ({ onVerificationComplete }) => {
                           type="tel"
                           value={phoneNumber}
                           onChange={handlePhoneChange}
-                          placeholder={`${"0".repeat(selectedCountry.maxLength)}`}
+                          placeholder={`${"0".repeat(Math.max(0, selectedCountry.maxLength))}`}
                           className="w-full bg-zinc-800/50 border border-zinc-700/50 rounded-xl pl-24 pr-4 py-3.5 text-white text-lg font-medium placeholder-zinc-600 focus:outline-none focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/20 transition-all"
                           disabled={loading}
                           autoFocus

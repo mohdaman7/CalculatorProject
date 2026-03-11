@@ -32,9 +32,8 @@ export function AuthProvider({ children }) {
     return null;
   };
 
-  const initialUser = getInitialUser();
-  const [user, setUser] = useState(initialUser);
-  const [loading, setLoading] = useState(typeof window !== 'undefined' ? !!localStorage.getItem('calculator_token') : true);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   // Initialize from storage on mount
