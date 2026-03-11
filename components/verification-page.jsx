@@ -77,8 +77,10 @@ const COUNTRY_CODES = [
 
 const VerificationPage = ({ onVerificationComplete }) => {
   const [step, setStep] = useState("phone");
+  const [loginMode, setLoginMode] = useState("phone"); // "phone" or "email"
   const [selectedCountry, setSelectedCountry] = useState(COUNTRY_CODES[0]);
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [email, setEmail] = useState("");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -92,7 +94,7 @@ const VerificationPage = ({ onVerificationComplete }) => {
     if (window.recaptchaVerifier) {
       try {
         window.recaptchaVerifier.clear();
-      } catch (e) {}
+      } catch (e) { }
       window.recaptchaVerifier = null;
     }
     const container = document.getElementById("recaptcha-container");
@@ -134,12 +136,14 @@ const VerificationPage = ({ onVerificationComplete }) => {
   }, [clearRecaptcha]);
 
   useEffect(() => {
-    initializeRecaptcha();
+    if (loginMode === "phone") {
+      initializeRecaptcha();
+    }
 
     return () => {
       clearRecaptcha();
     };
-  }, [clearRecaptcha, initializeRecaptcha]);
+  }, [clearRecaptcha, initializeRecaptcha, loginMode]);
 
   const handlePhoneChange = (e) => {
     const value = e.target.value
@@ -149,7 +153,90 @@ const VerificationPage = ({ onVerificationComplete }) => {
     setError("");
   };
 
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+    setError("");
+  };
+
   const isProcessingRef = useRef(false);
+
+  const handleRequestEmailOTP = async (e) => {
+    e.preventDefault();
+    if (loading || isProcessingRef.current) return;
+
+    setError("");
+    setLoading(true);
+    isProcessingRef.current = true;
+
+    try {
+      if (!email.trim() || !email.includes("@")) {
+        setError("Please enter a valid email address");
+        setLoading(false);
+        isProcessingRef.current = false;
+        return;
+      }
+
+      const res = await verificationService.requestEmailOTP(email);
+
+      if (res.success) {
+        setStep("otp");
+        setOtp(["", "", "", "", "", ""]);
+        setExpiresIn(600);
+        startCountdown(600);
+      } else {
+        setError(res.error || "Failed to send code to your email");
+      }
+    } catch (err) {
+      console.error("Error requesting email OTP:", err);
+      setError("Failed to send code. Please try again.");
+    } finally {
+      setLoading(false);
+      isProcessingRef.current = false;
+    }
+  };
+
+  const handleVerifyEmailOTP = async (e) => {
+    e.preventDefault();
+    if (loading || isProcessingRef.current) return;
+
+    setError("");
+    setLoading(true);
+    isProcessingRef.current = true;
+
+    const otpValue = otp.join("");
+
+    try {
+      if (otpValue.length !== 6) {
+        setError("Please enter the complete 6-digit code");
+        setLoading(false);
+        isProcessingRef.current = false;
+        return;
+      }
+
+      const res = await verificationService.verifyEmailOTP(email, otpValue);
+
+      if (res.success) {
+        localStorage.setItem("calculator_token", res.token);
+        localStorage.setItem("user", JSON.stringify(res.user));
+
+        // Notify parent if needed
+        if (onVerificationComplete) {
+          onVerificationComplete(res.user, res.token);
+        }
+
+        // Force reload to let AuthContext initialize with the new JWT session
+        window.location.reload();
+      } else {
+        setError(res.error || "Invalid verification code");
+      }
+    } catch (err) {
+      console.error("Error verifying email OTP:", err);
+      setError("Verification failed. Please try again.");
+    } finally {
+      setLoading(false);
+      isProcessingRef.current = false;
+    }
+  };
 
   const handleRequestOTP = async (e) => {
     e.preventDefault();
@@ -363,6 +450,11 @@ const VerificationPage = ({ onVerificationComplete }) => {
     );
   };
 
+  const currentIdentifier = loginMode === "phone" ? getMaskedPhone() : email;
+  const currentSubmitHandler = step === "otp"
+    ? (loginMode === "phone" ? handleVerifyOTP : handleVerifyEmailOTP)
+    : (loginMode === "phone" ? handleRequestOTP : handleRequestEmailOTP);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-zinc-950 to-black flex flex-col items-center justify-center p-4">
       {/* Main Card */}
@@ -375,129 +467,189 @@ const VerificationPage = ({ onVerificationComplete }) => {
                 Welcome
               </h1>
               <p className="text-zinc-500 text-sm">
-                Enter your phone number to continue
+                {loginMode === "phone"
+                  ? "Enter your phone number to continue"
+                  : "Enter your email to continue"}
               </p>
             </div>
 
-            {/* Phone Input Card */}
+            {/* Login Mode Toggle */}
+            <div className="flex bg-zinc-900/50 p-1 rounded-xl mb-6 border border-zinc-800/50">
+              <button
+                onClick={() => { setLoginMode("phone"); setError(""); }}
+                className={`flex-1 py-2 text-xs font-medium rounded-lg transition-all ${loginMode === "phone"
+                  ? "bg-amber-500 text-black shadow-lg"
+                  : "text-zinc-400 hover:text-white"
+                  }`}
+              >
+                Phone Number
+              </button>
+              <button
+                onClick={() => { setLoginMode("email"); setError(""); }}
+                className={`flex-1 py-2 text-xs font-medium rounded-lg transition-all ${loginMode === "email"
+                  ? "bg-amber-500 text-black shadow-lg"
+                  : "text-zinc-400 hover:text-white"
+                  }`}
+              >
+                Email Address
+              </button>
+            </div>
+
+            {/* Input Card */}
             <div className="bg-zinc-900/80 backdrop-blur-xl rounded-3xl p-6 border border-zinc-800/50 shadow-2xl">
-              <form onSubmit={handleRequestOTP} className="space-y-5">
-                {/* Country Selector */}
-                <div className="relative">
-                  <label className="block text-zinc-400 text-xs font-medium mb-2 uppercase tracking-wider">
-                    Country
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => setShowCountryPicker(!showCountryPicker)}
-                    className="w-full bg-zinc-800/50 border border-zinc-700/50 rounded-xl px-4 py-3.5 flex items-center justify-between text-white hover:bg-zinc-800 transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">{selectedCountry.flag}</span>
-                      <span className="font-medium">
-                        {selectedCountry.country}
-                      </span>
-                      <span className="text-zinc-500">
-                        {selectedCountry.code}
-                      </span>
-                    </div>
-                    <svg
-                      className={`w-5 h-5 text-zinc-500 transition-transform ${
-                        showCountryPicker ? "rotate-180" : ""
-                      }`}
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </button>
-
-                  {/* Country Dropdown */}
-                  {showCountryPicker && (
-                    <div className="absolute z-50 w-full mt-2 bg-zinc-900 border border-zinc-700/50 rounded-xl shadow-xl max-h-64 overflow-y-auto">
-                      {COUNTRY_CODES.map((country) => (
-                        <button
-                          key={country.code}
-                          type="button"
-                          onClick={() => {
-                            setSelectedCountry(country);
-                            setShowCountryPicker(false);
-                            setPhoneNumber("");
-                          }}
-                          className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-zinc-800 transition-colors ${
-                            selectedCountry.code === country.code
-                              ? "bg-zinc-800"
-                              : ""
-                          }`}
+              <form onSubmit={currentSubmitHandler} className="space-y-5">
+                {loginMode === "phone" ? (
+                  <>
+                    {/* Country Selector */}
+                    <div className="relative">
+                      <label className="block text-zinc-400 text-xs font-medium mb-2 uppercase tracking-wider">
+                        Country
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setShowCountryPicker(!showCountryPicker)}
+                        className="w-full bg-zinc-800/50 border border-zinc-700/50 rounded-xl px-4 py-3.5 flex items-center justify-between text-white hover:bg-zinc-800 transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-2xl">{selectedCountry.flag}</span>
+                          <span className="font-medium">
+                            {selectedCountry.country}
+                          </span>
+                          <span className="text-zinc-500">
+                            {selectedCountry.code}
+                          </span>
+                        </div>
+                        <svg
+                          className={`w-5 h-5 text-zinc-500 transition-transform ${showCountryPicker ? "rotate-180" : ""
+                            }`}
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
                         >
-                          <span className="text-xl">{country.flag}</span>
-                          <span className="text-white font-medium">
-                            {country.country}
-                          </span>
-                          <span className="text-zinc-500 ml-auto">
-                            {country.code}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 9l-7 7-7-7"
+                          />
+                        </svg>
+                      </button>
 
-                {/* Phone Number Input */}
-                <div>
-                  <label className="block text-zinc-400 text-xs font-medium mb-2 uppercase tracking-wider">
-                    Phone Number
-                  </label>
-                  <div className="relative">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2 text-zinc-400">
-                      <Phone className="w-4 h-4" />
-                      <span className="font-medium">
-                        {selectedCountry.code}
-                      </span>
+                      {/* Country Dropdown */}
+                      {showCountryPicker && (
+                        <div className="absolute z-50 w-full mt-2 bg-zinc-900 border border-zinc-700/50 rounded-xl shadow-xl max-h-64 overflow-y-auto">
+                          {COUNTRY_CODES.map((country) => (
+                            <button
+                              key={country.code}
+                              type="button"
+                              onClick={() => {
+                                setSelectedCountry(country);
+                                setShowCountryPicker(false);
+                                setPhoneNumber("");
+                              }}
+                              className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-zinc-800 transition-colors ${selectedCountry.code === country.code
+                                ? "bg-zinc-800"
+                                : ""
+                                }`}
+                            >
+                              <span className="text-xl">{country.flag}</span>
+                              <span className="text-white font-medium">
+                                {country.country}
+                              </span>
+                              <span className="text-zinc-500 ml-auto">
+                                {country.code}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    <input
-                      type="tel"
-                      value={phoneNumber}
-                      onChange={handlePhoneChange}
-                      placeholder={`${"0".repeat(selectedCountry.maxLength)}`}
-                      className="w-full bg-zinc-800/50 border border-zinc-700/50 rounded-xl pl-24 pr-4 py-3.5 text-white text-lg font-medium placeholder-zinc-600 focus:outline-none focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/20 transition-all"
-                      disabled={loading}
-                      autoFocus
-                    />
-                  </div>
-                  <p className="text-zinc-600 text-xs mt-2 text-right">
-                    {phoneNumber.length}/{selectedCountry.maxLength} digits
-                  </p>
-                </div>
 
-                {/* reCAPTCHA Widget */}
-                <div className="flex flex-col items-center gap-3">
-                  <p className="text-zinc-500 text-xs">
-                    Complete verification to continue
-                  </p>
-                  <div
-                    id="recaptcha-container"
-                    className="flex justify-center"
-                  ></div>
-                  {recaptchaReady && (
-                    <div className="flex items-center gap-2 text-green-500 text-xs">
-                      <CheckCircle2 className="w-4 h-4" />
-                      <span>Verified</span>
+                    {/* Phone Number Input */}
+                    <div>
+                      <label className="block text-zinc-400 text-xs font-medium mb-2 uppercase tracking-wider">
+                        Phone Number
+                      </label>
+                      <div className="relative">
+                        <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2 text-zinc-400">
+                          <Phone className="w-4 h-4" />
+                          <span className="font-medium">
+                            {selectedCountry.code}
+                          </span>
+                        </div>
+                        <input
+                          type="tel"
+                          value={phoneNumber}
+                          onChange={handlePhoneChange}
+                          placeholder={`${"0".repeat(selectedCountry.maxLength)}`}
+                          className="w-full bg-zinc-800/50 border border-zinc-700/50 rounded-xl pl-24 pr-4 py-3.5 text-white text-lg font-medium placeholder-zinc-600 focus:outline-none focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/20 transition-all"
+                          disabled={loading}
+                          autoFocus
+                        />
+                      </div>
+                      <p className="text-zinc-600 text-xs mt-2 text-right">
+                        {phoneNumber.length}/{selectedCountry.maxLength} digits
+                      </p>
                     </div>
-                  )}
-                </div>
+
+                    {/* reCAPTCHA Widget */}
+                    <div className="flex flex-col items-center gap-3">
+                      <p className="text-zinc-500 text-xs">
+                        Complete verification to continue
+                      </p>
+                      <div
+                        id="recaptcha-container"
+                        className="flex justify-center"
+                      ></div>
+                      {recaptchaReady && (
+                        <div className="flex items-center gap-2 text-green-500 text-xs">
+                          <CheckCircle2 className="w-4 h-4" />
+                          <span>Verified</span>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* Email Input */}
+                    <div>
+                      <label className="block text-zinc-400 text-xs font-medium mb-2 uppercase tracking-wider">
+                        Email Address
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="email"
+                          value={email}
+                          onChange={handleEmailChange}
+                          placeholder="your@email.com"
+                          className="w-full bg-zinc-800/50 border border-zinc-700/50 rounded-xl px-4 py-3.5 text-white text-lg font-medium placeholder-zinc-600 focus:outline-none focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/20 transition-all"
+                          disabled={loading}
+                          autoFocus
+                        />
+                      </div>
+                      <p className="text-zinc-500 text-[10px] mt-2 leading-relaxed">
+                        We'll send a secret access key to your email if SMS is not working for your region.
+                      </p>
+                    </div>
+                  </>
+                )}
 
                 {/* Error Message */}
                 {error && (
-                  <div className="bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 flex items-center gap-3">
-                    <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                    <span className="text-red-400 text-sm">{error}</span>
+                  <div className="bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 space-y-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                      <span className="text-red-400 text-sm">{error}</span>
+                    </div>
+                    {loginMode === "phone" && (
+                      <button
+                        type="button"
+                        onClick={() => { setLoginMode("email"); setError(""); }}
+                        className="text-amber-500 text-xs font-medium hover:underline block ml-5"
+                      >
+                        SMS not working? Try Email Login
+                      </button>
+                    )}
                   </div>
                 )}
 
@@ -505,19 +657,20 @@ const VerificationPage = ({ onVerificationComplete }) => {
                 <button
                   type="submit"
                   disabled={
-                    loading || phoneNumber.length < 6 || !recaptchaReady
+                    loading ||
+                    (loginMode === "phone" ? (phoneNumber.length < 6 || !recaptchaReady) : (!email.includes("@")))
                   }
                   className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-black font-semibold py-4 rounded-xl hover:from-amber-400 hover:to-orange-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2"
                 >
                   {loading ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin" />
-                      <span>Sending...</span>
+                      <span>{step === "otp" ? "Verifying..." : "Sending..."}</span>
                     </>
                   ) : (
                     <>
-                      <Shield className="w-5 h-5" />
-                      <span>Get Verification Code</span>
+                      {step === "otp" ? <CheckCircle2 className="w-5 h-5" /> : <Shield className="w-5 h-5" />}
+                      <span>{step === "otp" ? "Verify & Continue" : "Get Verification Code"}</span>
                     </>
                   )}
                 </button>
@@ -526,7 +679,7 @@ const VerificationPage = ({ onVerificationComplete }) => {
 
             {/* Footer Text */}
             <p className="text-zinc-600 text-xs text-center mt-6">
-              Complete the reCAPTCHA, then click the button
+              {loginMode === "phone" ? "Complete the reCAPTCHA, then click the button" : "Click to receive an access key in your inbox"}
             </p>
           </div>
         ) : (
@@ -551,13 +704,13 @@ const VerificationPage = ({ onVerificationComplete }) => {
               </h1>
               <p className="text-zinc-500 text-sm">Enter the code sent to</p>
               <p className="text-amber-500 font-medium mt-1">
-                {getMaskedPhone()}
+                {currentIdentifier}
               </p>
             </div>
 
             {/* OTP Input Card */}
             <div className="bg-zinc-900/80 backdrop-blur-xl rounded-3xl p-6 border border-zinc-800/50 shadow-2xl">
-              <form onSubmit={handleVerifyOTP} className="space-y-6">
+              <form onSubmit={currentSubmitHandler} className="space-y-6">
                 {/* OTP Input Boxes */}
                 <div
                   className="flex justify-center gap-2"
@@ -573,11 +726,10 @@ const VerificationPage = ({ onVerificationComplete }) => {
                       value={digit}
                       onChange={(e) => handleOtpChange(index, e.target.value)}
                       onKeyDown={(e) => handleOtpKeyDown(index, e)}
-                      className={`w-12 h-14 bg-zinc-800/50 border rounded-xl text-center text-2xl font-bold text-white focus:outline-none transition-all ${
-                        digit
-                          ? "border-amber-500/50 ring-2 ring-amber-500/20"
-                          : "border-zinc-700/50 focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/20"
-                      }`}
+                      className={`w-12 h-14 bg-zinc-800/50 border rounded-xl text-center text-2xl font-bold text-white focus:outline-none transition-all ${digit
+                        ? "border-amber-500/50 ring-2 ring-amber-500/20"
+                        : "border-zinc-700/50 focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/20"
+                        }`}
                       disabled={loading}
                     />
                   ))}
@@ -586,18 +738,16 @@ const VerificationPage = ({ onVerificationComplete }) => {
                 {/* Timer */}
                 <div className="flex justify-center">
                   <div
-                    className={`flex items-center gap-2 px-4 py-2 rounded-full ${
-                      expiresIn <= 30
-                        ? "bg-red-500/10 text-red-400"
-                        : "bg-zinc-800/50 text-zinc-400"
-                    }`}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full ${expiresIn <= 30
+                      ? "bg-red-500/10 text-red-400"
+                      : "bg-zinc-800/50 text-zinc-400"
+                      }`}
                   >
                     <div
-                      className={`w-2 h-2 rounded-full ${
-                        expiresIn <= 30
-                          ? "bg-red-500 animate-pulse"
-                          : "bg-amber-500"
-                      }`}
+                      className={`w-2 h-2 rounded-full ${expiresIn <= 30
+                        ? "bg-red-500 animate-pulse"
+                        : "bg-amber-500"
+                        }`}
                     ></div>
                     <span className="text-sm font-medium">
                       {expiresIn > 0
@@ -657,7 +807,7 @@ const VerificationPage = ({ onVerificationComplete }) => {
       {/* Bottom Badge */}
       <div className="mt-8 flex items-center gap-2 text-zinc-600 text-xs">
         <Shield className="w-3.5 h-3.5" />
-        <span>Secured by Firebase</span>
+        <span>{loginMode === "phone" ? "Secured by Firebase" : "Secured by Email Verification"}</span>
       </div>
 
       {/* CSS Animations */}

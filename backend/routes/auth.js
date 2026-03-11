@@ -181,8 +181,101 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const admin = require('../config/firebase');
 const User = require('../models/User');
+const EmailOTP = require('../models/EmailOTP');
+const EmailService = require('../services/EmailService');
 
 const router = express.Router();
+
+// Generate 6-digit OTP
+const generateOTP = () => {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
+// Request Email OTP
+router.post('/request-email-otp', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, error: 'Email is required' });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ success: false, error: 'Invalid email format' });
+    }
+
+    const otp = generateOTP();
+
+    // Save OTP to database
+    await EmailOTP.findOneAndUpdate(
+      { email: email.toLowerCase() },
+      { otp, createdAt: new Date() },
+      { upsert: true, new: true }
+    );
+
+    // Send OTP via email
+    const emailResult = await EmailService.sendOTP(email, otp);
+
+    if (!emailResult.success) {
+      return res.status(500).json({ success: false, error: 'Failed to send OTP email' });
+    }
+
+    res.json({ success: true, message: 'OTP sent successfully to your email' });
+  } catch (err) {
+    console.error('Request Email OTP error:', err);
+    res.status(500).json({ success: false, error: 'Server error during OTP request' });
+  }
+});
+
+// Verify Email OTP
+router.post('/verify-email-otp', async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    if (!email || !otp) {
+      return res.status(400).json({ success: false, error: 'Email and OTP are required' });
+    }
+
+    const otpRecord = await EmailOTP.findOne({
+      email: email.toLowerCase(),
+      otp: otp
+    });
+
+    if (!otpRecord) {
+      return res.status(400).json({ success: false, error: 'Invalid or expired OTP' });
+    }
+
+    // OTP is valid, delete it
+    await EmailOTP.deleteOne({ _id: otpRecord._id });
+
+    // Find or create user
+    let user = await User.findOne({ email: email.toLowerCase() });
+
+    if (!user) {
+      user = await User.create({
+        email: email.toLowerCase(),
+        username: `user_${email.split('@')[0]}_${Math.floor(1000 + Math.random() * 9000)}`,
+        isPhoneVerified: false, // verified via email instead
+        uid: `email_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`
+      });
+    }
+
+    const token = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: '30d' }
+    );
+
+    res.json({
+      success: true,
+      token,
+      user
+    });
+  } catch (err) {
+    console.error('Verify Email OTP error:', err);
+    res.status(500).json({ success: false, error: 'Server error during OTP verification' });
+  }
+});
 
 router.post('/login', async (req, res) => {
   try {

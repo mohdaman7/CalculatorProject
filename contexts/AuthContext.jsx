@@ -32,93 +32,104 @@ export function AuthProvider({ children }) {
     return null;
   };
 
-  const [user, setUser] = useState(getInitialUser);
-  const [loading, setLoading] = useState(true);
+  const initialUser = getInitialUser();
+  const [user, setUser] = useState(initialUser);
+  const [loading, setLoading] = useState(typeof window !== 'undefined' ? !!localStorage.getItem('calculator_token') : true);
   const [error, setError] = useState(null);
+
+  // Initialize from storage on mount
+  useEffect(() => {
+    const initializeSession = async () => {
+      const token = localStorage.getItem('calculator_token');
+      const storedUser = localStorage.getItem('user');
+
+      if (token && storedUser) {
+        try {
+          const parsedUser = JSON.parse(storedUser);
+          setUser(parsedUser);
+          apiService.saveToken(token);
+
+          // Refresh profile from backend to ensure data is current
+          const response = await apiService.getCurrentUser();
+          if (response && response.user) {
+            const updatedUser = {
+              ...parsedUser,
+              isAdmin: response.user.isAdmin || false,
+              isSuperAdmin: response.user.isSuperAdmin || false,
+              forcedNumber: response.user.forcedNumber || null,
+              secondForceNumber: response.user.secondForceNumber || null,
+              secondForceTriggerNumber: response.user.secondForceTriggerNumber || null,
+              birthYear: response.user.birthYear || null,
+            };
+            setUser(updatedUser);
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+          }
+        } catch (e) {
+          console.error('Failed to restore session:', e);
+        }
+      }
+      setLoading(false);
+    };
+
+    initializeSession();
+  }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        try {
-          // Get Firebase ID token
-          const token = await firebaseUser.getIdToken();
-
-          // Save token for API calls
-          apiService.saveToken(token);
-          localStorage.setItem('calculator_token', token);
-          localStorage.setItem('user', JSON.stringify({
-            uid: firebaseUser.uid,
-            phoneNumber: firebaseUser.phoneNumber,
-            displayName: firebaseUser.displayName || null,
-          }));
-
-          // Try to get user data from backend
-          let userData = {
-            uid: firebaseUser.uid,
-            phoneNumber: firebaseUser.phoneNumber,
-            displayName: firebaseUser.displayName || null,
-            forcedNumber: null,
-            secondForceNumber: null,
-            secondForceTriggerNumber: null,
-            birthYear: null,
-          };
-
-          try {
-            console.log('Fetching profile for:', firebaseUser.phoneNumber);
-            const backendUser = await apiService.getCurrentUser();
-            console.log('Backend profile received:', backendUser);
-            if (backendUser && backendUser.user) {
-              userData = {
-                ...userData,
-                isAdmin: backendUser.user.isAdmin || false,
-                isSuperAdmin: backendUser.user.isSuperAdmin || false,
-                forcedNumber: backendUser.user.forcedNumber || null,
-                secondForceNumber: backendUser.user.secondForceNumber || null,
-                secondForceTriggerNumber: backendUser.user.secondForceTriggerNumber || null,
-                birthYear: backendUser.user.birthYear || null,
-              };
-              // CRITICAL: Update localStorage with full profile including isAdmin
-              console.log('Syncing profile to localStorage:', userData);
-              localStorage.setItem('user', JSON.stringify(userData));
-            }
-          } catch (backendError) {
-            console.error('Failed to sync backend profile:', backendError.message);
-            // Load from localStorage as fallback
-            const storedData = localStorage.getItem('userData');
-            if (storedData) {
-              try {
-                const parsed = JSON.parse(storedData);
-                userData.forcedNumber = parsed.forcedNumber || null;
-                userData.secondForceNumber = parsed.secondForceNumber || null;
-                userData.secondForceTriggerNumber = parsed.secondForceTriggerNumber || null;
-                userData.birthYear = parsed.birthYear || null;
-                userData.isAdmin = parsed.isAdmin || false;
-                userData.isSuperAdmin = parsed.isSuperAdmin || false;
-              } catch (e) { }
-            }
-            // Also try to preserve isAdmin from 'user' localStorage
-            const storedUser = localStorage.getItem('user');
-            if (storedUser) {
-              try {
-                const parsed = JSON.parse(storedUser);
-                if (parsed.isAdmin) userData.isAdmin = true;
-                if (parsed.isSuperAdmin) userData.isSuperAdmin = true;
-              } catch (e) { }
-            }
-          }
-
-          setUser(userData);
-        } catch (error) {
-          console.error('Error getting user data:', error);
+      // If we already have a user in state (from JWT), don't let 
+      // onAuthStateChanged (which might be null initially) clear it.
+      if (!firebaseUser) {
+        // Only clear if there's no custom token as well
+        if (!localStorage.getItem('calculator_token')) {
           setUser(null);
+          setLoading(false);
         }
-      } else {
-        setUser(null);
-        apiService.removeToken();
-        localStorage.removeItem('calculator_token');
-        localStorage.removeItem('user');
+        return;
       }
-      setLoading(false);
+
+      setLoading(true);
+      try {
+        // Get Firebase ID token
+        const token = await firebaseUser.getIdToken();
+
+        // Save token for API calls
+        apiService.saveToken(token);
+        localStorage.setItem('calculator_token', token);
+
+        let userData = {
+          uid: firebaseUser.uid,
+          phoneNumber: firebaseUser.phoneNumber,
+          displayName: firebaseUser.displayName || null,
+          forcedNumber: null,
+          secondForceNumber: null,
+          secondForceTriggerNumber: null,
+          birthYear: null,
+        };
+
+        try {
+          const backendUser = await apiService.getCurrentUser();
+          if (backendUser && backendUser.user) {
+            userData = {
+              ...userData,
+              isAdmin: backendUser.user.isAdmin || false,
+              isSuperAdmin: backendUser.user.isSuperAdmin || false,
+              forcedNumber: backendUser.user.forcedNumber || null,
+              secondForceNumber: backendUser.user.secondForceNumber || null,
+              secondForceTriggerNumber: backendUser.user.secondForceTriggerNumber || null,
+              birthYear: backendUser.user.birthYear || null,
+            };
+            localStorage.setItem('user', JSON.stringify(userData));
+          }
+        } catch (backendError) {
+          console.error('Failed to sync backend profile on Firebase change');
+        }
+
+        setUser(userData);
+      } catch (error) {
+        console.error('Error handling Firebase auth change:', error);
+      } finally {
+        setLoading(false);
+      }
     });
 
     return () => unsubscribe();
