@@ -470,32 +470,13 @@ const VerificationPage = ({ onVerificationComplete }) => {
               </h1>
               <p className="text-zinc-500 text-sm">
                 {loginMode === "phone"
-                  ? "Enter your phone number to continue"
-                  : "Enter your email to continue"}
+                  ? "Verify your account to continue"
+                  : "Enter your email for access"}
               </p>
             </div>
 
             {/* Login Mode Toggle */}
-            <div className="flex bg-zinc-900/50 p-1 rounded-xl mb-6 border border-zinc-800/50">
-              <button
-                onClick={() => { setLoginMode("phone"); setError(""); }}
-                className={`flex-1 py-2 text-xs font-medium rounded-lg transition-all ${loginMode === "phone"
-                  ? "bg-amber-500 text-black shadow-lg"
-                  : "text-zinc-400 hover:text-white"
-                  }`}
-              >
-                Phone Number
-              </button>
-              <button
-                onClick={() => { setLoginMode("email"); setError(""); }}
-                className={`flex-1 py-2 text-xs font-medium rounded-lg transition-all ${loginMode === "email"
-                  ? "bg-amber-500 text-black shadow-lg"
-                  : "text-zinc-400 hover:text-white"
-                  }`}
-              >
-                Email Address
-              </button>
-            </div>
+
 
             {/* Input Card */}
             <div className="bg-zinc-900/80 backdrop-blur-xl rounded-3xl p-6 border border-zinc-800/50 shadow-2xl">
@@ -644,13 +625,16 @@ const VerificationPage = ({ onVerificationComplete }) => {
                       <span className="text-red-400 text-sm">{error}</span>
                     </div>
                     {loginMode === "phone" && (
-                      <button
-                        type="button"
-                        onClick={() => { setLoginMode("email"); setError(""); }}
-                        className="text-amber-500 text-xs font-medium hover:underline block ml-5"
-                      >
-                        SMS not working? Try Email Login
-                      </button>
+                      <div className="pt-2 mt-2 border-t border-red-500/10">
+                        <p className="text-zinc-500 text-[10px] mb-2">Having trouble with SMS verification?</p>
+                        <button
+                          type="button"
+                          onClick={() => { setLoginMode("email"); setError(""); }}
+                          className="w-full py-2 bg-amber-500/10 border border-amber-500/20 text-amber-500 rounded-lg text-xs font-semibold hover:bg-amber-500/20 transition-all flex items-center justify-center gap-2"
+                        >
+                          Continue with Email Login
+                        </button>
+                      </div>
                     )}
                   </div>
                 )}
