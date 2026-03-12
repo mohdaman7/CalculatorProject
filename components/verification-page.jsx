@@ -88,32 +88,42 @@ const VerificationPage = ({ onVerificationComplete }) => {
   const [expiresIn, setExpiresIn] = useState(0);
   const [showCountryPicker, setShowCountryPicker] = useState(false);
   const [recaptchaReady, setRecaptchaReady] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+  const recaptchaRef = useRef(null);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const clearRecaptcha = useCallback(() => {
     setRecaptchaReady(false);
     if (window.recaptchaVerifier) {
       try {
         window.recaptchaVerifier.clear();
-      } catch (e) { }
+      } catch (e) {
+        console.error("Error clearing reCAPTCHA:", e);
+      }
       window.recaptchaVerifier = null;
     }
-    const container = document.getElementById("recaptcha-container");
-    if (container) {
-      container.innerHTML = "";
+    if (recaptchaRef.current) {
+      recaptchaRef.current.innerHTML = "";
     }
   }, []);
 
   const initializeRecaptcha = useCallback(async () => {
-    if (typeof window === "undefined") return null;
+    if (!isMounted || !recaptchaRef.current || loginMode !== "phone") return null;
 
     clearRecaptcha();
 
-    await new Promise((resolve) => setTimeout(resolve, 200));
-
     try {
+      // Small delay to ensure container is fully in DOM and stable
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
+      if (!recaptchaRef.current) return null;
+
       window.recaptchaVerifier = new RecaptchaVerifier(
         auth,
-        "recaptcha-container",
+        recaptchaRef.current,
         {
           size: "normal",
           callback: () => {
@@ -133,17 +143,17 @@ const VerificationPage = ({ onVerificationComplete }) => {
       console.error("RecaptchaVerifier init error:", err);
       return null;
     }
-  }, [clearRecaptcha]);
+  }, [isMounted, loginMode, clearRecaptcha]);
 
   useEffect(() => {
-    if (loginMode === "phone") {
+    if (loginMode === "phone" && isMounted && step === "phone") {
       initializeRecaptcha();
     }
 
     return () => {
       clearRecaptcha();
     };
-  }, [clearRecaptcha, initializeRecaptcha, loginMode]);
+  }, [initializeRecaptcha, clearRecaptcha, loginMode, isMounted, step]);
 
   const handlePhoneChange = (e) => {
     const value = e.target.value
@@ -581,8 +591,8 @@ const VerificationPage = ({ onVerificationComplete }) => {
                         Complete verification to continue
                       </p>
                       <div
-                        id="recaptcha-container"
-                        className="flex justify-center"
+                        ref={recaptchaRef}
+                        className="flex justify-center min-h-[78px]"
                       ></div>
                       {recaptchaReady && (
                         <div className="flex items-center gap-2 text-green-500 text-xs">
@@ -624,7 +634,7 @@ const VerificationPage = ({ onVerificationComplete }) => {
                       <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
                       <span className="text-red-400 text-sm">{error}</span>
                     </div>
-                    {loginMode === "phone" && (
+                    {loginMode === "phone" && !error.includes("not registered") && (
                       <div className="pt-2 mt-2 border-t border-red-500/10">
                         <p className="text-zinc-500 text-[10px] mb-2">Having trouble with SMS verification?</p>
                         <button
