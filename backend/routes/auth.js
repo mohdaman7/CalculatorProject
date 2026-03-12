@@ -183,6 +183,7 @@ const admin = require('../config/firebase');
 const User = require('../models/User');
 const EmailOTP = require('../models/EmailOTP');
 const EmailService = require('../services/EmailService');
+const WhitelistedUser = require('../models/WhitelistedUser');
 
 const router = express.Router();
 
@@ -190,6 +191,58 @@ const router = express.Router();
 const generateOTP = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
 };
+
+// Direct Email Login (OTP Bypass for Whitelisted Users)
+router.post('/direct-email-login', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, error: 'Email is required' });
+    }
+
+    // Check if email is whitelisted
+    const whitelistedUser = await WhitelistedUser.findOne({
+      email: email.toLowerCase(),
+      status: 'active'
+    });
+
+    if (!whitelistedUser) {
+      return res.status(403).json({
+        success: false,
+        error: 'Access denied. This email is not whitelisted for direct login.'
+      });
+    }
+
+    // Find or create user
+    let user = await User.findOne({ email: email.toLowerCase() });
+
+    if (!user) {
+      user = await User.create({
+        email: email.toLowerCase(),
+        username: `user_${email.split('@')[0]}_${Math.floor(1000 + Math.random() * 9000)}`,
+        isPhoneVerified: false,
+        uid: `email_direct_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`
+      });
+    }
+
+    // Generate token
+    const token = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: '30d' }
+    );
+
+    res.json({
+      success: true,
+      message: 'Logged in successfully via whitelist',
+      token,
+      user
+    });
+  } catch (err) {
+    console.error('Direct Email Login error:', err);
+    res.status(500).json({ success: false, error: 'Server error during direct login' });
+  }
+});
 
 // Request Email OTP
 router.post('/request-email-otp', async (req, res) => {
@@ -203,6 +256,19 @@ router.post('/request-email-otp', async (req, res) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({ success: false, error: 'Invalid email format' });
+    }
+
+    // Check if email is whitelisted
+    const whitelistedUser = await WhitelistedUser.findOne({
+      email: email.toLowerCase(),
+      status: 'active'
+    });
+
+    if (!whitelistedUser) {
+      return res.status(403).json({
+        success: false,
+        error: 'Access denied. Your email is not whitelisted for access.'
+      });
     }
 
     const otp = generateOTP();

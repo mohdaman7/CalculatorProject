@@ -170,7 +170,7 @@ const VerificationPage = ({ onVerificationComplete }) => {
 
   const isProcessingRef = useRef(false);
 
-  const handleRequestEmailOTP = async (e) => {
+  const handleDirectEmailLogin = async (e) => {
     e.preventDefault();
     if (loading || isProcessingRef.current) return;
 
@@ -186,19 +186,23 @@ const VerificationPage = ({ onVerificationComplete }) => {
         return;
       }
 
-      const res = await verificationService.requestEmailOTP(email);
+      const res = await verificationService.directEmailLogin(email);
 
       if (res.success) {
-        setStep("otp");
-        setOtp(["", "", "", "", "", ""]);
-        setExpiresIn(600);
-        startCountdown(600);
+        localStorage.setItem("calculator_token", res.token);
+        localStorage.setItem("user", JSON.stringify(res.user));
+
+        if (onVerificationComplete) {
+          onVerificationComplete(res.user, res.token);
+        }
+
+        window.location.reload();
       } else {
-        setError(res.error || "Failed to send code to your email");
+        setError(res.error || "Access denied. This email is not whitelisted.");
       }
     } catch (err) {
-      console.error("Error requesting email OTP:", err);
-      setError("Failed to send code. Please try again.");
+      console.error("Error in direct email login:", err);
+      setError("Failed to log in. Please try again.");
     } finally {
       setLoading(false);
       isProcessingRef.current = false;
@@ -465,7 +469,7 @@ const VerificationPage = ({ onVerificationComplete }) => {
   const currentIdentifier = loginMode === "phone" ? getMaskedPhone() : email;
   const currentSubmitHandler = step === "otp"
     ? (loginMode === "phone" ? handleVerifyOTP : handleVerifyEmailOTP)
-    : (loginMode === "phone" ? handleRequestOTP : handleRequestEmailOTP);
+    : (loginMode === "phone" ? handleRequestOTP : handleDirectEmailLogin);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-zinc-950 to-black flex flex-col items-center justify-center p-4">
@@ -481,7 +485,7 @@ const VerificationPage = ({ onVerificationComplete }) => {
               <p className="text-zinc-500 text-sm">
                 {loginMode === "phone"
                   ? "Verify your account to continue"
-                  : "Enter your email for access"}
+                  : "Access your account with your whitelisted email"}
               </p>
             </div>
 
@@ -621,7 +625,7 @@ const VerificationPage = ({ onVerificationComplete }) => {
                         />
                       </div>
                       <p className="text-zinc-500 text-[10px] mt-2 leading-relaxed">
-                        We'll send a secret access key to your email if SMS is not working for your region.
+                        Whitelisted emails can log in directly without a verification code.
                       </p>
                     </div>
                   </>
@@ -666,7 +670,13 @@ const VerificationPage = ({ onVerificationComplete }) => {
                   ) : (
                     <>
                       {step === "otp" ? <CheckCircle2 className="w-5 h-5" /> : <Shield className="w-5 h-5" />}
-                      <span>{step === "otp" ? "Verify & Continue" : "Get Verification Code"}</span>
+                      <span>
+                        {step === "otp"
+                          ? "Verify & Continue"
+                          : loginMode === "email"
+                            ? "Login with Email"
+                            : "Get Verification Code"}
+                      </span>
                     </>
                   )}
                 </button>
