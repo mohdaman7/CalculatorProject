@@ -183,7 +183,7 @@ const admin = require('../config/firebase');
 const User = require('../models/User');
 const EmailOTP = require('../models/EmailOTP');
 const EmailService = require('../services/EmailService');
-const WhitelistedUser = require('../models/WhitelistedUser');
+const getWhitelistedUserModel = require('../models/WhitelistedUser');
 
 const router = express.Router();
 
@@ -201,7 +201,7 @@ router.post('/direct-email-login', async (req, res) => {
     }
 
     // Check if email is whitelisted
-    const whitelistedUser = await WhitelistedUser.findOne({
+    const whitelistedUser = await getWhitelistedUserModel().findOne({
       email: email.toLowerCase(),
       status: 'active'
     });
@@ -259,7 +259,7 @@ router.post('/request-email-otp', async (req, res) => {
     }
 
     // Check if email is whitelisted
-    const whitelistedUser = await WhitelistedUser.findOne({
+    const whitelistedUser = await getWhitelistedUserModel().findOne({
       email: email.toLowerCase(),
       status: 'active'
     });

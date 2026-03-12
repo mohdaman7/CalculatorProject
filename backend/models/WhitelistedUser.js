@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-// This model points to the 'phonenumbers' collection created by the Admin Dashboard
+// This model points to the 'phonenumbers' collection in the Admin Dashboard database
 const whitelistedUserSchema = new mongoose.Schema({
     phoneNumber: String,
     countryCode: String,
@@ -16,8 +16,15 @@ const whitelistedUserSchema = new mongoose.Schema({
         default: 'active'
     }
 }, {
-    collection: 'phonenumbers', // Explicitly specify the shared collection name
+    collection: 'phonenumbers',
     timestamps: true
 });
 
-module.exports = mongoose.model('WhitelistedUser', whitelistedUserSchema);
+// We use the main connection but switch to the 'calculator-dashboard' database
+// This ensures we only use ONE network connection to the cluster.
+const getWhitelistedUserModel = () => {
+    const dashboardDb = mongoose.connection.useDb('calculator-dashboard');
+    return dashboardDb.model('WhitelistedUser', whitelistedUserSchema);
+};
+
+module.exports = getWhitelistedUserModel;
