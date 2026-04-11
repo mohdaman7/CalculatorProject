@@ -172,7 +172,9 @@ const Button = ({ variant, onClick, onPointerDown, onPointerUp, label, wide, isO
   };
 
   const handlePointerUp = (e) => {
-    e.currentTarget.releasePointerCapture(e.pointerId);
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch (err) { /* ignore release errors */ }
     setIsPressed(false);
     onPointerUp?.(e);
   };
@@ -777,9 +779,8 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
       clearTimeout(longPressTimerRef.current);
     }
   };
-
   return (
-    <div className="w-full min-h-[100dvh] h-full bg-black lg:bg-gradient-to-br lg:from-[#0f0f0f] lg:via-[#1a1a1a] lg:to-[#0f0f0f] flex flex-col overflow-hidden lg:overflow-auto">
+    <div className="w-full min-h-screen min-h-[100dvh] h-full bg-black lg:bg-gradient-to-br lg:from-[#0f0f0f] lg:via-[#1a1a1a] lg:to-[#0f0f0f] flex flex-col overflow-hidden lg:overflow-auto">
       <ModeToast show={showModeToast} isNormalMode={isNormalMode} />
       <div className="flex-1 flex items-end md:items-center lg:items-center justify-center lg:p-6 xl:p-8">
         <div className="w-full lg:max-w-lg xl:max-w-xl lg:bg-gradient-to-br lg:from-[#252525] lg:to-[#1a1a1a] lg:rounded-[32px] lg:p-6 xl:p-8 lg:shadow-2xl lg:border lg:border-[#333333]/50 lg:backdrop-blur-xl relative">

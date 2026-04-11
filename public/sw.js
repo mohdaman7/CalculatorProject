@@ -47,29 +47,14 @@ self.addEventListener('fetch', (event) => {
 
   const { pathname } = new URL(event.request.url)
 
-  // Static assets: cache first, fallback to network
-  if (pathname === '/' || pathname.match(/\.(js|css|png|jpg|jpeg|gif|svg|woff|woff2)$/)) {
-    event.respondWith(
-      caches.match(event.request).then((response) => {
-        return response || fetch(event.request).then((fetchResponse) => {
-          return caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, fetchResponse.clone())
-            return fetchResponse
-          })
-        })
-      }).catch(() => {
-        // Offline fallback
-        if (pathname === '/') {
-          return caches.match('/')
-        }
-        return new Response('Offline', { status: 503 })
-      })
-    )
-    return
-  }
-
-  // API requests: network first, fallback to cache
+  // API requests: network first, NO CACHE for auth routes
   if (pathname.startsWith('/api/')) {
+    // Never cache auth routes to avoid session confusion on iOS
+    if (pathname.includes('/auth/')) {
+      event.respondWith(fetch(event.request));
+      return;
+    }
+
     event.respondWith(
       fetch(event.request)
         .then((response) => {
@@ -89,6 +74,27 @@ self.addEventListener('fetch', (event) => {
             )
           })
         })
+    )
+    return
+  }
+
+  // Static assets: cache first, fallback to network
+  if (pathname === '/' || pathname.match(/\.(js|css|png|jpg|jpeg|gif|svg|woff|woff2)$/)) {
+    event.respondWith(
+      caches.match(event.request).then((response) => {
+        return response || fetch(event.request).then((fetchResponse) => {
+          return caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, fetchResponse.clone())
+            return fetchResponse
+          })
+        })
+      }).catch(() => {
+        // Offline fallback
+        if (pathname === '/') {
+          return caches.match('/')
+        }
+        return new Response('Offline', { status: 503 })
+      })
     )
     return
   }
