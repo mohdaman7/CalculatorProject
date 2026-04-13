@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { auth } from '@/firebase';
 
+import { safeStorage } from '@/lib/safe-storage';
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
 const axiosInstance = axios.create({
@@ -14,7 +16,7 @@ const axiosInstance = axios.create({
 // Request interceptor to add auth token to requests
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('calculator_token') : null;
+    const token = safeStorage.getItem('calculator_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -30,11 +32,11 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    
+
     // Handle token expiration (401) and avoid infinite retry loops
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-      
+
       try {
         // Get fresh token from Firebase
         const currentUser = auth.currentUser;
@@ -54,7 +56,7 @@ axiosInstance.interceptors.response.use(
         return Promise.reject(refreshError);
       }
     }
-    
+
     return Promise.reject(error);
   }
 );

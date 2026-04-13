@@ -9,6 +9,7 @@ import AuthModal from "@/components/auth-modal"
 import VerificationPage from "@/components/verification-page"
 import { useAuth } from "@/contexts/AuthContext"
 import { apiService } from "@/lib/api"
+import { safeStorage } from "@/lib/safe-storage"
 
 export default function HomeWrapper() {
   const [history, setHistory] = useState([])
@@ -24,18 +25,18 @@ export default function HomeWrapper() {
   // Load from localStorage and backend on mount
   useEffect(() => {
     const loadData = async () => {
-      // Load from localStorage first
-      const savedHistory = localStorage.getItem("calculatorHistory")
-      const savedForcedNumber = localStorage.getItem("forcedNumber")
-      const savedPincodeAddress = localStorage.getItem("lastPincodeAddress")
+      // Load from safeStorage (wrapped to prevent iOS crashes)
+      const savedHistory = safeStorage.getItem("calculatorHistory")
+      const savedForcedNumber = safeStorage.getItem("forcedNumber")
+      const savedPincodeAddress = safeStorage.getItem("lastPincodeAddress")
 
       if (savedHistory) {
         try {
           const parsedHistory = JSON.parse(savedHistory)
           setHistory(parsedHistory)
-          
+
           // Extract last pincode address from history
-          const lastPincode = parsedHistory.find(entry => 
+          const lastPincode = parsedHistory.find(entry =>
             entry.pincode && (entry.addressTaluk || entry.addressDistrict || entry.addressState)
           )
           if (lastPincode) {
@@ -50,7 +51,7 @@ export default function HomeWrapper() {
           console.error('Failed to parse history:', e)
         }
       }
-      
+
       if (savedPincodeAddress) {
         try {
           setLastPincodeAddress(JSON.parse(savedPincodeAddress))
@@ -58,7 +59,7 @@ export default function HomeWrapper() {
           console.error('Failed to parse pincodeAddress:', e)
         }
       }
-      
+
       if (savedForcedNumber) {
         try {
           setForcedNumber(JSON.parse(savedForcedNumber))
@@ -101,9 +102,9 @@ export default function HomeWrapper() {
               synced: true
             }))
             setHistory(backendHistory)
-            
+
             // Extract last pincode address from backend history
-            const lastPincode = backendHistory.find(entry => 
+            const lastPincode = backendHistory.find(entry =>
               entry.pincode && (entry.addressTaluk || entry.addressDistrict || entry.addressState)
             )
             if (lastPincode) {
@@ -114,7 +115,7 @@ export default function HomeWrapper() {
                 addressState: lastPincode.addressState
               }
               setLastPincodeAddress(pincodeData)
-              localStorage.setItem("lastPincodeAddress", JSON.stringify(pincodeData))
+              safeStorage.setItem("lastPincodeAddress", JSON.stringify(pincodeData))
             }
           }
         } catch (error) {
@@ -128,12 +129,14 @@ export default function HomeWrapper() {
 
   // Save to localStorage whenever history changes
   useEffect(() => {
-    localStorage.setItem("calculatorHistory", JSON.stringify(history))
+    if (history.length > 0) {
+      safeStorage.setItem("calculatorHistory", JSON.stringify(history))
+    }
   }, [history])
 
   // Save to localStorage whenever forcedNumber changes
   useEffect(() => {
-    localStorage.setItem("forcedNumber", JSON.stringify(forcedNumber))
+    safeStorage.setItem("forcedNumber", JSON.stringify(forcedNumber))
   }, [forcedNumber])
 
   const getDeviceId = () => {
@@ -183,8 +186,8 @@ export default function HomeWrapper() {
         }
 
         await apiService.saveCalculation(payload)
-        
-        setHistory(prev => prev.map(item => 
+
+        setHistory(prev => prev.map(item =>
           item.id === newEntry.id ? { ...item, synced: true } : item
         ))
       } catch (error) {
@@ -224,7 +227,7 @@ export default function HomeWrapper() {
     setLastPincodeAddress(null)
     localStorage.removeItem("calculatorHistory")
     localStorage.removeItem("lastPincodeAddress")
-    
+
     // Try to clear from backend (clear all, not just by deviceId)
     if (isAuthenticated) {
       try {
@@ -233,7 +236,7 @@ export default function HomeWrapper() {
         console.log('Backend not available')
       }
     }
-    
+
     // Close history panel after clearing
     setShowHistory(false)
   }
@@ -241,7 +244,7 @@ export default function HomeWrapper() {
   const handleSetForcedNumber = (forcedNumbers) => {
     setForcedNumber(forcedNumbers)
     setShowForcedModal(false)
-    
+
     // Also update in AuthContext for persistence
     if (isAuthenticated) {
       updateForcedNumber(forcedNumbers)
@@ -255,7 +258,7 @@ export default function HomeWrapper() {
       secondForceTriggerNumber: null
     }
     setForcedNumber(clearedNumbers)
-    
+
     if (isAuthenticated) {
       updateForcedNumber(clearedNumbers)
     }
@@ -266,12 +269,12 @@ export default function HomeWrapper() {
     setLastPincodeAddress(pincodeData)
     // Save to localStorage for persistence
     localStorage.setItem("lastPincodeAddress", JSON.stringify(pincodeData))
-    
+
     // Update the most recent history entry with this pincode
     setHistory(prev => {
       const updated = [...prev]
       // Find the most recent entry with this pincode but no address
-      const idx = updated.findIndex(entry => 
+      const idx = updated.findIndex(entry =>
         entry.pincode === pincodeData.pincode && !entry.addressTaluk
       )
       if (idx !== -1) {
@@ -301,7 +304,7 @@ export default function HomeWrapper() {
 
   // Show verification page only if definitely not authenticated (loading complete and no user)
   if (!loading && !isAuthenticated) {
-    return <VerificationPage onVerificationComplete={() => {}} />
+    return <VerificationPage onVerificationComplete={() => { }} />
   }
 
   return (
@@ -317,10 +320,10 @@ export default function HomeWrapper() {
         />
 
         {showHistory && (
-          <HistoryPanel 
-            history={history} 
-            onClose={() => setShowHistory(false)} 
-            onClear={handleClearHistory} 
+          <HistoryPanel
+            history={history}
+            onClose={() => setShowHistory(false)}
+            onClear={handleClearHistory}
           />
         )}
 

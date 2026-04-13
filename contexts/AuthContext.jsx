@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { auth } from '@/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { apiService } from '@/lib/api';
+import { safeStorage } from '@/lib/safe-storage';
 
 const AuthContext = createContext();
 
@@ -20,8 +21,7 @@ const defaultContextValue = {
 export function AuthProvider({ children }) {
   // Check localStorage immediately for faster initial render
   const getInitialUser = () => {
-    if (typeof window === 'undefined') return null;
-    const stored = localStorage.getItem('user');
+    const stored = safeStorage.getItem('user');
     if (stored) {
       try {
         return JSON.parse(stored);
@@ -39,8 +39,8 @@ export function AuthProvider({ children }) {
   // Initialize from storage on mount
   useEffect(() => {
     const initializeSession = async () => {
-      const token = localStorage.getItem('calculator_token');
-      const storedUser = localStorage.getItem('user');
+      const token = safeStorage.getItem('calculator_token');
+      const storedUser = safeStorage.getItem('user');
 
       if (token && storedUser) {
         try {
@@ -61,7 +61,8 @@ export function AuthProvider({ children }) {
               birthYear: response.user.birthYear || null,
             };
             setUser(updatedUser);
-            localStorage.setItem('user', JSON.stringify(updatedUser));
+            localStorage.setItem('user', JSON.stringify(updatedUser)); // Keep for internal use or check if we should switch to safeStorage here too
+            safeStorage.setItem('user', JSON.stringify(updatedUser));
           }
         } catch (e) {
           console.error('Failed to restore session:', e);
@@ -79,7 +80,7 @@ export function AuthProvider({ children }) {
       // onAuthStateChanged (which might be null initially) clear it.
       if (!firebaseUser) {
         // Only clear if there's no custom token as well
-        if (!localStorage.getItem('calculator_token')) {
+        if (!safeStorage.getItem('calculator_token')) {
           setUser(null);
           setLoading(false);
         }
@@ -93,7 +94,7 @@ export function AuthProvider({ children }) {
 
         // Save token for API calls
         apiService.saveToken(token);
-        localStorage.setItem('calculator_token', token);
+        safeStorage.setItem('calculator_token', token);
 
         let userData = {
           uid: firebaseUser.uid,

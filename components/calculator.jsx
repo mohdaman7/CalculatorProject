@@ -6,7 +6,8 @@ import { IoBackspaceOutline } from "react-icons/io5";
 import { IoCheckmarkCircle, IoCloseCircle } from "react-icons/io5";
 import wordsToNumbers from "words-to-numbers";
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
-import 'regenerator-runtime/runtime';
+// Removed regenerator-runtime import as it can cause conflicts in Next.js 15
+
 
 /**
  * Robust multi-number, multi-operation voice math parser.
@@ -586,8 +587,11 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
 
     resetTranscript();
 
+    const isIOS = typeof navigator !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent);
+
     if (hasEquals) {
-      setTimeout(() => handleEquals(), 0);
+      // Delay processing of equals on iOS to ensure transcript is stable
+      setTimeout(() => handleEquals(), isIOS ? 100 : 0);
     }
   }, [display, previousValue, operation, allOperands, waitingForNewValue, firstOperandYear, handleEquals, performCalculation, resetTranscript]);
 
