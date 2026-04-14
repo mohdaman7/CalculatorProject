@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { safeStorage } from "@/lib/safe-storage";
 import { useRouter } from "next/navigation";
 import { verificationService } from "@/lib/verification-service";
 import { pincodeService } from "@/lib/pincode-service";
@@ -6,7 +7,7 @@ import { IoBackspaceOutline } from "react-icons/io5";
 import { IoCheckmarkCircle, IoCloseCircle } from "react-icons/io5";
 import wordsToNumbers from "words-to-numbers";
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
-// Removed regenerator-runtime import as it can cause conflicts in Next.js 15
+import 'regenerator-runtime/runtime';
 
 
 /**
@@ -478,7 +479,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
 
   // Load mode from localStorage on client mount only
   useEffect(() => {
-    const savedMode = localStorage.getItem("calculatorMode");
+    const savedMode = safeStorage.getItem("calculatorMode");
     if (savedMode !== null) {
       setIsNormalMode(savedMode === "normal");
     }
@@ -488,7 +489,7 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
   const toggleMode = () => {
     const newMode = !isNormalMode;
     setIsNormalMode(newMode);
-    localStorage.setItem("calculatorMode", newMode ? "normal" : "force");
+    safeStorage.setItem("calculatorMode", newMode ? "normal" : "force");
     setShowModeToast(true);
     setTimeout(() => setShowModeToast(false), 1500);
   };

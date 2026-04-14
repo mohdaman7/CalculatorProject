@@ -61,7 +61,6 @@ export function AuthProvider({ children }) {
               birthYear: response.user.birthYear || null,
             };
             setUser(updatedUser);
-            localStorage.setItem('user', JSON.stringify(updatedUser)); // Keep for internal use or check if we should switch to safeStorage here too
             safeStorage.setItem('user', JSON.stringify(updatedUser));
           }
         } catch (e) {

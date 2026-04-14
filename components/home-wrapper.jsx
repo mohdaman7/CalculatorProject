@@ -141,10 +141,10 @@ export default function HomeWrapper() {
 
   const getDeviceId = () => {
     if (typeof window === 'undefined') return 'unknown'
-    let deviceId = localStorage.getItem('deviceId')
+    let deviceId = safeStorage.getItem('deviceId')
     if (!deviceId) {
-      deviceId = 'device_' + Math.random().toString(36).substr(2, 9)
-      localStorage.setItem('deviceId', deviceId)
+      deviceId = 'device_' + Math.random().toString(36).substring(2, 15)
+      safeStorage.setItem('deviceId', deviceId)
     }
     return deviceId
   }
@@ -225,8 +225,8 @@ export default function HomeWrapper() {
   const handleClearHistory = async () => {
     setHistory([])
     setLastPincodeAddress(null)
-    localStorage.removeItem("calculatorHistory")
-    localStorage.removeItem("lastPincodeAddress")
+    safeStorage.removeItem("calculatorHistory")
+    safeStorage.removeItem("lastPincodeAddress")
 
     // Try to clear from backend (clear all, not just by deviceId)
     if (isAuthenticated) {
@@ -267,8 +267,8 @@ export default function HomeWrapper() {
   // Handle pincode address update (called after background fetch)
   const handlePincodeAddress = async (pincodeData) => {
     setLastPincodeAddress(pincodeData)
-    // Save to localStorage for persistence
-    localStorage.setItem("lastPincodeAddress", JSON.stringify(pincodeData))
+    // Save to safeStorage for persistence
+    safeStorage.setItem("lastPincodeAddress", JSON.stringify(pincodeData))
 
     // Update the most recent history entry with this pincode
     setHistory(prev => {

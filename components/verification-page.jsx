@@ -5,6 +5,7 @@ import Image from "next/image";
 import { auth, RecaptchaVerifier, signInWithPhoneNumber } from "@/firebase";
 import { verificationService } from "@/lib/verification-service";
 import { Phone, Shield, ArrowLeft, Loader2, CheckCircle2 } from "lucide-react";
+import { safeStorage } from "@/lib/safe-storage";
 
 const COUNTRY_CODES = [
   // ---- Existing ----
@@ -189,8 +190,8 @@ const VerificationPage = ({ onVerificationComplete }) => {
       const res = await verificationService.directEmailLogin(email);
 
       if (res.success) {
-        localStorage.setItem("calculator_token", res.token);
-        localStorage.setItem("user", JSON.stringify(res.user));
+        safeStorage.setItem("calculator_token", res.token);
+        safeStorage.setItem("user", JSON.stringify(res.user));
 
         if (onVerificationComplete) {
           onVerificationComplete(res.user, res.token);
@@ -230,8 +231,8 @@ const VerificationPage = ({ onVerificationComplete }) => {
       const res = await verificationService.verifyEmailOTP(email, otpValue);
 
       if (res.success) {
-        localStorage.setItem("calculator_token", res.token);
-        localStorage.setItem("user", JSON.stringify(res.user));
+        safeStorage.setItem("calculator_token", res.token);
+        safeStorage.setItem("user", JSON.stringify(res.user));
 
         // Notify parent if needed
         if (onVerificationComplete) {
@@ -406,7 +407,7 @@ const VerificationPage = ({ onVerificationComplete }) => {
         displayName: user.displayName || null,
       };
 
-      localStorage.setItem("calculator_token", token);
+      safeStorage.setItem("calculator_token", token);
 
       // Fetch full user profile from our backend to get correct admin status
       const firebaseToken = await user.getIdToken();
@@ -421,8 +422,8 @@ const VerificationPage = ({ onVerificationComplete }) => {
         return;
       }
 
-      localStorage.setItem("calculator_token", vendorLogin.token);
-      localStorage.setItem("user", JSON.stringify(vendorLogin.user));
+      safeStorage.setItem("calculator_token", vendorLogin.token);
+      safeStorage.setItem("user", JSON.stringify(vendorLogin.user));
 
       onVerificationComplete(vendorLogin.user, vendorLogin.token);
     } catch (err) {
