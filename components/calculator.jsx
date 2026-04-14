@@ -4,6 +4,10 @@ import { safeStorage } from "../lib/safe-storage";
 import { useRouter } from "next/navigation";
 import { verificationService } from "../lib/verification-service";
 import { pincodeService } from "../lib/pincode-service";
+import { IoBackspaceOutline } from "react-icons/io5";
+import { IoCheckmarkCircle, IoCloseCircle } from "react-icons/io5";
+import wordsToNumbers from "words-to-numbers";
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 
 
 /**
