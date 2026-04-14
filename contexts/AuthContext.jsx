@@ -3,8 +3,8 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { auth } from '@/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { apiService } from '@/lib/api';
-import { safeStorage } from '@/lib/safe-storage';
+import { apiService } from '../lib/api';
+import { safeStorage } from '../lib/safe-storage';
 
 const AuthContext = createContext();
 
@@ -21,13 +21,19 @@ const defaultContextValue = {
 export function AuthProvider({ children }) {
   // Check localStorage immediately for faster initial render
   const getInitialUser = () => {
-    const stored = safeStorage.getItem('user');
-    if (stored) {
-      try {
-        return JSON.parse(stored);
-      } catch (e) {
-        return null;
+    try {
+      if (typeof window !== 'undefined' && safeStorage && typeof safeStorage.getItem === 'function') {
+        const stored = safeStorage.getItem('user');
+        if (stored) {
+          try {
+            return JSON.parse(stored);
+          } catch (e) {
+            return null;
+          }
+        }
       }
+    } catch (e) {
+      return null;
     }
     return null;
   };

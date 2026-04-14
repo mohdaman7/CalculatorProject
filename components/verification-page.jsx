@@ -3,9 +3,9 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 import { auth, RecaptchaVerifier, signInWithPhoneNumber } from "@/firebase";
-import { verificationService } from "@/lib/verification-service";
+import { verificationService } from "../lib/verification-service";
 import { Phone, Shield, ArrowLeft, Loader2, CheckCircle2 } from "lucide-react";
-import { safeStorage } from "@/lib/safe-storage";
+import { safeStorage } from "../lib/safe-storage";
 
 const COUNTRY_CODES = [
   // ---- Existing ----

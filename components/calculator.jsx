@@ -1,13 +1,9 @@
-import { useState, useRef, useEffect, useCallback } from "react";
-import { safeStorage } from "@/lib/safe-storage";
-import { useRouter } from "next/navigation";
-import { verificationService } from "@/lib/verification-service";
-import { pincodeService } from "@/lib/pincode-service";
-import { IoBackspaceOutline } from "react-icons/io5";
-import { IoCheckmarkCircle, IoCloseCircle } from "react-icons/io5";
-import wordsToNumbers from "words-to-numbers";
-import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import 'regenerator-runtime/runtime';
+import { useState, useRef, useEffect, useCallback } from "react";
+import { safeStorage } from "../lib/safe-storage";
+import { useRouter } from "next/navigation";
+import { verificationService } from "../lib/verification-service";
+import { pincodeService } from "../lib/pincode-service";
 
 
 /**
@@ -477,19 +473,32 @@ const Calculator = ({ onAddToHistory, onOpenHistory, onOpenForcedModal, forcedNu
 
 
 
-  // Load mode from localStorage on client mount only
+  // Load mode from storage on client mount only
   useEffect(() => {
-    const savedMode = safeStorage.getItem("calculatorMode");
-    if (savedMode !== null) {
-      setIsNormalMode(savedMode === "normal");
+    try {
+      if (typeof window !== 'undefined' && safeStorage && typeof safeStorage.getItem === 'function') {
+        const savedMode = safeStorage.getItem("calculatorMode");
+        if (savedMode !== null) {
+          setIsNormalMode(savedMode === "normal");
+        }
+      }
+    } catch (e) {
+      console.warn("Calculator: Failed to load mode from storage", e);
+    } finally {
+      setModeLoaded(true);
     }
-    setModeLoaded(true);
   }, []);
 
   const toggleMode = () => {
     const newMode = !isNormalMode;
     setIsNormalMode(newMode);
-    safeStorage.setItem("calculatorMode", newMode ? "normal" : "force");
+    try {
+      if (safeStorage && typeof safeStorage.setItem === 'function') {
+        safeStorage.setItem("calculatorMode", newMode ? "normal" : "force");
+      }
+    } catch (e) {
+      console.warn("Calculator: Failed to save mode", e);
+    }
     setShowModeToast(true);
     setTimeout(() => setShowModeToast(false), 1500);
   };

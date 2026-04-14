@@ -7,9 +7,9 @@ import ForcedNumberModal from "@/components/forced-number-modal"
 import BirthYearModal from "@/components/birth-year-modal"
 import AuthModal from "@/components/auth-modal"
 import VerificationPage from "@/components/verification-page"
-import { useAuth } from "@/contexts/AuthContext"
-import { apiService } from "@/lib/api"
-import { safeStorage } from "@/lib/safe-storage"
+import { useAuth } from "../contexts/AuthContext"
+import { apiService } from "../lib/api"
+import { safeStorage } from "../lib/safe-storage"
 
 export default function HomeWrapper() {
   const [history, setHistory] = useState([])
